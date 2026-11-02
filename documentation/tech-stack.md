@@ -108,7 +108,7 @@ Rollout: ship the CSP as `Content-Security-Policy-Report-Only` first, then enfor
 
 ## Email
 
-- Mailbox provider (Fastmail or Migadu) for `hello@vedad-dizdarevic.dev`
+- Mailbox provider (Purelymail) for `hello@vedad-dizdarevic.dev`
 - SES (`eu-central-1`) for contact-form notifications, moved out of the SES sandbox
 - SPF, DKIM (mailbox provider + SES), and DMARC `p=reject`, all as Terraform-managed Cloudflare DNS records
 
@@ -163,5 +163,5 @@ Auth: OIDC to AWS in both repos with separate roles (the app deploy role can onl
 | Domain | ~€1 (annual fee amortised) |
 | Cloudflare (DNS, CDN, Worker, Turnstile, Analytics) | €0 (free plan) |
 | S3, Lambda, SES at portfolio traffic | <€1 |
-| Mailbox provider | ~€3–6 |
-| **Total** | **~€5–8** |
+| Mailbox provider (Purelymail, ~$10/year minimum) | ~€1 |
+| **Total** | **~€3–4** |

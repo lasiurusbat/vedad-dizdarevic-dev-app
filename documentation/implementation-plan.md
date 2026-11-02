@@ -37,7 +37,7 @@ How to build the site described in [project-scope.md](project-scope.md) with the
 |---|---|---|
 | CI platform | GitHub Actions | Switch to GitLab CI if the flagship repos live on GitLab; the pipeline steps are identical |
 | Domain registrar | Keep current registrar, point nameservers to Cloudflare | Or transfer to Cloudflare Registrar (at-cost pricing) |
-| Mailbox provider | Fastmail or Migadu | Needed before DMARC goes to `p=reject` |
+| Mailbox provider | Purelymail | Needed before DMARC goes to `p=reject` |
 | Diagram tool | D2 | Mermaid if you prefer its syntax; decide before drawing the first diagram |
 | Lambda runtime | Node.js (current LTS), TypeScript | Same language as the Worker and site |
 | Third case study | sorted.onl + rainalert.live, plus optionally this site | This site makes a natural third |
