@@ -1,0 +1,10 @@
+pnpm-lock.yaml
+.agents/
+skills-lock.json
+cv/reference/
+dist/
+.astro/
+coverage/
+documentation/
+case-studies/
+CLAUDE.md

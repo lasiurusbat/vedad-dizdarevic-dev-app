@@ -1,0 +1,86 @@
+# Architecture of vedad-dizdarevic.dev
+# Render: d2 --layout elk diagrams/architecture.d2 diagrams/architecture.svg
+direction: right
+
+visitor: Visitor {
+  shape: person
+}
+
+cf: Cloudflare (free plan) {
+  dns: DNS + proxy\napex, www
+  rules: Zone rules {
+    redirect: Redirect Rule\nwww -> apex 301
+    ratelimit: Rate limit\nPOST /api/contact
+    tls: TLS Full (strict)\nmin 1.2, HTTP/3
+  }
+  worker: Worker {
+    tooltip: Deployed with Wrangler (app repo), not Terraform
+    routing: Clean URLs, 404 page
+    headers: Security headers (6)
+    sign: SigV4 signing (aws4fetch)
+    contact: /api/contact handler\nOrigin + honeypot checks
+  }
+  turnstile: Turnstile {
+    shape: cloud
+  }
+  analytics: Web Analytics\n(cookieless)
+}
+
+aws: AWS eu-central-1 {
+  s3: S3 site bucket {
+    shape: cylinder
+  }
+  iam_worker: IAM user vdd-worker\nGetObject + InvokeFunctionUrl
+  lambda: Lambda contact\narm64, function URL (AWS_IAM)\nreserved concurrency
+  ses: SES\nDKIM + custom MAIL FROM
+  logs: CloudWatch Logs\n30 days
+  alarms: CloudWatch alarms {
+    errors: Lambda errors / throttles
+    ses_rep: SES bounce / complaint
+  }
+  sns: SNS topic -> email
+  budget: "AWS Budget\n\$5/month"
+}
+
+mailbox: Mailbox\nPurelymail\nhello@vedad-dizdarevic.dev {
+  shape: queue
+}
+
+ci: GitHub Actions (OIDC, no stored AWS keys) {
+  app_ci: App repo\nbuild, test, deploy
+  infra_ci: Infra repo\nfmt, scan, plan, apply
+}
+
+# Request path
+visitor -> cf.dns: HTTPS
+cf.dns -> cf.rules
+cf.rules -> cf.worker
+cf.worker.sign -> aws.s3: GET object (HTTPS + SigV4) {style.stroke: "#2b7a3d"}
+cf.worker.sign -> aws.iam_worker: uses key {style.stroke-dash: 4}
+cf.analytics -> visitor: beacon {style.stroke-dash: 4}
+
+# Contact form path
+cf.worker.contact -> cf.turnstile: siteverify
+cf.worker.contact -> aws.lambda: SigV4 POST (function URL) {style.stroke: "#b5532a"}
+aws.lambda -> aws.ses: SendEmail
+aws.ses -> mailbox: contact mail\nReply-To = sender
+aws.lambda -> aws.logs
+
+# Monitoring
+aws.lambda -> aws.alarms.errors: metrics {style.stroke-dash: 4}
+aws.ses -> aws.alarms.ses_rep: metrics {style.stroke-dash: 4}
+aws.alarms -> aws.sns
+aws.budget -> aws.sns: alerts {style.stroke-dash: 4}
+
+# Delivery path
+ci.app_ci -> aws.s3: 1. /_astro/ first\n2. rest with --delete\n(deploy role) {style.stroke: "#1f5fae"}
+ci.app_ci -> cf.worker: wrangler deploy + cache purge {style.stroke: "#1f5fae"}
+ci.infra_ci -> aws: terraform apply (apply role) {style.stroke: "#1f5fae"}
+ci.infra_ci -> cf.rules: Terraform: zone, DNS, rules,\nTurnstile {style.stroke: "#1f5fae"}
+
+legend: Legend {
+  near: bottom-center
+  a: request path {style.stroke: "#2b7a3d"}
+  b: contact form {style.stroke: "#b5532a"}
+  c: deploy / IaC {style.stroke: "#1f5fae"}
+}

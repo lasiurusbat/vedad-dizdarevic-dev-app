@@ -37,22 +37,22 @@ How to build the site described in [project-scope.md](project-scope.md) with the
 |---|---|---|
 | CI platform | GitHub Actions | Switch to GitLab CI if the flagship repos live on GitLab; the pipeline steps are identical |
 | Domain registrar | Keep current registrar, point nameservers to Cloudflare | Or transfer to Cloudflare Registrar (at-cost pricing) |
-| Mailbox provider | Fastmail or Migadu | Needed before DMARC goes to `p=reject` |
-| Diagram tool | D2 | Mermaid if you prefer its syntax; decide before drawing the first diagram |
-| Lambda runtime | Node.js (current LTS), TypeScript | Same language as the Worker and site |
+| Mailbox provider | Purelymail | Needed before DMARC goes to `p=reject` |
+| Diagram tool | **React Flow** (`@xyflow/react`) with AWS Architecture Icons | Decided in Phase 0 (replaces D2). Interactive island, higher JS budget on diagram pages only; see [tech-stack.md](tech-stack.md#diagrams) |
+| Lambda runtime | Node.js (current LTS), TypeScript | **Confirmed.** Same language as the Worker and site |
 | Third case study | sorted.onl + rainalert.live, plus optionally this site | This site makes a natural third |
 
 ### Accounts and access
 
-- [ ] AWS account with MFA on root; an admin IAM Identity Center user for local work (no root usage)
-- [ ] Cloudflare account with MFA; domain added as a zone; nameservers switched at the registrar
-- [ ] GitHub (or GitLab) account with MFA
-- [ ] Uptime monitoring account (UptimeRobot or Better Stack)
-- [ ] Mailbox provider account
+- [x] AWS account with MFA on root; an admin IAM Identity Center user for local work (no root usage)
+- [x] Cloudflare account with MFA; domain (registered at Namecheap) added as a zone; nameservers switched at the registrar (verified with `dig`)
+- [x] GitHub account with MFA
+- [x] Uptime monitoring account: Better Stack, monitor created for `https://vedad-dizdarevic.dev` (expect alerts until the Phase 2 skeleton is live; add the `/de/` and keyword checks in Phase 10)
+- [x] Mailbox provider account: Purelymail, `hello@vedad-dizdarevic.dev` live
 
 ### Start early (long lead times)
 
-- [ ] **SES production access request** for `eu-central-1` (approval can take a day or more; needs a verified domain and a short use-case description)
+- [x] **SES production access** for `eu-central-1` (granted; out of the sandbox)
 - [ ] **Content inputs** (see [Content inputs](#content-inputs) at the end): case study notes, screenshots, Impressum details
 
 ### Done when
@@ -77,6 +77,7 @@ vedad-dizdarevic.dev/
 │   │   ├── src/
 │   │   │   ├── components/
 │   │   │   ├── content/          # case studies (MDX), per language
+│   │   │   ├── diagrams/         # React Flow nodes/edges as typed data, AWS icon SVGs
 │   │   │   ├── i18n/             # UI strings EN/DE
 │   │   │   ├── layouts/
 │   │   │   ├── pages/            # / and /de/
@@ -95,7 +96,6 @@ vedad-dizdarevic.dev/
 │   │   ├── data.yaml             # CV content, EN + DE
 │   │   ├── fonts/
 │   │   └── reference/            # existing PDFs (currently loose in cv/), removed after the port
-│   ├── diagrams/                 # D2/Mermaid sources → SVG at build time
 │   ├── tests/
 │   │   ├── e2e/                  # Playwright (layout, screenshots, a11y)
 │   │   └── smoke/                # post-deploy checks against the live site
@@ -108,7 +108,7 @@ vedad-dizdarevic.dev/
 
 ### Tasks
 
-- [ ] Both repos are initialised locally (`app/` on `main`, `infra/` on `main`); create the two remote repos (the app repo public, since the site links to it) and protect `main` in each (PRs required, status checks required)
+- [ ] Both repos are initialised locally (`app/` on `main`, `infra/` on `main`); create the two remote repos (both private for now; make the app repo public at launch, since the site links to it, after a gitleaks and history review) and protect `main` in each (PRs required, status checks required)
 - [ ] Move existing CV PDFs to `cv/reference/`
 - [ ] Tooling: Node.js LTS pinned via `.nvmrc`, pnpm workspaces for `site`, `worker`, `lambda/contact`; Typst version pinned in CI. In the infra repo: Terraform version pinned via `.terraform-version`
 - [ ] Editor and lint config: Prettier (with `prettier-plugin-tailwindcss`), ESLint, `.editorconfig` and `pre-commit` hooks (formatting, trailing whitespace, secret scanning with gitleaks) in the app repo; `terraform fmt`, `.editorconfig` and the same `pre-commit` hooks in the infra repo
@@ -234,10 +234,11 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Diagrams
 
-- [ ] Build step renders `diagrams/*.d2` (or `.mmd`) to SVG before `astro build`
-- [ ] Light/dark: either CSS-variable-based SVG styling or two variants switched via `prefers-color-scheme`
-- [ ] Each diagram has a text alternative (short description of the flow)
-- [ ] Mobile: diagram scales to width; complex ones get a simplified variant or a tap-to-open full-size view
+- [ ] **Spike first (½ d):** `@astrojs/react` + `@xyflow/react` in Astro with one diagram; measure gzipped JS, confirm it works under the report-only CSP (no inline-style violations; try `client:only="react"`), decide the diagram-page JS budget
+- [ ] Diagram component renders typed nodes/edges from `site/src/diagrams/`; AWS Architecture Icons stored locally as SVGs; hydrated only where used
+- [ ] Light/dark: node and edge colours use the semantic tokens
+- [ ] Each diagram has a text alternative (short description of the flow) and a static fallback image for `<noscript>` and pre-hydration
+- [ ] Mobile: fit-to-view on load, touch pan/zoom doesn't trap page scroll; complex diagrams get a simplified layout
 
 ### Skills
 
@@ -340,13 +341,36 @@ A real submission from the live site arrives in your inbox, spam submissions wit
 
 ## Phase 7: Email and DNS
 
-- [ ] Mailbox provider set up for `hello@vedad-dizdarevic.dev` (and any aliases)
+- [x] Mailbox provider (Purelymail) set up for `hello@vedad-dizdarevic.dev`, live. Records were created by hand in Cloudflare (MX, SPF, DKIM CNAMEs, ownership TXT, DMARC CNAME), so **import them into Terraform** rather than recreating them
+- [x] Removed the leftover Namecheap forwarding SPF record; one SPF record remains (`include:_spf.purelymail.com`). Two SPF records on one name would be invalid and fail with `permerror`
+- [x] DMARC replaced by hand: Purelymail's `_dmarc` CNAME removed, own TXT record `v=DMARC1; p=none; rua=mailto:hello@vedad-dizdarevic.dev` in place (verified with `dig`). Import into Terraform with the other mail records
 - [ ] MX records in Cloudflare DNS via Terraform
 - [ ] SPF: one record covering the mailbox provider and SES (`include:amazonses.com` for the MAIL FROM domain)
 - [ ] DKIM for the mailbox provider and SES
 - [ ] DMARC: start at `p=none` with `rua` reports to an address you read; move to `p=quarantine`, then `p=reject` once reports show only aligned mail (typically 2–4 weeks)
 - [ ] Send test mail to Gmail and Outlook; check headers for SPF/DKIM/DMARC `pass`
 - [ ] Optional: MTA-STS and TLS-RPT records
+
+### Reading DMARC reports
+
+DMARC is at `p=none` with `rua=mailto:hello@vedad-dizdarevic.dev` (set 2026-11-02). Receivers such as Google, Microsoft and Yahoo send **aggregate reports**: daily gzipped/zipped XML attachments that list, per sending IP, the message count and the SPF and DKIM results (pass/fail, aligned or not) for mail claiming to be from the domain. They contain no message content. Small receivers often send nothing, and a quiet domain may get no report on days without mail.
+
+**What to check in each report:**
+- Every source IP belongs to a sender you control (Purelymail now, SES after Phase 6)
+- Each of those senders shows SPF **or** DKIM as `pass` **and aligned** with the From domain
+- Any unknown IP that fails both is either spoofing or a forgotten service. Spoofing is the reason to enforce. A forgotten service must be fixed (or added to SPF/DKIM) before enforcing
+
+**Decision rule for tightening the policy:**
+
+| Move | When |
+|---|---|
+| `p=none` → `p=quarantine` | At least ~2 weeks of reports (target ~D13), every legitimate source aligned, and a test mail from Purelymail has passed in Gmail and Outlook headers |
+| `p=quarantine` → `p=reject` | Reports since the last change show only aligned mail, **including SES** (send a test contact-form message after Phase 6 and confirm it in a later report). Target D23 |
+| Stay put | A legitimate source fails alignment, or SES isn't live yet. Fix it first; don't enforce on a guess. Launch at `p=quarantine` if needed (see [roadmap.md](roadmap.md#critical-path-and-long-lead-times)) |
+
+**Handling the XML:** the raw files are unreadable in practice. Use a DMARC report viewer to turn them into a table, and check its privacy terms first (reports list your sending IPs). Filter or label the incoming mail so it doesn't clutter the inbox.
+
+**Test mail to generate reports:** send a few messages from `hello@` to a Gmail and an Outlook address, and check the headers for `spf=pass`, `dkim=pass` and `dmarc=pass`.
 
 ### Done when
 
@@ -382,7 +406,7 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 
 ### Quality gates in CI (fail the build)
 
-- [ ] **Lighthouse CI** (mobile profile) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100; resource budgets (e.g. total JS < 20 KB, CSS < 30 KB gzipped, page weight < 500 KB excluding the CV)
+- [ ] **Lighthouse CI** (mobile profile) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100; resource budgets (e.g. total JS < 20 KB on pages without a diagram, diagram pages ≤ the budget set in the Phase 4 spike, CSS < 30 KB gzipped, page weight < 500 KB excluding the CV)
 - [ ] **axe** via Playwright on every page, zero violations
 - [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR
 - [ ] **html-validate** and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)
@@ -405,7 +429,7 @@ All gates are required status checks on `main`, the CSP is enforced, and the leg
 
 ### Monitoring
 
-- [ ] Uptime checks every 5 minutes on `/` and `/de/`, plus a keyword check (catches a "200 with an error page"); alert by email
+- [ ] Better Stack uptime checks (monitor on `/` already exists from Phase 0) every 5 minutes on `/` and `/de/`, plus a keyword check (catches a "200 with an error page"); alert by email
 - [ ] Optional synthetic check of `/api/contact` returning the expected rejection for a request without a Turnstile token (proves the Worker → Lambda path is wired without sending mail)
 - [ ] CloudWatch alarms → SNS → email: Lambda errors, Lambda throttles, SES bounce and complaint rates
 - [ ] AWS Budgets: alert at €5 actual and at forecasted overspend

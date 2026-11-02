@@ -16,7 +16,9 @@ Read the relevant doc before changing anything it covers. If a decision changes,
 ## Current status
 
 - **Stage:** planning done, no code and no infrastructure yet. Both repos (`app/`, `infra/`) are initialised on `main` with no commits and no remotes. Existing content: `documentation/`, `case-studies/` notes, `cv/` PDFs
-- **Next:** Phase 0 (prerequisites), then Phase 1 (repositories and bootstrap)
+- **Phase 0 (in progress):** decisions closed (GitHub Actions, React Flow diagrams, Node.js/TypeScript Lambda); AWS, Cloudflare and GitHub accounts exist with MFA; nameservers on Cloudflare (domain registered at Namecheap). SES production access granted. Better Stack monitor created for the apex URL. Purelymail live with `hello@vedad-dizdarevic.dev` (DNS records created by hand; import into Terraform in Phase 7). SPF is a single record; DMARC is at `p=none` with `rua` to `hello@` (set on 2026-11-02; ramp to quarantine ~D13, reject by D23). Open: content inputs, Impressum details
+- **Phase 1 (in progress):** app tooling scaffolded on branch `phase-1-scaffolding` (pnpm workspace, ESLint, Prettier, pre-commit with gitleaks, lint CI). Infra `bootstrap/` and `main/` Terraform are written but not applied; AWS account `769814228024` (profile `sorted`) is shared with sorted.onl, resources use the `vdd-` prefix. Repos will be private until launch
+- **Next:** infra pre-commit and CI, apply bootstrap, create GitHub repos, protect `main`
 - **Pace:** full-time, 8–10 h/day; launch targeted for D23 (see [roadmap.md](documentation/roadmap.md))
 
 Update this section when a milestone completes.
@@ -27,14 +29,14 @@ Browser → Cloudflare (DNS, CDN, TLS, Worker) → private S3 in `eu-central-1` 
 
 ## Folder split
 
-- **App files** go in this folder (`/home/vedad/DevProjects/vedad-dizdarevic.dev/app`): `site/`, `worker/`, `lambda/contact/`, `case-studies/`, `cv/`, `diagrams/`, `tests/`, `.github/workflows/`.
+- **App files** go in this folder (`/home/vedad/DevProjects/vedad-dizdarevic.dev/app`): `site/`, `worker/`, `lambda/contact/`, `case-studies/`, `cv/`, `tests/`, `.github/workflows/`.
 - **Infrastructure files** go in the sibling folder `/home/vedad/DevProjects/vedad-dizdarevic.dev/infra` (its own separate git repo, outside this one): `bootstrap/` and `main/` Terraform. Commit infra changes in that repo, app changes here.
 
 The layout tree in [implementation-plan.md](documentation/implementation-plan.md#repository-layout) shows both repos.
 
 ## Planned layout
 
-`site/` Astro · `worker/` Cloudflare Worker · `lambda/contact/` · `cv/` Typst · `diagrams/` D2 · `tests/e2e` + `tests/smoke` · `.github/workflows/`; Terraform in `../infra/bootstrap` + `../infra/main`. Full tree in the implementation plan.
+`site/` Astro · `worker/` Cloudflare Worker · `lambda/contact/` · `cv/` Typst · diagrams: React Flow in `site/src/diagrams/` · `tests/e2e` + `tests/smoke` · `.github/workflows/`; Terraform in `../infra/bootstrap` + `../infra/main`. Full tree in the implementation plan.
 
 ## Rules that are easy to break
 
@@ -55,4 +57,4 @@ The layout tree in [implementation-plan.md](documentation/implementation-plan.md
 
 ## Commands
 
-None yet. Add build, test, and deploy commands here as Phase 1–2 create them.
+`pnpm install`, `pnpm lint`, `pnpm format:check` (root). Add build, test, and deploy commands here as Phase 2 creates them.

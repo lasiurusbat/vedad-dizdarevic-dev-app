@@ -23,7 +23,7 @@ Browser ──HTTPS──▶ Cloudflare (DNS, CDN, TLS, Worker) ──HTTPS + Si
 | i18n | Astro i18n routing | `/` (EN) and `/de/` (DE), `hreflang` tags |
 | Styling | **Tailwind CSS v4** via `@tailwindcss/vite` | CSS-first config (`@theme` in `global.css`, no `tailwind.config.js`); see [Styling](#styling) |
 | Fonts | Self-hosted (Fontsource) | No Google Fonts CDN (GDPR) |
-| Diagrams | D2 or Mermaid → SVG at build time | Diagram source lives next to each case study; theme-aware inline SVG |
+| Diagrams | **React Flow** (`@xyflow/react`) + AWS Architecture Icons | Interactive React island (`@astrojs/react`), loaded only on pages with a diagram; nodes/edges defined as typed data in `site/src/diagrams/`; see [Diagrams](#diagrams) |
 | Images | Astro `<Image>` | AVIF/WebP, responsive sizes |
 | Social preview | Build-time OG images (`astro-og-canvas` / Satori) | One per page and language |
 | SEO | `@astrojs/sitemap`, JSON-LD `Person`, canonical + `hreflang` | |
@@ -41,6 +41,18 @@ Astro config: `build.inlineStylesheets: 'never'` so the CSP needs no `'unsafe-in
 - **`prettier-plugin-tailwindcss`** for consistent class order
 - Tailwind generates one static CSS file with only the classes used, so the CSP stays `style-src 'self'`; no CSS-in-JS and no runtime
 
+## Diagrams
+
+Decision: React Flow with the AWS Architecture Icons, chosen over build-time D2/Mermaid SVG for interactivity (pan, zoom, hover details) and a consistent look with the icon set recruiters recognise.
+
+- **Island, not site-wide JS:** `@astrojs/react` is used only for the diagram component, hydrated with `client:visible` (or `client:only="react"`) so pages without a diagram ship no React
+- **JS budget:** pages without a diagram keep the < 20 KB budget; case study and "How this site is built" pages get a separate, higher budget (starting point ≤ 150 KB gzipped, to be measured in a spike)
+- **CSP risk:** server-rendered React Flow output contains inline `style="…"` attributes, which `style-src 'self'` blocks. Prefer `client:only="react"` (styles are then set through the DOM, which the CSP allows) and verify under the report-only header before enforcing. Do not add `'unsafe-inline'`
+- **No-JS / loading fallback:** each diagram has a text alternative and a pre-rendered static image (exported from the same data) shown in `<noscript>` and before hydration
+- **Icons:** AWS Architecture Icons downloaded from AWS and kept as local SVGs in `site/src/diagrams/icons/` (self-hosted; check the AWS icon usage guidelines before launch). Cloudflare and other non-AWS nodes use simple custom icons
+- **Theming:** node and edge colours use the semantic tokens so diagrams follow light/dark mode
+- **Accessibility:** keyboard-focusable controls, a visible focus state, `aria-label` on the canvas, and the text alternative next to every diagram
+
 ## Mobile
 
 Recruiters often open the link on a phone, so the layout is designed for small screens first.
@@ -49,7 +61,7 @@ Recruiters often open the link on a phone, so the layout is designed for small s
 - **Fluid sizing:** `clamp()`-based type and spacing tokens in `@theme` instead of many breakpoints; body text ≥16px (also prevents iOS zoom on form inputs)
 - **Always-reachable CTAs:** compact sticky header (or bottom bar on mobile) with Contact, CV, GitHub, LinkedIn
 - **Touch targets** ≥44×44px; no hover-only interactions
-- **Diagrams:** SVG with `viewBox` that scales to width; complex diagrams get a simplified mobile variant or tap-to-open full size
+- **Diagrams:** React Flow canvas that fits the view on load; complex diagrams get a simplified mobile layout; pan/zoom must not trap page scroll on touch (see [Diagrams](#diagrams))
 - **Overflow:** tables and code blocks scroll inside their own container, never the page
 - **Images:** responsive `srcset`/`sizes` via Astro `<Image>`, lazy-loaded below the fold
 - **Details:** `viewport` meta tag, `env(safe-area-inset-*)` for notched phones, `prefers-reduced-motion` respected
@@ -108,7 +120,7 @@ Rollout: ship the CSP as `Content-Security-Policy-Report-Only` first, then enfor
 
 ## Email
 
-- Mailbox provider (Fastmail or Migadu) for `hello@vedad-dizdarevic.dev`
+- Mailbox provider (Purelymail) for `hello@vedad-dizdarevic.dev`
 - SES (`eu-central-1`) for contact-form notifications, moved out of the SES sandbox
 - SPF, DKIM (mailbox provider + SES), and DMARC `p=reject`, all as Terraform-managed Cloudflare DNS records
 
@@ -146,7 +158,7 @@ Auth: OIDC to AWS in both repos with separate roles (the app deploy role can onl
 
 ## Monitoring
 
-- Uptime: UptimeRobot or Better Stack (free tier)
+- Uptime: Better Stack (free tier)
 - CloudWatch alarms on Lambda errors and SES bounces/complaints → SNS → email
 - AWS Budgets alert at ~$5/month
 - Cloudflare Web Analytics for traffic
@@ -163,5 +175,5 @@ Auth: OIDC to AWS in both repos with separate roles (the app deploy role can onl
 | Domain | ~€1 (annual fee amortised) |
 | Cloudflare (DNS, CDN, Worker, Turnstile, Analytics) | €0 (free plan) |
 | S3, Lambda, SES at portfolio traffic | <€1 |
-| Mailbox provider | ~€3–6 |
-| **Total** | **~€5–8** |
+| Mailbox provider (Purelymail, ~$10/year minimum) | ~€1 |
+| **Total** | **~€3–4** |
