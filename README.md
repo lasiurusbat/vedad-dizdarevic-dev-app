@@ -27,7 +27,6 @@ Browser → Cloudflare (DNS, CDN, TLS, Worker) → private S3 bucket (eu-central
 | `lambda/contact/` | Contact form handler |
 | `case-studies/` | Source notes for the case studies (RainAlert, Sorted) |
 | `cv/` | Typst template and data for the EN and DE CV PDFs |
-| `diagrams/` | D2 sources, rendered to SVG at build time |
 | `tests/` | `e2e/` Playwright checks, `smoke/` post-deploy checks |
 | `documentation/` | Scope, tech stack, implementation plan, roadmap |
 | `.github/workflows/` | CI/CD for the site and Worker |
@@ -36,7 +35,7 @@ Terraform (`bootstrap/` and `main/`) is in the separate `infra` repo, which mana
 
 ## Local development
 
-Requirements: Node.js LTS (see `.nvmrc`), pnpm, Typst for the CV, D2 for diagrams.
+Requirements: Node.js LTS (see `.nvmrc`), pnpm, Typst for the CV. Diagrams are React Flow components inside `site/`, so there is no extra tool to install.
 
 Build, test and deploy commands will be listed here once Phases 1–2 add them.
 

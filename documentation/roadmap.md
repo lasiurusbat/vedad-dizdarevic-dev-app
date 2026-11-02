@@ -14,7 +14,7 @@ The timeline view of [implementation-plan.md](implementation-plan.md): milestone
 
 | # | Milestone | Phases | Target | Exit criteria | Status |
 |---|---|---|---|---|---|
-| M1 | **Foundation** | 0, 1 | End of D3 (W1) | Accounts with MFA, decisions closed, app and infra repos with protected `main`, `terraform plan` running in the infra repo's CI through OIDC | Not started |
+| M1 | **Foundation** | 0, 1 | End of D3 (W1) | Accounts with MFA, decisions closed, app and infra repos with protected `main`, `terraform plan` running in the infra repo's CI through OIDC | In progress |
 | M2 | **Live skeleton** | 2 | End of D6 (W2) | Placeholder served at `https://vedad-dizdarevic.dev` via Cloudflare → Worker → private S3, deployed on merge, smoke test green, CSP in report-only | Not started |
 | M3 | **Content complete** | 3, 4, 5 | End of D16 (W4) | All sections live in EN; hero / work with me / contact in DE; two case studies with diagrams; EN + DE CV PDFs built from Typst | Not started |
 | M4 | **Feature complete** | 6, 7, 8 | End of D19 (W4) | Contact form delivers real mail; SPF/DKIM/DMARC passing; sitemap, `hreflang`, JSON-LD, OG images | Not started |
@@ -30,7 +30,7 @@ The timeline view of [implementation-plan.md](implementation-plan.md): milestone
 | D3 | P7 Email and DNS (setup) | ½ d | Mailbox, MX, SPF, DKIM, DMARC `p=none` in Terraform, so DMARC reports start arriving |
 | D4–D6 | P2 Walking skeleton | 3 d | S3, Worker v1 with tests, pipeline v1, smoke test; first Lighthouse / axe / header checks in CI |
 | D7–D9 | P3 Design system and layout | 3 d | Tokens, fonts, header CTAs, dark mode, EN/DE routing, components |
-| D10–D14 | P4 Content sections | 5 d | Writing and building: hero, two case studies with D2 diagrams, skills, about, work with me, how this site is built |
+| D10–D14 | P4 Content sections | 5 d | Writing and building: hero, two case studies with React Flow diagrams (incl. a ½ d spike), skills, about, work with me, how this site is built |
 | D13 | P7 Email and DNS | — | DMARC to `p=quarantine` if reports show only aligned mail |
 | D15–D16 | P5 CV from Typst | 2 d | `data.yaml`, template, CI compile, site links |
 | D17–D18 | P6 Contact form | 2 d | Lambda, SES identity, Turnstile, Worker `/api/contact`, form |
@@ -75,7 +75,7 @@ At full-time pace, waiting time matters more than effort. Start these early or t
 |---|---|---|---|---|
 | DMARC ramp to `p=reject` | Needs weeks of aggregate reports showing only aligned mail | D3 | D23 (launch) | Launch at `p=quarantine`, move to `p=reject` within a week or two |
 | Case study content (problem, decisions, outcome numbers, screenshots) | Writing and gathering evidence take longer than the code | D1 | D14 (P4) | Launch with two case studies; DE case study text after launch |
-| SES production access | AWS review can take a day or more and may need a resubmission | D1 | D17 (P6) | `mailto:` or booking link until approved |
+| ~~SES production access~~ | Granted in Phase 0 | D1 | D17 (P6) | None needed |
 | Nameserver switch to Cloudflare | Registrar propagation, can take up to 48 h | D1 | D4 (P2) | None; do it first |
 | CSP report-only period | Must cover every page, theme and language before enforcing | D4 | D21 (P9) | Keep report-only past launch if violations remain |
 | German proofreading | Depends on someone else's availability | Ask on D8 | D22 | Launch with DE hero / contact / services only |
