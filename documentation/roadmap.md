@@ -14,7 +14,7 @@ The timeline view of [implementation-plan.md](implementation-plan.md): milestone
 
 | # | Milestone | Phases | Target | Exit criteria | Status |
 |---|---|---|---|---|---|
-| M1 | **Foundation** | 0, 1 | End of D3 (W1) | Accounts with MFA, decisions closed, app and infra repos with protected `main`, `terraform plan` running in the infra repo's CI through OIDC | In progress |
+| M1 | **Foundation** | 0, 1 | End of D3 (W1) | Accounts with MFA, decisions closed, app and infra repos with protected `main`, `terraform plan` running in the infra repo's CI through OIDC | Done |
 | M2 | **Live skeleton** | 2 | End of D6 (W2) | Placeholder served at `https://vedad-dizdarevic.dev` via Cloudflare → Worker → private S3, deployed on merge, smoke test green, CSP in report-only | Not started |
 | M3 | **Content complete** | 3, 4, 5 | End of D16 (W4) | All sections live in EN; hero / work with me / contact in DE; two case studies with diagrams; EN + DE CV PDFs built from Typst | Not started |
 | M4 | **Feature complete** | 6, 7, 8 | End of D19 (W4) | Contact form delivers real mail; SPF/DKIM/DMARC passing; sitemap, `hreflang`, JSON-LD, OG images | Not started |

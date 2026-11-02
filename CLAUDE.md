@@ -15,10 +15,10 @@ Read the relevant doc before changing anything it covers. If a decision changes,
 
 ## Current status
 
-- **Stage:** planning done, no code and no infrastructure yet. Both repos (`app/`, `infra/`) are initialised on `main` with no commits and no remotes. Existing content: `documentation/`, `case-studies/` notes, `cv/` PDFs
+- **Stage:** Phase 1 done. Both repos are on GitHub (`lasiurusbat/vedad-dizdarevic-dev-app` and `-infra`, public) with protected `main`. No site code yet; AWS has only the bootstrap resources (state bucket, `gh-*` OIDC roles)
 - **Phase 0 (in progress):** decisions closed (GitHub Actions, React Flow diagrams, Node.js/TypeScript Lambda); AWS, Cloudflare and GitHub accounts exist with MFA; nameservers on Cloudflare (domain registered at Namecheap). SES production access granted. Better Stack monitor created for the apex URL. Purelymail live with `hello@vedad-dizdarevic.dev` (DNS records created by hand; import into Terraform in Phase 7). SPF is a single record; DMARC is at `p=none` with `rua` to `hello@` (set on 2026-11-02; ramp to quarantine ~D13, reject by D23). Open: content inputs, Impressum details
-- **Phase 1 (in progress):** app tooling scaffolded on branch `phase-1-scaffolding` (pnpm workspace, ESLint, Prettier, pre-commit with gitleaks, lint CI). Infra `bootstrap/` and `main/` Terraform are written but not applied; AWS account `769814228024` (profile `sorted`) is shared with sorted.onl, resources use the `vdd-` prefix. Repos will be private until launch
-- **Next:** infra pre-commit and CI, apply bootstrap, create GitHub repos, protect `main`
+- **Phase 1 (done, M1 reached):** app tooling (pnpm workspace, ESLint, Prettier, pre-commit with gitleaks, lint CI); infra `bootstrap/` applied with state in S3 (`vdd-tfstate-769814228024`); three OIDC roles pinned to immutable GitHub subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`, not repo names); `terraform plan` for `infra/main` runs in CI through OIDC. AWS account `769814228024` (profile `sorted`) is shared with sorted.onl; resources use the `vdd-` prefix. `main` protection: PR required, 0 approvals, required checks, admins included
+- **Next:** import the existing Cloudflare zone and hand-made DNS records into `infra/main` state (the CI plan currently wants to create the zone and 50 resources; do not apply before importing), then Phase 2 (walking skeleton). Phase 0 still has content inputs open
 - **Pace:** full-time, 8–10 h/day; launch targeted for D23 (see [roadmap.md](documentation/roadmap.md))
 
 Update this section when a milestone completes.
