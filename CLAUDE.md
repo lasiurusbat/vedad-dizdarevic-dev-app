@@ -10,6 +10,7 @@ Personal portfolio site for Vedad Dizdarevic (Cloud & DevOps Engineer) at `vedad
 | [tech-stack.md](documentation/tech-stack.md) | Technology choices, security headers, cost |
 | [implementation-plan.md](documentation/implementation-plan.md) | Phases 0–11 with tasks and "done when" criteria |
 | [roadmap.md](documentation/roadmap.md) | Milestones M1–M6, day-by-day schedule, critical path |
+| [next-steps.md](documentation/next-steps.md) | Where the last session stopped and what to do next |
 
 Read the relevant doc before changing anything it covers. If a decision changes, update the doc in the same change.
 
