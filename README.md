@@ -4,7 +4,7 @@ Source for the personal portfolio site of Vedad Dizdarevic, Cloud & DevOps Engin
 
 The site is itself a portfolio project: a static, bilingual (EN/DE) site with infrastructure as code, CI/CD and monitoring. This repo holds the application. Terraform lives in the sibling **infra** repo.
 
-> **Status:** planning is done and implementation has not started. Commands and structure below describe the target state from the [implementation plan](documentation/implementation-plan.md).
+> **Status:** Phase 1 (repositories and bootstrap) in progress; no site code yet. Commands and structure below describe the target state from the [implementation plan](documentation/implementation-plan.md).
 
 ## Architecture
 
@@ -20,16 +20,16 @@ Browser → Cloudflare (DNS, CDN, TLS, Worker) → private S3 bucket (eu-central
 
 ## Repository layout
 
-| Path | Contents |
-|---|---|
-| `site/` | Astro project (pages, components, content, EN/DE strings) |
-| `worker/` | Cloudflare Worker (routing, caching, security headers), deployed with Wrangler |
-| `lambda/contact/` | Contact form handler |
-| `case-studies/` | Source notes for the case studies (RainAlert, Sorted) |
-| `cv/` | Typst template and data for the EN and DE CV PDFs |
-| `tests/` | `e2e/` Playwright checks, `smoke/` post-deploy checks |
-| `documentation/` | Scope, tech stack, implementation plan, roadmap |
-| `.github/workflows/` | CI/CD for the site and Worker |
+| Path                 | Contents                                                                       |
+| -------------------- | ------------------------------------------------------------------------------ |
+| `site/`              | Astro project (pages, components, content, EN/DE strings)                      |
+| `worker/`            | Cloudflare Worker (routing, caching, security headers), deployed with Wrangler |
+| `lambda/contact/`    | Contact form handler                                                           |
+| `case-studies/`      | Source notes for the case studies (RainAlert, Sorted)                          |
+| `cv/`                | Typst template and data for the EN and DE CV PDFs                              |
+| `tests/`             | `e2e/` Playwright checks, `smoke/` post-deploy checks                          |
+| `documentation/`     | Scope, tech stack, implementation plan, roadmap                                |
+| `.github/workflows/` | CI/CD for the site and Worker                                                  |
 
 Terraform (`bootstrap/` and `main/`) is in the separate `infra` repo, which manages AWS and the Cloudflare zone, DNS and rules. Wrangler alone deploys the Worker script and route.
 
@@ -37,7 +37,14 @@ Terraform (`bootstrap/` and `main/`) is in the separate `infra` repo, which mana
 
 Requirements: Node.js LTS (see `.nvmrc`), pnpm, Typst for the CV. Diagrams are React Flow components inside `site/`, so there is no extra tool to install.
 
-Build, test and deploy commands will be listed here once Phases 1–2 add them.
+```sh
+pnpm install          # install tooling (Node version in .nvmrc)
+pnpm lint             # ESLint
+pnpm format:check     # Prettier (use `pnpm format` to fix)
+pre-commit install    # optional: hooks for whitespace, Prettier, gitleaks
+```
+
+Build, test and deploy commands will be added once Phase 2 creates them.
 
 ## Deployment
 

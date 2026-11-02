@@ -108,7 +108,7 @@ vedad-dizdarevic.dev/
 
 ### Tasks
 
-- [ ] Both repos are initialised locally (`app/` on `main`, `infra/` on `main`); create the two remote repos (the app repo public, since the site links to it) and protect `main` in each (PRs required, status checks required)
+- [ ] Both repos are initialised locally (`app/` on `main`, `infra/` on `main`); create the two remote repos (both private for now; make the app repo public at launch, since the site links to it, after a gitleaks and history review) and protect `main` in each (PRs required, status checks required)
 - [ ] Move existing CV PDFs to `cv/reference/`
 - [ ] Tooling: Node.js LTS pinned via `.nvmrc`, pnpm workspaces for `site`, `worker`, `lambda/contact`; Typst version pinned in CI. In the infra repo: Terraform version pinned via `.terraform-version`
 - [ ] Editor and lint config: Prettier (with `prettier-plugin-tailwindcss`), ESLint, `.editorconfig` and `pre-commit` hooks (formatting, trailing whitespace, secret scanning with gitleaks) in the app repo; `terraform fmt`, `.editorconfig` and the same `pre-commit` hooks in the infra repo
