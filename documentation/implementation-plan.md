@@ -108,22 +108,22 @@ vedad-dizdarevic.dev/
 
 ### Tasks
 
-- [ ] Both repos are initialised locally (`app/` on `main`, `infra/` on `main`); create the two remote repos (both private for now; make the app repo public at launch, since the site links to it, after a gitleaks and history review) and protect `main` in each (PRs required, status checks required)
-- [ ] Move existing CV PDFs to `cv/reference/`
-- [ ] Tooling: Node.js LTS pinned via `.nvmrc`, pnpm workspaces for `site`, `worker`, `lambda/contact`; Typst version pinned in CI. In the infra repo: Terraform version pinned via `.terraform-version`
-- [ ] Editor and lint config: Prettier (with `prettier-plugin-tailwindcss`), ESLint, `.editorconfig` and `pre-commit` hooks (formatting, trailing whitespace, secret scanning with gitleaks) in the app repo; `terraform fmt`, `.editorconfig` and the same `pre-commit` hooks in the infra repo
-- [ ] `README.md` in each repo: what the repo is, how to run locally, how deploys work (the app README links to the infra repo and back)
-- [ ] **`infra/bootstrap`** in the infra repo (applied locally, once):
+- [x] Both repos are initialised locally (`app/` on `main`, `infra/` on `main`); create the two remote repos (both public, as of 2026-11-02: branch protection is unavailable on private repos on the free plan) and protect `main` in each (PR required, 0 approvals since this is a solo repo, required status checks, admins included, linear history)
+- [x] Move existing CV PDFs to `cv/reference/`
+- [x] Tooling: Node.js LTS pinned via `.nvmrc`, pnpm workspaces for `site`, `worker`, `lambda/contact`; Typst version pinned in CI. In the infra repo: Terraform version pinned via `.terraform-version`
+- [x] Editor and lint config: Prettier (with `prettier-plugin-tailwindcss`), ESLint, `.editorconfig` and `pre-commit` hooks (formatting, trailing whitespace, secret scanning with gitleaks) in the app repo; `terraform fmt`, `.editorconfig` and the same `pre-commit` hooks in the infra repo
+- [x] `README.md` in each repo: what the repo is, how to run locally, how deploys work (the app README links to the infra repo and back)
+- [x] **`infra/bootstrap`** in the infra repo (applied locally, once):
   - S3 bucket for Terraform state (versioning, encryption, Block Public Access, TLS-only policy)
-  - GitHub OIDC identity provider and CI roles, each with trust limited to one repo and ref:
+  - GitHub OIDC identity provider (already existed in the shared AWS account, so referenced by a data source) and CI roles, each with trust limited to one repo and ref. New repos get **immutable OIDC subjects** (`repo:<owner>@<ownerId>/<repo>@<repoId>:...`), so trust pins the numeric owner and repo IDs, not names:
     - infra repo, `main`: apply role; infra repo, PRs: plan-only role
     - app repo, `main`: deploy role (write to the site bucket only; no access to Terraform state)
-- [ ] **`infra/main`** skeleton: backend config (`use_lockfile = true`), providers (`hashicorp/aws` in `eu-central-1`, `cloudflare/cloudflare`), variables, default tags
+- [x] **`infra/main`** skeleton: backend config (`use_lockfile = true`), providers (`hashicorp/aws` in `eu-central-1`, `cloudflare/cloudflare`), variables, default tags
 - [ ] Cloudflare API tokens, one per repo, stored as CI secrets:
-  - infra repo: this zone's DNS, zone settings, rules and Turnstile
-  - app repo: Workers on the account and cache purge for this zone
-- [ ] Hand-off from infra to app: after the first apply, copy the non-secret outputs (site bucket name, deploy role ARN, Cloudflare zone ID) into app repo Actions variables
-- [ ] First CI workflows: app repo (install, lint); infra repo (`terraform fmt -check` + `validate`)
+  - [x] infra repo (`CLOUDFLARE_API_TOKEN` secret): this zone's DNS, zone settings, rules and Turnstile. Web Analytics management returned 403 even with Account Settings Edit and Account Analytics Read, so it is not managed in Terraform for now (see Phase 10)
+  - [ ] app repo: Workers on the account and cache purge for this zone (needed for `wrangler deploy` in Phase 2)
+- [x] Hand-off from infra to app: after the first apply, copy the non-secret outputs (site bucket name, deploy role ARN, Cloudflare zone ID) into app repo Actions variables (done: `SITE_BUCKET`, `AWS_DEPLOY_ROLE_ARN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_ACCOUNT_ID`, `TURNSTILE_SITE_KEY`, `AWS_REGION`)
+- [x] First CI workflows: app repo (install, lint, gitleaks); infra repo (`terraform fmt -check` + `validate`, gitleaks, and `terraform plan` through OIDC)
 
 ### Done when
 
@@ -137,12 +137,12 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
 
 ### Infrastructure (`infra/main`, infra repo)
 
-- [ ] Site bucket in `eu-central-1`: private, Block Public Access, versioning, SSE-S3, lifecycle rule expiring noncurrent versions after 30 days
-- [ ] Bucket policy: TLS only; read allowed only for the Worker IAM user; write only for the app repo's CI deploy role
-- [ ] Worker IAM user with `s3:GetObject` on the site bucket (later also `lambda:InvokeFunctionUrl` on the contact function, Phase 6); access key created and stored as Worker secrets (`wrangler secret put`), never in Terraform state outputs or the repo
-- [ ] Cloudflare zone settings: SSL **Full (strict)**, Always Use HTTPS, minimum TLS 1.2, TLS 1.3 on, HTTP/3 on, Brotli on
-- [ ] DNS: apex and `www` proxied records (the Worker route handles requests)
-- [ ] Redirect Rule: `www` → apex (301, path and query preserved)
+- [x] Site bucket in `eu-central-1`: private, Block Public Access, versioning, SSE-S3, lifecycle rule expiring noncurrent versions after 30 days
+- [x] Bucket policy: TLS only; read allowed only for the Worker IAM user; write only for the app repo's CI deploy role
+- [ ] Worker IAM user (created; **access key still to be created by hand**) with `s3:GetObject` on the site bucket (later also `lambda:InvokeFunctionUrl` on the contact function, Phase 6); access key created and stored as Worker secrets (`wrangler secret put`), never in Terraform state outputs or the repo
+- [x] Cloudflare zone settings: SSL **Full (strict)**, Always Use HTTPS, minimum TLS 1.2, TLS 1.3 on, HTTP/3 on, Brotli on
+- [x] DNS: apex and `www` proxied records (the Worker route handles requests)
+- [x] Redirect Rule: `www` → apex (301, path and query preserved)
 
 ### Astro placeholder
 
@@ -341,10 +341,10 @@ A real submission from the live site arrives in your inbox, spam submissions wit
 
 ## Phase 7: Email and DNS
 
-- [x] Mailbox provider (Purelymail) set up for `hello@vedad-dizdarevic.dev`, live. Records were created by hand in Cloudflare (MX, SPF, DKIM CNAMEs, ownership TXT, DMARC CNAME), so **import them into Terraform** rather than recreating them
+- [x] Mailbox provider (Purelymail) set up for `hello@vedad-dizdarevic.dev`, live. Records were created by hand in Cloudflare (MX, SPF, DKIM CNAMEs, ownership TXT, DMARC CNAME), so they were **imported into Terraform state** (2026-11-02) rather than recreated. Gotcha: Cloudflare returns TXT content wrapped in quotes, so TXT `content` in Terraform is written with escaped quotes (otherwise a permanent diff). The live MX priority is 50 (Purelymail's docs); the Terraform record matches it. The leftover `autoconfig` CNAME and `_autodiscover` SRV records are not in Terraform yet
 - [x] Removed the leftover Namecheap forwarding SPF record; one SPF record remains (`include:_spf.purelymail.com`). Two SPF records on one name would be invalid and fail with `permerror`
-- [x] DMARC replaced by hand: Purelymail's `_dmarc` CNAME removed, own TXT record `v=DMARC1; p=none; rua=mailto:hello@vedad-dizdarevic.dev` in place (verified with `dig`). Import into Terraform with the other mail records
-- [ ] MX records in Cloudflare DNS via Terraform
+- [x] DMARC replaced by hand: Purelymail's `_dmarc` CNAME removed, own TXT record `v=DMARC1; p=none; rua=mailto:hello@vedad-dizdarevic.dev` in place (verified with `dig`). Imported into Terraform with the other mail records (2026-11-02)
+- [x] MX records in Cloudflare DNS via Terraform
 - [ ] SPF: one record covering the mailbox provider and SES (`include:amazonses.com` for the MAIL FROM domain)
 - [ ] DKIM for the mailbox provider and SES
 - [ ] DMARC: start at `p=none` with `rua` reports to an address you read; move to `p=quarantine`, then `p=reject` once reports show only aligned mail (typically 2–4 weeks)
@@ -433,7 +433,7 @@ All gates are required status checks on `main`, the CSP is enforced, and the leg
 - [ ] Optional synthetic check of `/api/contact` returning the expected rejection for a request without a Turnstile token (proves the Worker → Lambda path is wired without sending mail)
 - [ ] CloudWatch alarms → SNS → email: Lambda errors, Lambda throttles, SES bounce and complaint rates
 - [ ] AWS Budgets: alert at €5 actual and at forecasted overspend
-- [ ] Cloudflare Web Analytics enabled
+- [ ] Cloudflare Web Analytics enabled (a site was created by an early apply and removed from Terraform state; it still exists in Cloudflare with `auto_install`. Decide whether to manage it in Terraform once a token with the right permission is found, and check that the injected beacon is allowed by the enforced CSP)
 
 ### Operations
 
