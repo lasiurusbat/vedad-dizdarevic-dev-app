@@ -60,4 +60,4 @@ The layout tree in [implementation-plan.md](documentation/implementation-plan.md
 
 ## Commands
 
-`pnpm install`, `pnpm lint`, `pnpm format:check` (root). Site: `pnpm --filter @vdd/site dev | check | build | preview`. Worker: `pnpm --filter @vdd/worker test` (Vitest in the Workers runtime), `pnpm --filter @vdd/worker typecheck` (runs `wrangler types` first; the generated `worker-configuration.d.ts` is git-ignored). Add deploy and smoke-test commands here as Phase 2 creates them.
+`pnpm install`, `pnpm lint`, `pnpm format:check` (root). Site: `pnpm --filter @vdd/site dev | check | build | preview`. Worker: `pnpm --filter @vdd/worker test` (Vitest in the Workers runtime), `pnpm --filter @vdd/worker typecheck` (runs `wrangler types` first; the generated `worker-configuration.d.ts` is git-ignored). Smoke test against the live site: `SITE_BUCKET=<bucket> node --test "tests/smoke/*.test.mjs"` (`BASE_URL` overrides the target). Deploys run from `.github/workflows/deploy.yml` on every push to `main`.
