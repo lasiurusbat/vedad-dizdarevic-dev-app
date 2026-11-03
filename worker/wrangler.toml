@@ -1,0 +1,20 @@
+name = "vdd-worker"
+main = "src/index.ts"
+compatibility_date = "2026-11-01"
+
+# Only the custom domain serves the site.
+workers_dev = false
+preview_urls = false
+
+[[routes]]
+pattern = "vedad-dizdarevic.dev/*"
+zone_name = "vedad-dizdarevic.dev"
+
+# Non-secret config. Secrets (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) are set
+# with `wrangler secret put` and never live in this file.
+[vars]
+SITE_BUCKET = "vdd-site-769814228024"
+AWS_REGION = "eu-central-1"
+
+[observability]
+enabled = true
