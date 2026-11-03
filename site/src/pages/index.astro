@@ -1,0 +1,12 @@
+---
+import { en } from '../i18n/en';
+import Base from '../layouts/Base.astro';
+---
+
+<Base title={en.siteTitle} description={en.role}>
+  <main class="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-6 py-12">
+    <h1 class="text-4xl font-bold tracking-tight">{en.siteTitle}</h1>
+    <p class="text-accent text-xl">{en.role}</p>
+    <p class="text-muted">{en.placeholder}</p>
+  </main>
+</Base>
