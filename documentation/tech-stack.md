@@ -19,7 +19,7 @@ Browser ──HTTPS──▶ Cloudflare (DNS, CDN, TLS, Worker) ──HTTPS + Si
 
 | Layer | Choice | Notes |
 |---|---|---|
-| Framework | **Astro** (static output) | Zero JS by default; content collections for case studies (MDX + typed schema) |
+| Framework | **Astro 7** (static output; needs Node >= 22.23.4) | Zero JS by default; content collections for case studies (MDX + typed schema) |
 | i18n | Astro i18n routing | `/` (EN) and `/de/` (DE), `hreflang` tags |
 | Styling | **Tailwind CSS v4** via `@tailwindcss/vite` | CSS-first config (`@theme` in `global.css`, no `tailwind.config.js`); see [Styling](#styling) |
 | Fonts | Self-hosted (Fontsource) | No Google Fonts CDN (GDPR) |
@@ -29,7 +29,7 @@ Browser ──HTTPS──▶ Cloudflare (DNS, CDN, TLS, Worker) ──HTTPS + Si
 | SEO | `@astrojs/sitemap`, JSON-LD `Person`, canonical + `hreflang` | |
 | CV | **Typst** source compiled in CI | EN + DE from one template and shared data; see [CV](#cv) |
 
-Astro config: `build.inlineStylesheets: 'never'` so the CSP needs no `'unsafe-inline'`.
+Local Node is managed with fnm (`.nvmrc` is `22`; CI resolves the latest 22.x). Astro config: `build.inlineStylesheets: 'never'` so the CSP needs no `'unsafe-inline'`.
 
 ## Styling
 
@@ -99,7 +99,7 @@ Responsibilities:
 3. Add the security headers to every response
 4. Forward `/api/contact` to the Lambda
 
-Implementation: TypeScript, `aws4fetch` for signing, Wrangler for local dev and deploy, unit tests with Vitest (`@cloudflare/vitest-pool-workers`).
+Implementation: TypeScript, `aws4fetch` for signing, Wrangler for local dev and deploy, tests with Vitest (`@cloudflare/vitest-plugin`, which replaces the deprecated `@cloudflare/vitest-pool-workers`).
 
 Credentials: a dedicated IAM user with `s3:GetObject` on the site bucket and `lambda:InvokeFunctionUrl` on the contact function (function URL uses `AWS_IAM` auth), nothing else; its keys stored as Worker secrets. This is the one long-lived key in the setup; rotate it on a schedule (e.g. every 90 days, scripted in CI).
 
