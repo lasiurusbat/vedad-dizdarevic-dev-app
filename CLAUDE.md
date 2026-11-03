@@ -59,4 +59,4 @@ The layout tree in [implementation-plan.md](documentation/implementation-plan.md
 
 ## Commands
 
-`pnpm install`, `pnpm lint`, `pnpm format:check` (root). Add build, test, and deploy commands here as Phase 2 creates them.
+`pnpm install`, `pnpm lint`, `pnpm format:check` (root). Worker (in `worker/`): `pnpm test` (Vitest in the Workers runtime), `pnpm typecheck` (runs `wrangler types` first; the generated `worker-configuration.d.ts` is git-ignored). Add site and deploy commands here as Phase 2 creates them.
