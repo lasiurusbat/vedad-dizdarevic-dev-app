@@ -28,6 +28,11 @@ Nothing is deployed yet: the live URL still has no Worker.
 
 **Phase 2 is done when** a commit to `main` changes the live placeholder within minutes, the smoke test passes, and the bucket returns 403 on direct access.
 
+## Key rotation
+
+- The `vdd-worker` access key (ends in `...OI3S`) was created on **2026-11-03** and set as Worker secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
+- **Rotate by 2027-02-01** (90 days): create a second key in IAM, `wrangler secret put` both values, check the smoke test, then delete the old key. IAM allows two keys per user, so this needs no downtime.
+
 ## Small loose ends
 
 - Better Stack will alert until the first deploy; that is expected.
