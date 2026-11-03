@@ -1,0 +1,33 @@
+@import 'tailwindcss';
+
+/* Semantic tokens: components use bg-bg / text-fg, never dark: variants. */
+:root {
+  color-scheme: light dark;
+  --bg: #ffffff;
+  --fg: #14171a;
+  --muted: #566069;
+  --accent: #0b5cad;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0e1114;
+    --fg: #e8ebee;
+    --muted: #9aa5af;
+    --accent: #6cb0f5;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-fg: var(--fg);
+  --color-muted: var(--muted);
+  --color-accent: var(--accent);
+}
+
+@layer base {
+  html {
+    background-color: var(--bg);
+    color: var(--fg);
+  }
+}
