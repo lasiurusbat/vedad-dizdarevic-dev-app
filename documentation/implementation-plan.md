@@ -139,7 +139,7 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
 
 - [x] Site bucket in `eu-central-1`: private, Block Public Access, versioning, SSE-S3, lifecycle rule expiring noncurrent versions after 30 days
 - [x] Bucket policy: TLS only; read allowed only for the Worker IAM user; write only for the app repo's CI deploy role
-- [ ] Worker IAM user (created; **access key still to be created by hand**) with `s3:GetObject` on the site bucket (later also `lambda:InvokeFunctionUrl` on the contact function, Phase 6); access key created and stored as Worker secrets (`wrangler secret put`), never in Terraform state outputs or the repo
+- [x] Worker IAM user (access key created 2026-11-03 and stored as Worker secrets; rotate by 2027-02-01) with `s3:GetObject` on the site bucket (later also `lambda:InvokeFunctionUrl` on the contact function, Phase 6); access key created and stored as Worker secrets (`wrangler secret put`), never in Terraform state outputs or the repo
 - [x] Cloudflare zone settings: SSL **Full (strict)**, Always Use HTTPS, minimum TLS 1.2, TLS 1.3 on, HTTP/3 on, Brotli on
 - [x] DNS: apex and `www` proxied records (the Worker route handles requests)
 - [x] Redirect Rule: `www` → apex (301, path and query preserved)
@@ -169,17 +169,17 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
 - [ ] Infra repo PR workflow: `terraform fmt -check`, `validate`, Trivy/Checkov, `terraform plan` as a PR comment
 - [ ] Infra repo `main` workflow: `terraform apply` (protected `production` environment; manual approval is optional at this size)
 - [x] App repo PR workflow: `site` (astro check + build) and `worker` (typecheck + tests) jobs. Add both to the required checks in branch protection after their first green run
-- [ ] App repo `main` workflow, in order (the infra repo's first apply has created the bucket, deploy role and zone, so this can now be written and enabled):
+- [x] App repo `main` workflow (`.github/workflows/deploy.yml`; the job has no `environment:` because the deploy role trusts only the `refs/heads/main` OIDC subject), in order:
   1. Build site
   2. Upload to S3 in two passes: hashed assets (`/_astro/`) first **without** `--delete`, then everything else with `--delete` excluding `/_astro/` (old hashed assets stay available to cached HTML; pruned by a lifecycle rule or a scheduled job)
   3. `wrangler deploy`
   4. Cloudflare cache purge (purge everything is fine at this size)
   5. Smoke test (`tests/smoke`): `200` on `/`, `404` on a random path, `301` from `www`, `301` from `http`, all six headers present
-- [ ] Concurrency control in each repo: one deploy (or apply) at a time, newer runs cancel queued ones. Apply never cancels a run in progress
+- [ ] Concurrency control in each repo (app deploy done; infra apply pending): one deploy (or apply) at a time, newer runs cancel queued ones. Apply never cancels a run in progress
 
 ### Done when
 
-A commit to `main` changes the live placeholder within minutes, the smoke test passes, and the bucket returns `403` when accessed directly.
+A commit to `main` changes the live placeholder within minutes, the smoke test passes, and the bucket returns `403` when accessed directly. **Met for the app side on 2026-11-03** (first deploy green); the infra pipeline items above are still open.
 
 ---
 
