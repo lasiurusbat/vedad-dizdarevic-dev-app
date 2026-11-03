@@ -121,7 +121,7 @@ vedad-dizdarevic.dev/
 - [x] **`infra/main`** skeleton: backend config (`use_lockfile = true`), providers (`hashicorp/aws` in `eu-central-1`, `cloudflare/cloudflare`), variables, default tags
 - [ ] Cloudflare API tokens, one per repo, stored as CI secrets:
   - [x] infra repo (`CLOUDFLARE_API_TOKEN` secret): this zone's DNS, zone settings, rules and Turnstile. Web Analytics management returned 403 even with Account Settings Edit and Account Analytics Read, so it is not managed in Terraform for now (see Phase 10)
-  - [ ] app repo: Workers on the account and cache purge for this zone (needed for `wrangler deploy` in Phase 2)
+  - [x] app repo (`CLOUDFLARE_API_TOKEN` secret): Account Workers Scripts Edit; Zone Workers Routes Edit and Cache Purge. If the first deploy fails with a 403 on an account lookup, add Account Settings Read
 - [x] Hand-off from infra to app: after the first apply, copy the non-secret outputs (site bucket name, deploy role ARN, Cloudflare zone ID) into app repo Actions variables (done: `SITE_BUCKET`, `AWS_DEPLOY_ROLE_ARN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_ACCOUNT_ID`, `TURNSTILE_SITE_KEY`, `AWS_REGION`)
 - [x] First CI workflows: app repo (install, lint, gitleaks); infra repo (`terraform fmt -check` + `validate`, gitleaks, and `terraform plan` through OIDC)
 
@@ -146,30 +146,30 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
 
 ### Astro placeholder
 
-- [ ] `pnpm create astro` in `site/`, static output, `trailingSlash: 'always'`, `build.format: 'directory'`, `build.inlineStylesheets: 'never'`
-- [ ] Tailwind CSS v4: install `tailwindcss` + `@tailwindcss/vite`, add the Vite plugin in `astro.config.mjs`, create `src/styles/global.css` with `@import "tailwindcss";`, import it in the base layout
-- [ ] One page (`/`) and a custom `404.html`
+- [x] Astro 7 project in `site/` (needs Node >= 22.23.4), static output, `trailingSlash: 'always'`, `build.format: 'directory'`, `build.inlineStylesheets: 'never'`
+- [x] Tailwind CSS v4: install `tailwindcss` + `@tailwindcss/vite`, add the Vite plugin in `astro.config.mjs`, create `src/styles/global.css` with `@import "tailwindcss";`, import it in the base layout
+- [x] One page (`/`) and a custom `404.html`
 
 ### Worker v1
 
-- [ ] Route `vedad-dizdarevic.dev/*`
-- [ ] Path mapping: `/` → `index.html`, `/foo/` → `foo/index.html`, `/foo` → 301 to `/foo/` when `foo/index.html` exists
-- [ ] Fetch from `https://<bucket>.s3.eu-central-1.amazonaws.com/<key>` signed with `aws4fetch`; stream body; pass through `Content-Type`, `ETag`, `Last-Modified`
-- [ ] S3 `403`/`404` → serve `404.html` with status 404; S3 `5xx` → 502 with a minimal error page
-- [ ] Only `GET` and `HEAD` for static paths; everything else 405
-- [ ] Cache rules via the Cache API:
+- [x] Route `vedad-dizdarevic.dev/*` (in `wrangler.toml`; takes effect on the first deploy)
+- [x] Path mapping: `/` → `index.html`, `/foo/` → `foo/index.html`, `/foo` → 301 to `/foo/` when `foo/index.html` exists
+- [x] Fetch from `https://<bucket>.s3.eu-central-1.amazonaws.com/<key>` signed with `aws4fetch`; stream body; pass through `Content-Type`, `ETag`, `Last-Modified`
+- [x] S3 `403`/`404` (a private bucket without `s3:ListBucket` answers 403 for a missing key) → serve `404.html` with status 404; S3 `5xx` → 502 with a minimal error page
+- [x] Only `GET` and `HEAD` for static paths; everything else 405
+- [x] Cache rules via the Cache API:
   - `/_astro/*` (content-hashed): `Cache-Control: public, max-age=31536000, immutable`
   - HTML: short edge TTL, `Cache-Control: public, max-age=0, must-revalidate` for browsers; purged on deploy
   - PDFs, fonts, images: 1 day
-- [ ] Security headers module with all six headers; CSP sent as **`Content-Security-Policy-Report-Only`** for now
-- [ ] Vitest tests: path mapping, 404 handling, method handling, header presence
+- [x] Security headers module with all six headers; CSP sent as **`Content-Security-Policy-Report-Only`** for now
+- [x] Vitest tests (`@cloudflare/vitest-plugin`; `vitest-pool-workers` is deprecated): path mapping, 404 handling, method handling, header presence, caching
 
 ### Pipeline v1
 
 - [ ] Infra repo PR workflow: `terraform fmt -check`, `validate`, Trivy/Checkov, `terraform plan` as a PR comment
 - [ ] Infra repo `main` workflow: `terraform apply` (protected `production` environment; manual approval is optional at this size)
-- [ ] App repo PR workflow: build site, test Worker
-- [ ] App repo `main` workflow, in order (written and enabled only after the infra repo's first apply has created the bucket, deploy role and zone; none of that exists yet):
+- [x] App repo PR workflow: `site` (astro check + build) and `worker` (typecheck + tests) jobs. Add both to the required checks in branch protection after their first green run
+- [ ] App repo `main` workflow, in order (the infra repo's first apply has created the bucket, deploy role and zone, so this can now be written and enabled):
   1. Build site
   2. Upload to S3 in two passes: hashed assets (`/_astro/`) first **without** `--delete`, then everything else with `--delete` excluding `/_astro/` (old hashed assets stay available to cached HTML; pruned by a lifecycle rule or a scheduled job)
   3. `wrangler deploy`
