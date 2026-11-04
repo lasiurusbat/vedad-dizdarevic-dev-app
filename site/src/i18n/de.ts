@@ -32,6 +32,13 @@ export const de: Messages = {
   backToWork: 'Zurück zu den ausgewählten Projekten',
   viewFullSize: 'Vollbild ansehen',
 
+  caseProblem: 'Das Problem',
+  caseDecisions: 'Entscheidungen und Abwägungen',
+  caseOutcome: 'Ergebnis',
+  caseLinks: 'Links',
+  caseRepo: 'Quellcode',
+  caseWhy: 'Warum',
+
   footerRights: 'Alle Rechte vorbehalten.',
 
   notFoundTitle: 'Seite nicht gefunden',
