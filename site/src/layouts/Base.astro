@@ -34,7 +34,12 @@ const urls = translated
       <link rel="alternate" hreflang="x-default" href={new URL(urls.en, Astro.site)} />,
     ]}
     <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
+    <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+    <link rel="manifest" href="/site.webmanifest" />
+    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0e1114" media="(prefers-color-scheme: dark)" />
   </head>
   <body class="bg-bg text-fg min-h-screen font-sans antialiased">
     <a
