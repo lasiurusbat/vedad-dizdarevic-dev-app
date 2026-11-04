@@ -205,6 +205,8 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 
 `Header`, `Footer`, `LanguageSwitch`, `Section`, `CaseStudyCard`, `CaseStudyLayout`, `Diagram` (responsive SVG + full-size link), `SkillGroup`, `CTAButton`, `ExternalLink`
 
+_Built (Phase 3): all of the above. `CaseStudyLayout` is in `layouts/`; `Diagram` takes a static SVG for now, and Phase 4 decides how React Flow renders into it. Components that sit inside MDX prose are marked `not-prose`._
+
 ### Done when
 
 Placeholder sections render correctly at 360, 390, 768 and 1280px in both themes and both languages, with no horizontal scroll and Lighthouse accessibility at 100.
