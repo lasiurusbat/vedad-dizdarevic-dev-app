@@ -1,5 +1,5 @@
 ---
-import { GITHUB_URL, OWNER } from '../site';
+import { GITHUB_URL, LINKEDIN_URL, OWNER } from '../site';
 import { type Locale, useTranslations } from '../i18n';
 import ExternalLink from './ExternalLink.astro';
 
@@ -17,8 +17,13 @@ const year = new Date().getFullYear();
     <p>
       © {year} {OWNER}. {t.footerRights}
     </p>
-    <ExternalLink href={GITHUB_URL} class="text-fg inline-flex min-h-11 items-center underline">
-      {t.github}
-    </ExternalLink>
+    <nav aria-label="Social" class="flex gap-4">
+      <ExternalLink href={GITHUB_URL} class="text-fg inline-flex min-h-11 items-center underline">
+        {t.github}
+      </ExternalLink>
+      <ExternalLink href={LINKEDIN_URL} class="text-fg inline-flex min-h-11 items-center underline">
+        {t.linkedin}
+      </ExternalLink>
+    </nav>
   </div>
 </footer>

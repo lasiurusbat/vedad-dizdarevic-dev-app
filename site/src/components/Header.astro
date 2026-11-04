@@ -1,5 +1,5 @@
 ---
-import { GITHUB_URL } from '../site';
+import { GITHUB_URL, LINKEDIN_URL } from '../site';
 import { type Locale, localeUrl, useTranslations } from '../i18n';
 import CTAButton from './CTAButton.astro';
 import ExternalLink from './ExternalLink.astro';
@@ -45,6 +45,9 @@ const link =
         <ExternalLink href={GITHUB_URL} class={link}>
           {t.github}
         </ExternalLink>
+        <ExternalLink href={LINKEDIN_URL} class={link}>
+          {t.linkedin}
+        </ExternalLink>
         <span class="ml-2">
           <CTAButton href={contact}>{t.navContact}</CTAButton>
         </span>
@@ -71,6 +74,9 @@ const link =
           </a>
           <ExternalLink href={GITHUB_URL} class={link}>
             {t.github}
+          </ExternalLink>
+          <ExternalLink href={LINKEDIN_URL} class={link}>
+            {t.linkedin}
           </ExternalLink>
         </nav>
       </details>
