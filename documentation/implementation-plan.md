@@ -187,12 +187,12 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 
 ### Tasks
 
-- [ ] **Design tokens** in `@theme` (`styles/global.css`): brand palette, font families, fluid type scale and spacing with `clamp()`, radii, focus ring
-- [ ] **Semantic colour tokens** (`bg`, `fg`, `muted`, `accent`, `border`) whose values switch under `@media (prefers-color-scheme: dark)`, so components use `bg-bg text-fg` rather than `dark:` on every element
-- [ ] `@tailwindcss/typography` added via `@plugin`; prose styles mapped to the semantic tokens for case study MDX
-- [ ] Check colour contrast for both themes (WCAG AA minimum, AAA for body text where possible)
-- [ ] **Fonts:** pick at most two families, self-host via Fontsource, subset to Latin + Latin Extended (German characters), `font-display: swap`, preload the body font
-- [ ] **Base layer** (`@layer base`): Tailwind's Preflight reset plus readable measure (~65–75ch), visible focus states (`focus-visible:`), `motion-safe:`/`motion-reduce:` for any animation
+- [x] **Design tokens** in `@theme` (`styles/global.css`): brand palette, font families, fluid type scale and spacing with `clamp()`, radii, focus ring
+- [x] **Semantic colour tokens** (`bg`, `fg`, `muted`, `accent`, `border`) whose values switch under `@media (prefers-color-scheme: dark)`, so components use `bg-bg text-fg` rather than `dark:` on every element
+- [x] `@tailwindcss/typography` added via `@plugin`; prose styles mapped to the semantic tokens for case study MDX
+- [x] Check colour contrast for both themes (WCAG AA minimum, AAA for body text where possible)
+- [x] **Fonts:** pick at most two families, self-host via Fontsource, subset to Latin + Latin Extended (German characters), `font-display: swap`, preload the body font
+- [x] **Base layer** (`@layer base`): Tailwind's Preflight reset plus readable measure (~65–75ch), visible focus states (`focus-visible:`), `motion-safe:`/`motion-reduce:` for any animation
 - [ ] **Layout:** mobile-first single column at ~360px using unprefixed utilities; `md:`/`lg:` and container-query variants (`@container`, `@md:`) for wider screens
 - [ ] Keep components in Astro files with utilities; extract repeated patterns into components, not `@apply` classes
 - [ ] **Header with CTAs:** name, section nav, language switch, and Contact / CV / GitHub / LinkedIn reachable on every screen; on mobile a compact sticky header or bottom bar; works without JavaScript
