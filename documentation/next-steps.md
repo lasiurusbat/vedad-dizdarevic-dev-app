@@ -14,7 +14,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Next
 
-1. **Infra pipeline gaps (infra repo):** apply workflow (`production` environment, `gh-infra-apply`, concurrency without cancelling a running apply), Trivy and Checkov on PRs, plan as a PR comment.
+1. ~~Infra pipeline gaps~~ **Done 2026-11-03** (infra #7 and #8): apply workflow (`production` environment, `gh-infra-apply`, serialized, refuses destructive plans unless `allow_destroy`), Trivy and Checkov on PRs, plan as a sticky PR comment. Last Apply run (manual dispatch) green.
 2. **Phase 3, design system and layout** (see the implementation plan): tokens, fonts through Fontsource, header and footer, i18n routing with `de.ts`.
 3. **Owner:** Phase 0 content inputs (case study notes, screenshots, Impressum details), needed by about D10.
 
@@ -26,7 +26,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 ## Small loose ends
 
 - Better Stack will alert until the first deploy; that is expected.
-- The Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state. Check whether it injects a beacon, and decide in Phase 10.
+- **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
 - Phase 0 content inputs are still open: case study notes, screenshots, Impressum details (needed by about D10; Impressum by D20).
 - `de.ts` does not exist yet; the placeholder strings are in `site/src/i18n/en.ts`.
 - Node 20 deprecation warning in the deploy run (`configure-aws-credentials@v5`, `pnpm/action-setup@v4`); bump the actions when newer majors exist.
