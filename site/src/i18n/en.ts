@@ -25,6 +25,10 @@ export const en = {
   hireTitle: 'Work with me',
   contactTitle: 'Contact',
 
+  certsTitle: 'Certifications',
+  certInProgress: 'In progress',
+  certVerify: 'Verify',
+
   readCaseStudy: 'Read the case study',
   backToWork: 'Back to selected work',
   viewFullSize: 'View full size',
