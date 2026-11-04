@@ -1,5 +1,6 @@
 ---
 import '../styles/global.css';
+import interLatin from '../../node_modules/@fontsource-variable/inter/files/inter-latin-wght-normal.woff2?url';
 
 interface Props {
   title: string;
@@ -16,6 +17,7 @@ const { title, description = 'Cloud & DevOps Engineer' } = Astro.props;
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description} />
+    <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
   </head>
   <body class="bg-bg text-fg min-h-screen font-sans antialiased">
