@@ -28,6 +28,10 @@ export const de: Messages = {
   hireTitle: 'Zusammenarbeit',
   contactTitle: 'Kontakt',
 
+  certsTitle: 'Zertifizierungen',
+  certInProgress: 'In Vorbereitung',
+  certVerify: 'Prüfen',
+
   readCaseStudy: 'Fallstudie lesen',
   backToWork: 'Zurück zu den ausgewählten Projekten',
   viewFullSize: 'Vollbild ansehen',
