@@ -18,18 +18,19 @@ const sections = [
   { id: 'work', label: t.navWork },
   { id: 'skills', label: t.navSkills },
   { id: 'about', label: t.navAbout },
+  { id: 'hire', label: t.navHire },
 ];
 const contact = `${home}#contact`;
 
 const link =
-  'inline-flex min-h-11 items-center rounded-md px-3 text-fg no-underline hover:bg-surface';
+  'inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-3 text-fg no-underline hover:bg-surface';
 ---
 
 <header class="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur">
   <div class="max-w-page px-gutter mx-auto flex h-16 items-center justify-between gap-2">
     <a
       href={home}
-      class="inline-flex min-h-11 items-center font-semibold tracking-tight no-underline"
+      class="inline-flex min-h-11 items-center whitespace-nowrap font-semibold tracking-tight no-underline"
     >
       {t.siteTitle}
     </a>
@@ -45,7 +46,7 @@ const link =
         <ExternalLink href={GITHUB_URL} class={link}>
           {t.github}
         </ExternalLink>
-        <ExternalLink href={LINKEDIN_URL} class={link}>
+        <ExternalLink href={LINKEDIN_URL} class={`${link} max-xl:hidden`}>
           {t.linkedin}
         </ExternalLink>
         <span class="ml-2">

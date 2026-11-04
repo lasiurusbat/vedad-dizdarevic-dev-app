@@ -1,0 +1,42 @@
+---
+import { CV_URL, GITHUB_URL, LINKEDIN_URL } from '../site';
+import { type Locale, localeUrl, useTranslations } from '../i18n';
+import CTAButton from './CTAButton.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<section aria-labelledby="hero-title" class="py-section">
+  <div class="max-w-page px-gutter mx-auto flex flex-col items-start gap-stack">
+    <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
+      <span aria-hidden="true" class="bg-accent size-2 rounded-full"></span>
+      {t.availability}
+    </p>
+    <div>
+      <h1 id="hero-title" class="text-5xl font-bold tracking-tight">
+        {t.siteTitle}
+      </h1>
+      <p class="text-accent mt-2 text-2xl font-medium">{t.role}</p>
+    </div>
+    <p class="max-w-measure text-xl">{t.heroPositioning}</p>
+    <div class="flex flex-wrap gap-3">
+      <CTAButton href={`${localeUrl(locale)}#contact`}>{t.navContact}</CTAButton>
+      {CV_URL && (
+        <CTAButton href={CV_URL} variant="secondary">
+          {t.ctaCv}
+        </CTAButton>
+      )}
+      <CTAButton href={GITHUB_URL} variant="secondary">
+        {t.github}
+      </CTAButton>
+      <CTAButton href={LINKEDIN_URL} variant="secondary">
+        {t.linkedin}
+      </CTAButton>
+    </div>
+  </div>
+</section>

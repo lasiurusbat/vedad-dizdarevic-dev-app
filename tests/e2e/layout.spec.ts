@@ -98,7 +98,7 @@ test.describe('menu', () => {
     const details = page.locator('details[data-menu]');
     await expect(details).not.toHaveAttribute('open', '');
     await details.locator('summary').click();
-    await expect(page.getByRole('link', { name: 'Contact', exact: true })).toBeVisible();
+    await expect(details.getByRole('link', { name: 'Contact', exact: true })).toBeVisible();
     await context.close();
   });
 
