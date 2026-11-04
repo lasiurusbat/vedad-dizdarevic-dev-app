@@ -230,7 +230,7 @@ Single page with anchored sections, plus a detail page per case study.
 ### Case studies
 
 - [x] Content collection schema (`src/content.config.ts`): title, summary, problem, stack (list), decisions (list of `{decision, why}`), outcome metrics, repo URL, live/visual links, diagram reference, language  _(Done: `site/src/content.config.ts`; one MDX file per language in `site/src/content/case-studies/{en,de}/<slug>.mdx`, the language is the folder, `draft: true` hides an entry from production builds; a generic draft `example` entry exists only to test the layout, delete it when the first real case study lands.)_
-- [ ] Case study 1: **sorted.onl**
+- [x] Case study 1: **sorted.onl** _(English done in PR #19; German pending. Demo-data screenshots as light/dark pairs; repo is private, so the page says so.)_
 - [ ] Case study 2: **rainalert.live**
 - [ ] Case study 3 (optional): **this site**
 - [ ] Each has: problem in 1–2 sentences, architecture diagram, stack, 2–3 decisions with trade-offs (cost, security, reliability), outcome, links to repo and something live (pipeline run, Grafana screenshot)
@@ -248,7 +248,7 @@ Single page with anchored sections, plus a detail page per case study.
 ### Skills
 
 - [ ] Grouped by area: Cloud, IaC, CI/CD, Containers, Observability (plus others as needed); no bars or percentages
-- [ ] DevOps diploma shown
+- [x] DevOps diploma shown _(Certifications block under Skills: claims plus verification links, PDFs not published; AWS SAA shown as in progress)_
 - [ ] Sourced from `cv/data.yaml` if the shared-data option is taken (Phase 5)
 
 ### About
