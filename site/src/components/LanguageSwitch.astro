@@ -1,0 +1,30 @@
+---
+import { type Locale, locales, useTranslations } from '../i18n';
+
+interface Props {
+  locale: Locale;
+  urls: Record<Locale, string>;
+}
+
+const { locale, urls } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<nav aria-label={t.language} class="flex items-center">
+  {locales.map((l) => (
+    <a
+      href={urls[l]}
+      lang={l}
+      hreflang={l}
+      aria-current={l === locale ? 'true' : undefined}
+      class:list={[
+        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-sm font-medium uppercase',
+        l === locale
+          ? 'text-fg underline decoration-2 underline-offset-8'
+          : 'text-muted hover:text-fg',
+      ]}
+    >
+      {l}
+    </a>
+  ))}
+</nav>

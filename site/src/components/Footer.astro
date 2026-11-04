@@ -1,0 +1,29 @@
+---
+import { GITHUB_URL, LINKEDIN_URL, OWNER } from '../site';
+import { type Locale, useTranslations } from '../i18n';
+import ExternalLink from './ExternalLink.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const year = new Date().getFullYear();
+---
+
+<footer class="border-border border-t py-10">
+  <div class="max-w-page px-gutter text-muted mx-auto flex flex-col gap-4 text-sm sm:flex-row sm:items-center sm:justify-between">
+    <p>
+      © {year} {OWNER}. {t.footerRights}
+    </p>
+    <nav aria-label="Social" class="flex gap-4">
+      <ExternalLink href={GITHUB_URL} class="text-fg inline-flex min-h-11 items-center underline">
+        {t.github}
+      </ExternalLink>
+      <ExternalLink href={LINKEDIN_URL} class="text-fg inline-flex min-h-11 items-center underline">
+        {t.linkedin}
+      </ExternalLink>
+    </nav>
+  </div>
+</footer>
