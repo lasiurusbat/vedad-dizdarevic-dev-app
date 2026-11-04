@@ -24,6 +24,10 @@ export const de: Messages = {
   aboutTitle: 'Über mich',
   contactTitle: 'Kontakt',
 
+  readCaseStudy: 'Fallstudie lesen',
+  backToWork: 'Zurück zu den ausgewählten Projekten',
+  viewFullSize: 'Vollbild ansehen',
+
   footerRights: 'Alle Rechte vorbehalten.',
 
   notFoundTitle: 'Seite nicht gefunden',
