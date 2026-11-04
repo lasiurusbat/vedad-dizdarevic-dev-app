@@ -29,6 +29,13 @@ export const en = {
   backToWork: 'Back to selected work',
   viewFullSize: 'View full size',
 
+  caseProblem: 'The problem',
+  caseDecisions: 'Decisions and trade-offs',
+  caseOutcome: 'Outcome',
+  caseLinks: 'Links',
+  caseRepo: 'Source code',
+  caseWhy: 'Why',
+
   footerRights: 'All rights reserved.',
 
   notFoundTitle: 'Page not found',

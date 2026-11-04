@@ -1,5 +1,7 @@
 ---
 import { type Locale, useTranslations } from '../i18n';
+import { caseStudyPath, getCaseStudies, slugOf } from '../lib/caseStudies';
+import CaseStudyCard from './CaseStudyCard.astro';
 import Hero from './Hero.astro';
 import Section from './Section.astro';
 
@@ -9,6 +11,7 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+const caseStudies = await getCaseStudies(locale);
 
 // Page order: pitch first (work, skills, about), then the freelance offer, then contact.
 // Section ids are the anchors the header links to. Content arrives section by section (Phase 4).
@@ -25,6 +28,20 @@ const sections = [
 
 {sections.map((s) => (
   <Section id={s.id} title={s.title}>
-    <p class="text-muted">{t.comingSoon}</p>
+    {s.id === 'work' && caseStudies.length > 0 ? (
+      <div class="grid gap-4 md:grid-cols-2">
+        {caseStudies.map((study) => (
+          <CaseStudyCard
+            locale={locale}
+            title={study.data.title}
+            summary={study.data.summary}
+            href={caseStudyPath(locale, slugOf(study))}
+            tags={study.data.stack}
+          />
+        ))}
+      </div>
+    ) : (
+      <p class="text-muted">{t.comingSoon}</p>
+    )}
   </Section>
 ))}
