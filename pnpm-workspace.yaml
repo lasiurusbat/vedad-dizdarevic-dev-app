@@ -2,3 +2,4 @@ packages:
   - site
   - worker
   - lambda/contact
+  - tests/e2e

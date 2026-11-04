@@ -55,6 +55,30 @@ jobs:
       - run: pnpm --filter @vdd/worker typecheck
       - run: pnpm --filter @vdd/worker test
 
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @vdd/e2e exec playwright install --with-deps chromium
+      # Builds the site, serves site/dist, then runs layout, a11y and menu checks.
+      - run: pnpm --filter @vdd/e2e test
+      - name: upload screenshots and report
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: e2e-screenshots-and-report
+          path: |
+            tests/e2e/screenshots
+            tests/e2e/playwright-report
+          if-no-files-found: ignore
+
   secrets:
     runs-on: ubuntu-latest
     timeout-minutes: 10
