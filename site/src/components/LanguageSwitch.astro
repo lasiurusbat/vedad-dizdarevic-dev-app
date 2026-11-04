@@ -1,5 +1,5 @@
 ---
-import { type Locale, locales, useTranslations } from '../i18n';
+import { type Locale, defaultLocale, locales, useTranslations } from '../i18n';
 import { LANGUAGE_NAMES } from '../site';
 
 interface Props {
@@ -9,12 +9,16 @@ interface Props {
 
 const { locale, urls } = Astro.props;
 const t = useTranslations(locale);
+
+// The English home link carries `?lang=en`: the Worker sends first-time visitors from Germany,
+// Austria, Switzerland, Luxembourg and Liechtenstein to /de/, and this marks English as a choice.
+const href = (l: Locale) => (l === defaultLocale && urls[l] === '/' ? '/?lang=en' : urls[l]);
 ---
 
 <nav aria-label={t.language} class="flex items-center">
   {locales.map((l) => (
     <a
-      href={urls[l]}
+      href={href(l)}
       lang={l}
       hreflang={l}
       aria-current={l === locale ? 'true' : undefined}
