@@ -1,0 +1,26 @@
+---
+import { render } from 'astro:content';
+import CaseStudySummary from '../../../components/CaseStudySummary.astro';
+import CaseStudyLayout from '../../../layouts/CaseStudyLayout.astro';
+import { getCaseStudies, slugOf, translationsOf } from '../../../lib/caseStudies';
+
+export async function getStaticPaths() {
+  const entries = await getCaseStudies('de');
+  return entries.map((entry) => ({ params: { slug: slugOf(entry) }, props: { entry } }));
+}
+
+const { entry } = Astro.props;
+const { Content } = await render(entry);
+const alternates = await translationsOf(slugOf(entry));
+---
+
+<CaseStudyLayout
+  locale="de"
+  title={entry.data.title}
+  summary={entry.data.summary}
+  tags={entry.data.stack}
+  alternates={alternates}
+>
+  <CaseStudySummary locale="de" data={entry.data} />
+  <Content />
+</CaseStudyLayout>

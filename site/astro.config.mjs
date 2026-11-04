@@ -1,9 +1,11 @@
+import mdx from '@astrojs/mdx';
 import tailwindcss from '@tailwindcss/vite';
 import { defineConfig } from 'astro/config';
 
 export default defineConfig({
   site: 'https://vedad-dizdarevic.dev',
   output: 'static',
+  integrations: [mdx()],
   trailingSlash: 'always',
   // `/` is English, `/de/` is German. Pages for German live in src/pages/de/.
   i18n: {

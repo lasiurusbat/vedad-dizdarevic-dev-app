@@ -52,6 +52,7 @@ The layout tree in [implementation-plan.md](documentation/implementation-plan.md
 - **GDPR:** EU region, self-hosted fonts (Fontsource), cookieless analytics. No Google Fonts or other trackers.
 - **Bilingual:** `/` is EN, `/de/` is DE. User-facing strings go in `site/src/i18n/{en,de}.ts`; hero, contact and work-with-me must exist in both.
 - **Tailwind v4:** CSS-first config in `site/src/styles/global.css` (`@theme`), no `tailwind.config.js`. Use semantic tokens (`bg-bg text-fg`) instead of `dark:` on every element; extract components, not `@apply` classes.
+- **Case studies:** MDX in `site/src/content/case-studies/{en,de}/<slug>.mdx` (schema in `site/src/content.config.ts`, language = folder). `draft: true` entries are left out of production builds; `SHOW_DRAFTS=1` includes them (the e2e build sets it). No invented facts: content comes from the owner's notes.
 - **Mobile first:** unprefixed utilities target ~360px; touch targets ≥44px; nothing hover-only.
 - **Deploy order:** upload `/_astro/` hashed assets first without `--delete`, then the rest with `--delete`.
 
