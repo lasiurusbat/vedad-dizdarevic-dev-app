@@ -194,3 +194,68 @@ describe('security headers', () => {
     );
   });
 });
+
+describe('language redirect (DACH)', () => {
+  const from = (country?: string, headers: Record<string, string> = {}) =>
+    ({ headers, cf: country ? { country } : undefined }) as RequestInit;
+
+  it.each(['DE', 'AT', 'CH', 'LU', 'LI'])(
+    'sends a fresh visit from %s to /de/',
+    async (country) => {
+      const response = await call('/', from(country));
+      expect(response.status).toBe(302);
+      expect(response.headers.get('Location')).toBe('/de/');
+      expect(response.headers.get('Cache-Control')).toBe('no-store');
+      expect(response.headers.get('Strict-Transport-Security')).toBeTruthy();
+    },
+  );
+
+  it('keeps the query string', async () => {
+    const response = await call('/?utm_source=x', from('DE'));
+    expect(response.headers.get('Location')).toBe('/de/?utm_source=x');
+  });
+
+  it.each(['US', 'GB', 'FR', 'XX', 'T1'])('leaves a visit from %s on English', async (country) => {
+    const response = await call('/', from(country));
+    expect(response.status).toBe(200);
+    expect(await response.text()).toBe('<h1>home</h1>');
+  });
+
+  it('does nothing without a country', async () => {
+    expect((await call('/', from())).status).toBe(200);
+  });
+
+  it('respects an explicit English choice (?lang=en)', async () => {
+    expect((await call('/?lang=en', from('DE'))).status).toBe(200);
+  });
+
+  it('does not redirect someone already browsing the site', async () => {
+    const sameOrigin = await call('/', from('DE', { 'Sec-Fetch-Site': 'same-origin' }));
+    expect(sameOrigin.status).toBe(200);
+    const host = 'ref.example.test';
+    const viaReferer = await call(
+      '/',
+      from('DE', { Referer: `https://${host}/projects/x/` }),
+      host,
+    );
+    expect(viaReferer.status).toBe(200);
+  });
+
+  it('still redirects when the Referer is another site or unparsable', async () => {
+    expect((await call('/', from('DE', { Referer: 'https://www.linkedin.com/' }))).status).toBe(
+      302,
+    );
+    expect((await call('/', from('DE', { Referer: 'not a url' }))).status).toBe(302);
+    expect((await call('/', from('DE', { 'Sec-Fetch-Site': 'cross-site' }))).status).toBe(302);
+  });
+
+  it('only redirects the home page', async () => {
+    expect((await call('/de/', from('DE'))).status).toBe(200);
+    expect((await call('/cv.pdf', from('DE'))).status).toBe(200);
+  });
+
+  it('redirects HEAD the same way', async () => {
+    const response = await call('/', { ...from('DE'), method: 'HEAD' });
+    expect(response.status).toBe(302);
+  });
+});
