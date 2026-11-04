@@ -90,7 +90,7 @@ vedad-dizdarevic.dev/
 │   │   └── wrangler.toml
 │   ├── lambda/
 │   │   └── contact/              # contact form handler (TypeScript)
-│   ├── case-studies/             # source notes (RainAlert, Sorted); written up as MDX in site/src/content/
+│   ├── case-studies/             # source notes per project: cs_sorted/, cs_rainalert/, cs_vedad-dizdarevic-dev/ (notes + screenshots/{light,dark}); written up as MDX in site/src/content/
 │   ├── cv/
 │   │   ├── template.typ
 │   │   ├── data.yaml             # CV content, EN + DE
