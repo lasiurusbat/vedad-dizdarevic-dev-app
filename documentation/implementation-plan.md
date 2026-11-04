@@ -90,7 +90,7 @@ vedad-dizdarevic.dev/
 │   │   └── wrangler.toml
 │   ├── lambda/
 │   │   └── contact/              # contact form handler (TypeScript)
-│   ├── case-studies/             # source notes (RainAlert, Sorted); written up as MDX in site/src/content/
+│   ├── case-studies/             # source notes per project: cs_sorted/, cs_rainalert/, cs_vedad-dizdarevic-dev/ (notes + screenshots/{light,dark}); written up as MDX in site/src/content/
 │   ├── cv/
 │   │   ├── template.typ
 │   │   ├── data.yaml             # CV content, EN + DE
@@ -229,12 +229,12 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Case studies
 
-- [ ] Content collection schema (`src/content.config.ts`): title, summary, problem, stack (list), decisions (list of `{decision, why}`), outcome metrics, repo URL, live/visual links, diagram reference, language
+- [x] Content collection schema (`src/content.config.ts`): title, summary, problem, stack (list), decisions (list of `{decision, why}`), outcome metrics, repo URL, live/visual links, diagram reference, language  _(Done: `site/src/content.config.ts`; one MDX file per language in `site/src/content/case-studies/{en,de}/<slug>.mdx`, the language is the folder, `draft: true` hides an entry from production builds; a generic draft `example` entry exists only to test the layout, delete it when the first real case study lands.)_
 - [ ] Case study 1: **sorted.onl**
 - [ ] Case study 2: **rainalert.live**
 - [ ] Case study 3 (optional): **this site**
 - [ ] Each has: problem in 1–2 sentences, architecture diagram, stack, 2–3 decisions with trade-offs (cost, security, reliability), outcome, links to repo and something live (pipeline run, Grafana screenshot)
-- [ ] Cards on the main page, full write-up on `/projects/<slug>/`
+- [x] Cards on the main page, full write-up on `/projects/<slug>/`  _(Done: cards in the work section, pages at `/projects/<slug>/` and `/de/projects/<slug>/`, language switch and hreflang only for translations that exist.)_
 - [ ] German versions: at least summaries on the cards; full translations optional at launch
 
 ### Diagrams

@@ -11,13 +11,23 @@ interface Props {
   locale?: Locale;
   /** Set false on pages with no translated twin (the 404 page): no hreflang, switch goes home. */
   translated?: boolean;
+  /**
+   * Which translations of this page exist (locale -> path), for pages that are not translated
+   * one to one (case studies). A missing locale links to that language's home page and gets no
+   * hreflang. Default: every locale at the same path.
+   */
+  alternates?: Partial<Record<Locale, string>>;
 }
 
-const { title, description, locale = 'en', translated = true } = Astro.props;
+const { title, description, locale = 'en', translated = true, alternates } = Astro.props;
 const t = useTranslations(locale);
-const urls = translated
-  ? alternateUrls(Astro.url.pathname)
-  : { en: localeUrl('en'), de: localeUrl('de') };
+const urls: Record<Locale, string> = alternates
+  ? { en: alternates.en ?? localeUrl('en'), de: alternates.de ?? localeUrl('de') }
+  : translated
+    ? alternateUrls(Astro.url.pathname)
+    : { en: localeUrl('en'), de: localeUrl('de') };
+// Locales that really have this page (for hreflang).
+const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : locales;
 ---
 
 <!doctype html>
@@ -28,10 +38,14 @@ const urls = translated
     <title>{title}</title>
     <meta name="description" content={description ?? t.role} />
     {translated && [
-      ...locales.map((l) => (
+      ...hreflangLocales.map((l) => (
         <link rel="alternate" hreflang={l} href={new URL(urls[l], Astro.site)} />
       )),
-      <link rel="alternate" hreflang="x-default" href={new URL(urls.en, Astro.site)} />,
+      <link
+        rel="alternate"
+        hreflang="x-default"
+        href={new URL(urls[hreflangLocales[0] ?? 'en'], Astro.site)}
+      />,
     ]}
     <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />

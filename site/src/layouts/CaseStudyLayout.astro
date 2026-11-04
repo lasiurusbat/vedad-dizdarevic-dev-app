@@ -7,13 +7,20 @@ interface Props {
   title: string;
   summary: string;
   tags?: string[];
+  /** Where translations of this case study live; see Base. */
+  alternates?: Partial<Record<Locale, string>>;
 }
 
-const { locale, title, summary, tags = [] } = Astro.props;
+const { locale, title, summary, tags = [], alternates } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<Base title={`${title} | ${t.siteTitle}`} description={summary} locale={locale}>
+<Base
+  title={`${title} | ${t.siteTitle}`}
+  description={summary}
+  locale={locale}
+  alternates={alternates}
+>
   <article class="max-w-page px-gutter py-section mx-auto">
     <a
       href={`${localeUrl(locale)}#work`}
