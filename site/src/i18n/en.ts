@@ -14,6 +14,7 @@ export const en = {
   navAbout: 'About',
   navContact: 'Contact',
   github: 'GitHub',
+  linkedin: 'LinkedIn',
 
   workTitle: 'Selected work',
   skillsTitle: 'Skills',
