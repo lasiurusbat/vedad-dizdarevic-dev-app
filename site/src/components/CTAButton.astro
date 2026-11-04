@@ -1,0 +1,19 @@
+---
+interface Props {
+  href: string;
+  variant?: 'primary' | 'secondary';
+}
+
+const { href, variant = 'primary' } = Astro.props;
+
+const base =
+  'inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2 font-medium no-underline transition-colors';
+const variants = {
+  primary: 'bg-accent text-bg hover:opacity-90',
+  secondary: 'border border-border-strong text-fg hover:bg-surface',
+};
+---
+
+<a href={href} class={`${base} ${variants[variant]}`}>
+  <slot />
+</a>
