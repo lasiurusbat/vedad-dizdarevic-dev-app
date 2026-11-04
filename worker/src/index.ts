@@ -1,5 +1,6 @@
 import { AwsClient } from 'aws4fetch';
 import { BROWSER_CACHE, EDGE_TTL_SECONDS, withSecurityHeaders } from './headers';
+import { GERMAN_HOME, wantsGermanHome } from './locale';
 import { cacheClass, resolvePath } from './paths';
 
 export interface Env {
@@ -87,6 +88,18 @@ function badGateway(request: Request): Response {
   });
 }
 
+/** 302, never cached: the answer depends on where the visitor is. */
+function germanHomeRedirect(url: URL): Response {
+  const headers = withSecurityHeaders(
+    new Headers({
+      Location: GERMAN_HOME + url.search,
+      'Cache-Control': 'no-store',
+      Vary: 'Referer, Sec-Fetch-Site',
+    }),
+  );
+  return new Response(null, { status: 302, headers });
+}
+
 function methodNotAllowed(): Response {
   const headers = withSecurityHeaders(new Headers({ Allow: 'GET, HEAD' }));
   headers.set('Cache-Control', 'no-store');
@@ -98,6 +111,8 @@ export default {
     if (request.method !== 'GET' && request.method !== 'HEAD') return methodNotAllowed();
 
     const url = new URL(request.url);
+    if (wantsGermanHome(request, url)) return germanHomeRedirect(url);
+
     const target = resolvePath(url.pathname);
     if (target.kind === 'invalid') return notFound(request, env, ctx);
 

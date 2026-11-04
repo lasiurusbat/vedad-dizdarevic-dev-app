@@ -98,6 +98,7 @@ Responsibilities:
 2. Map clean URLs to `index.html`; serve the custom 404 page
 3. Add the security headers to every response
 4. Forward `/api/contact` to the Lambda
+5. First-visit language choice (`worker/src/locale.ts`): a fresh visit to exactly `/` from Germany, Austria, Switzerland, Luxembourg or Liechtenstein (`request.cf.country`: DE, AT, CH, LU, LI) gets a 302 to `/de/`; every other country stays on English. **No cookie**, because the Datenschutz page promises none, so the redirect must never trap someone who picks English. It is skipped when the URL has `?lang=` (the language switch's English home link is `/?lang=en`), or when the request comes from within the site (`Sec-Fetch-Site: same-origin`, or a same-origin `Referer`, e.g. "Work" on a case study page linking to `/#work`). Deep links are never redirected, the 302 is `no-store`, and crawlers (mostly US-based) simply see English; `hreflang` and `x-default` stay clean. Trade-off: a visitor in Germany who opens `/` again later in a new tab is sent to `/de/` again, as language memory would need a cookie
 
 Implementation: TypeScript, `aws4fetch` for signing, Wrangler for local dev and deploy, tests with Vitest (`@cloudflare/vitest-plugin`, which replaces the deprecated `@cloudflare/vitest-pool-workers`).
 

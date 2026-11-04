@@ -198,6 +198,7 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 - [ ] **Header with CTAs:** name, section nav, language switch, and Contact / CV / GitHub / LinkedIn reachable on every screen; on mobile a compact sticky header or bottom bar; works without JavaScript _(In progress: name, section nav, language switch, Contact, GitHub and LinkedIn done, works without JS. The CV link follows with the CV, Phase 5.)_
 - [ ] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built", Impressum and Datenschutz links are added when those pages exist (Phases 4 and 9), to avoid dead links.)_
 - [x] **i18n:** Astro i18n routing with `defaultLocale: 'en'`, `locales: ['en', 'de']`; `/` English, `/de/` German; UI strings in `src/i18n/{en,de}.ts`; language switch links to the equivalent page; `<html lang>` set per page
+- [x] **Geo-based first language** (DE, AT, CH, LU, LI to `/de/`, everyone else English): in the Worker, no cookie; see tech-stack.md, Cloudflare Worker, item 5
 - [x] Skip-to-content link, semantic landmarks, heading hierarchy
 - [x] Favicon set (SVG + PNG fallback) and `site.webmanifest` _(sources in `site/icons-src/`; PNGs and `favicon.ico` were rendered from them with headless Chromium. Edit the SVG, regenerate, commit.)_
 

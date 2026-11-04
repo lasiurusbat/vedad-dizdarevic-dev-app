@@ -5,7 +5,7 @@ const widths = [360, 390, 768, 1280];
 const schemes = ['light', 'dark'] as const;
 const pages = [
   { path: '/', lang: 'en', contact: 'Contact', other: { label: /Deutsch/, href: '/de/' } },
-  { path: '/de/', lang: 'de', contact: 'Kontakt', other: { label: /English/, href: '/' } },
+  { path: '/de/', lang: 'de', contact: 'Kontakt', other: { label: /English/, href: '/?lang=en' } },
 ];
 // The header shows every link inline from the `lg` breakpoint (1024px) up.
 const INLINE_NAV_MIN = 1024;
