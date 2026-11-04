@@ -1,0 +1,93 @@
+---
+import { GITHUB_URL } from '../site';
+import { type Locale, localeUrl, useTranslations } from '../i18n';
+import CTAButton from './CTAButton.astro';
+import ExternalLink from './ExternalLink.astro';
+import LanguageSwitch from './LanguageSwitch.astro';
+
+interface Props {
+  locale: Locale;
+  urls: Record<Locale, string>;
+}
+
+const { locale, urls } = Astro.props;
+const t = useTranslations(locale);
+const home = localeUrl(locale);
+
+const sections = [
+  { id: 'work', label: t.navWork },
+  { id: 'skills', label: t.navSkills },
+  { id: 'about', label: t.navAbout },
+];
+const contact = `${home}#contact`;
+
+const link =
+  'inline-flex min-h-11 items-center rounded-md px-3 text-fg no-underline hover:bg-surface';
+---
+
+<header class="border-border bg-bg/90 sticky top-0 z-40 border-b backdrop-blur">
+  <div class="max-w-page px-gutter mx-auto flex h-16 items-center justify-between gap-2">
+    <a
+      href={home}
+      class="inline-flex min-h-11 items-center font-semibold tracking-tight no-underline"
+    >
+      {t.siteTitle}
+    </a>
+
+    <div class="flex items-center gap-1">
+      <!-- Wide screens: everything inline. -->
+      <nav aria-label={t.mainNav} class="hidden items-center gap-1 lg:flex">
+        {sections.map((s) => (
+          <a href={`${home}#${s.id}`} class={link}>
+            {s.label}
+          </a>
+        ))}
+        <ExternalLink href={GITHUB_URL} class={link}>
+          {t.github}
+        </ExternalLink>
+        <span class="ml-2">
+          <CTAButton href={contact}>{t.navContact}</CTAButton>
+        </span>
+      </nav>
+
+      <LanguageSwitch locale={locale} urls={urls} />
+
+      <!-- Small screens: a <details> menu, so it works without JavaScript. -->
+      <details data-menu class="lg:hidden">
+        <summary class="hover:bg-surface inline-flex min-h-11 min-w-11 cursor-pointer list-none items-center rounded-md px-3 text-sm font-medium marker:content-none [&::-webkit-details-marker]:hidden">
+          {t.menu}
+        </summary>
+        <nav
+          aria-label={t.mainNav}
+          class="border-border bg-bg absolute inset-x-0 top-full flex flex-col gap-1 border-b px-3 py-3 shadow-sm"
+        >
+          {sections.map((s) => (
+            <a href={`${home}#${s.id}`} class={link}>
+              {s.label}
+            </a>
+          ))}
+          <a href={contact} class={link}>
+            {t.navContact}
+          </a>
+          <ExternalLink href={GITHUB_URL} class={link}>
+            {t.github}
+          </ExternalLink>
+        </nav>
+      </details>
+    </div>
+  </div>
+</header>
+
+<script>
+  // Progressive enhancement: close the menu after choosing a link or pressing Escape.
+  const menu = document.querySelector<HTMLDetailsElement>('details[data-menu]');
+  menu?.addEventListener('click', (e) => {
+    if ((e.target as Element).closest('a')) menu.open = false;
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && menu?.open) {
+      menu.open = false;
+      menu.querySelector('summary')?.focus();
+    }
+  });
+</script>

@@ -1,0 +1,32 @@
+---
+import { type Locale, useTranslations } from '../i18n';
+import Section from './Section.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+const sections = [
+  { id: 'work', title: t.workTitle },
+  { id: 'skills', title: t.skillsTitle },
+  { id: 'about', title: t.aboutTitle },
+  { id: 'contact', title: t.contactTitle },
+];
+---
+
+<section class="py-section">
+  <div class="max-w-page px-gutter mx-auto flex flex-col gap-4">
+    <h1 class="text-5xl font-bold tracking-tight">{t.siteTitle}</h1>
+    <p class="text-accent text-2xl">{t.role}</p>
+    <p class="max-w-measure">{t.availability}</p>
+    <p class="text-muted">{t.placeholder}</p>
+  </div>
+</section>
+
+{sections.map((s) => (
+  <Section id={s.id} title={s.title}>
+    <p class="text-muted">{t.comingSoon}</p>
+  </Section>
+))}

@@ -1,14 +1,16 @@
 ---
-import { en } from '../i18n/en';
+import { useTranslations } from '../i18n';
 import Base from '../layouts/Base.astro';
+
+const t = useTranslations('en');
 ---
 
-<Base title={`${en.notFoundTitle} | ${en.siteTitle}`}>
-  <main class="mx-auto flex min-h-screen max-w-2xl flex-col justify-center gap-4 px-6 py-12">
-    <h1 class="text-4xl font-bold tracking-tight">{en.notFoundTitle}</h1>
-    <p class="text-muted">{en.notFoundText}</p>
+<Base title={`${t.notFoundTitle} | ${t.siteTitle}`} locale="en" translated={false}>
+  <div class="max-w-page px-gutter py-section mx-auto flex min-h-[50vh] flex-col justify-center gap-4">
+    <h1 class="text-4xl font-bold tracking-tight">{t.notFoundTitle}</h1>
+    <p class="text-muted">{t.notFoundText}</p>
     <a href="/" class="text-accent inline-flex min-h-11 items-center underline">
-      {en.backHome}
+      {t.backHome}
     </a>
-  </main>
+  </div>
 </Base>
