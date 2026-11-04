@@ -2,21 +2,23 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-03 (day 2)
+## Stopped at: 2026-11-04 (day 3)
 
-**Done today:** the app side of Phase 2. **The placeholder is live** at `https://vedad-dizdarevic.dev` (M2 reached on day 2; the target was D6).
+**Done:** the infra pipeline gaps (infra #7, #8) and all of **Phase 3** (design system and layout), in app PRs #10, #11, #13 and the Playwright sweep PR.
 
-- **#4 Worker v1** (`worker/`): SigV4 fetch to the private bucket with `aws4fetch` (one retry), clean-URL mapping, `/foo` to `/foo/` 301 only when the page exists, `404.html`, 502 on S3 errors, GET/HEAD only, Cache API rules, six security headers with the CSP in report-only mode. 37 tests in the Workers runtime.
-- **#5 Astro placeholder** (`site/`): Astro 7, Tailwind v4 with semantic tokens, `/` and `404.html`, no inline styles or scripts in the output.
-- **#6 App CI:** `site` and `worker` jobs. All four checks (`lint`, `secrets`, `site`, `worker`) are required on `main`.
-- **#8 Smoke tests and deploy workflow:** first deploy green. Checked by hand as well: `/` 200 with all six headers, a missing path 404, direct bucket access 403.
-- App Cloudflare token set as `CLOUDFLARE_API_TOKEN`; `vdd-worker` access key created and set as Worker secrets (see below); Node upgraded to 22.23.4 through fnm.
+- Tokens, fluid type and spacing, self-hosted Inter and JetBrains Mono (Latin and Latin Extended), prose mapped to the tokens (unlayered `.prose`, so it beats the typography plugin's defaults).
+- i18n: `/` English, `/de/` German, typed `de.ts`, hreflang, language switch to the equivalent page. Header (details menu, works without JS) with Contact, GitHub, LinkedIn; footer; skip link.
+- Components: `Section`, `CTAButton`, `ExternalLink`, `LanguageSwitch`, `CaseStudyCard`, `CaseStudyLayout`, `Diagram`, `SkillGroup`. Favicon set and `site.webmanifest`.
+- `tests/e2e` (Playwright + axe, CI job `e2e`): 360/390/768/1280px × light/dark × EN/DE, zero axe violations, no inline scripts or styles. Lighthouse mobile, one-off run: 100 in all four categories on `/` and `/de/`.
+- Lesson: do not stack PRs on each other's branches. #12 was stacked on #11, merged into the stale branch and never reached `main`; it was re-applied in #13. Branch from `main`.
 
 ## Next
 
-1. **Infra pipeline gaps (infra repo):** apply workflow (`production` environment, `gh-infra-apply`, concurrency without cancelling a running apply), Trivy and Checkov on PRs, plan as a PR comment.
-2. **Phase 3, design system and layout** (see the implementation plan): tokens, fonts through Fontsource, header and footer, i18n routing with `de.ts`.
+1. **Owner:** add `e2e` to the required checks on `main` after its first green run.
+2. **Phase 4, content sections** (see the implementation plan): hero, case studies, diagrams, skills, about, work with me, how this site is built. Needs the Phase 0 content inputs.
 3. **Owner:** Phase 0 content inputs (case study notes, screenshots, Impressum details), needed by about D10.
+4. Header CV link comes with Phase 5; footer links to How-this-site-is-built, Impressum and Datenschutz come when those pages exist.
+5. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends).
 
 ## Key rotation
 
@@ -25,10 +27,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Small loose ends
 
-- Better Stack will alert until the first deploy; that is expected.
-- The Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state. Check whether it injects a beacon, and decide in Phase 10.
+- **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
 - Phase 0 content inputs are still open: case study notes, screenshots, Impressum details (needed by about D10; Impressum by D20).
-- `de.ts` does not exist yet; the placeholder strings are in `site/src/i18n/en.ts`.
 - Node 20 deprecation warning in the deploy run (`configure-aws-credentials@v5`, `pnpm/action-setup@v4`); bump the actions when newer majors exist.
 - The Worker maps S3 403 to the 404 page, so a broken key would show as 404s; the smoke test's 200 on `/` is what catches that.
 - The CSP is report-only and has no report endpoint; check the browser console on every page before enforcing.

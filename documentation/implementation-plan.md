@@ -211,6 +211,8 @@ _Built (Phase 3): all of the above. `CaseStudyLayout` is in `layouts/`; `Diagram
 
 Placeholder sections render correctly at 360, 390, 768 and 1280px in both themes and both languages, with no horizontal scroll and Lighthouse accessibility at 100.
 
+**Status: met (2026-11-04).** `tests/e2e` (Playwright + axe, run in CI as the `e2e` job) checks 360/390/768/1280px × light/dark × EN/DE: no horizontal scroll, Contact and the language switch reachable, header touch targets ≥44px, zero axe violations (also with the menu open and on the 404 page), menu works without JS, skip link, no inline scripts or styles. A one-off Lighthouse mobile run on `/` and `/de/` scored 100 in all four categories. Lighthouse in CI with budgets is still Phase 9.
+
 ---
 
 ## Phase 4: Content sections
@@ -409,8 +411,8 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 ### Quality gates in CI (fail the build)
 
 - [ ] **Lighthouse CI** (mobile profile) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100; resource budgets (e.g. total JS < 20 KB on pages without a diagram, diagram pages ≤ the budget set in the Phase 4 spike, CSS < 30 KB gzipped, page weight < 500 KB excluding the CV)
-- [ ] **axe** via Playwright on every page, zero violations
-- [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR
+- [ ] **axe** via Playwright on every page, zero violations _(started in Phase 3: `tests/e2e` covers `/`, `/de/` and the 404 page; extend it as pages are added)_
+- [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR _(started in Phase 3: the `e2e` CI job uploads the screenshots as an artifact; extend as pages are added)_
 - [ ] **html-validate** and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)
 - [ ] **Trivy/Checkov** on Terraform (infra repo); **gitleaks** on both repos
 - [ ] Dependabot (or Renovate) for npm, GitHub Actions and Terraform providers (provider updates in the infra repo)
