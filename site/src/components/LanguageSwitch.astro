@@ -1,5 +1,6 @@
 ---
 import { type Locale, locales, useTranslations } from '../i18n';
+import { LANGUAGE_NAMES } from '../site';
 
 interface Props {
   locale: Locale;
@@ -18,13 +19,14 @@ const t = useTranslations(locale);
       hreflang={l}
       aria-current={l === locale ? 'true' : undefined}
       class:list={[
-        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-sm font-medium uppercase',
+        'inline-flex min-h-11 min-w-11 items-center justify-center rounded-md text-sm font-medium',
         l === locale
           ? 'text-fg underline decoration-2 underline-offset-8'
           : 'text-muted hover:text-fg',
       ]}
     >
-      {l}
+      {l.toUpperCase()}
+      <span class="sr-only"> {LANGUAGE_NAMES[l]}</span>
     </a>
   ))}
 </nav>
