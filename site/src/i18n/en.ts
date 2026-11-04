@@ -2,7 +2,8 @@ export const en = {
   siteTitle: 'Vedad Dizdarevic',
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
-  placeholder: 'This site is under construction.',
+  heroPositioning: 'A decade in 3D/CGI, now building and running production cloud infrastructure.',
+  ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
   skipToContent: 'Skip to content',
@@ -12,6 +13,7 @@ export const en = {
   navWork: 'Work',
   navSkills: 'Skills',
   navAbout: 'About',
+  navHire: 'Work with me',
   navContact: 'Contact',
   github: 'GitHub',
   linkedin: 'LinkedIn',
@@ -19,6 +21,7 @@ export const en = {
   workTitle: 'Selected work',
   skillsTitle: 'Skills',
   aboutTitle: 'About',
+  hireTitle: 'Work with me',
   contactTitle: 'Contact',
 
   readCaseStudy: 'Read the case study',

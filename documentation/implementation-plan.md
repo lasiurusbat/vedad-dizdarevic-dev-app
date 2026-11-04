@@ -221,10 +221,10 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Hero
 
-- [ ] Name, role (Cloud & DevOps Engineer), one-line positioning that uses the 3D/CGI + production infrastructure background
-- [ ] Clear availability line: open to full-time roles and freelance work
-- [ ] Primary CTAs: Contact, Download CV
-- [ ] EN + DE
+- [x] Name, role (Cloud & DevOps Engineer), one-line positioning that uses the 3D/CGI + production infrastructure background _(draft copy, owner to review)_
+- [x] Clear availability line: open to full-time roles and freelance work
+- [ ] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/site.ts` is set, Phase 5)_
+- [x] EN + DE
 
 ### Case studies
 

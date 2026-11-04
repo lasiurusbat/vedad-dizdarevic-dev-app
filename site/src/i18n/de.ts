@@ -5,7 +5,9 @@ export const de: Messages = {
   siteTitle: 'Vedad Dizdarevic',
   role: 'Cloud- & DevOps-Engineer',
   availability: 'Offen für Festanstellung und freiberufliche Projekte.',
-  placeholder: 'Diese Seite befindet sich im Aufbau.',
+  heroPositioning:
+    'Ein Jahrzehnt 3D/CGI, heute Aufbau und Betrieb von Cloud-Infrastruktur im Produktivbetrieb.',
+  ctaCv: 'Lebenslauf herunterladen',
   comingSoon: 'Folgt in Kürze.',
 
   skipToContent: 'Zum Inhalt springen',
@@ -15,6 +17,7 @@ export const de: Messages = {
   navWork: 'Projekte',
   navSkills: 'Kenntnisse',
   navAbout: 'Über mich',
+  navHire: 'Zusammenarbeit',
   navContact: 'Kontakt',
   github: 'GitHub',
   linkedin: 'LinkedIn',
@@ -22,6 +25,7 @@ export const de: Messages = {
   workTitle: 'Ausgewählte Projekte',
   skillsTitle: 'Kenntnisse',
   aboutTitle: 'Über mich',
+  hireTitle: 'Zusammenarbeit',
   contactTitle: 'Kontakt',
 
   readCaseStudy: 'Fallstudie lesen',
