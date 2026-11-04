@@ -2,7 +2,8 @@ export const en = {
   siteTitle: 'Vedad Dizdarevic',
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
-  heroPositioning: 'A decade in 3D/CGI, now building and running production cloud infrastructure.',
+  heroPositioning:
+    'Over a decade in 3D/CGI, now building and running production cloud infrastructure.',
   ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
