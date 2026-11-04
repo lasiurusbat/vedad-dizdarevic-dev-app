@@ -1,5 +1,6 @@
 ---
 import { type Locale, useTranslations } from '../i18n';
+import Hero from './Hero.astro';
 import Section from './Section.astro';
 
 interface Props {
@@ -8,22 +9,19 @@ interface Props {
 
 const { locale } = Astro.props;
 const t = useTranslations(locale);
+
+// Page order: pitch first (work, skills, about), then the freelance offer, then contact.
+// Section ids are the anchors the header links to. Content arrives section by section (Phase 4).
 const sections = [
   { id: 'work', title: t.workTitle },
   { id: 'skills', title: t.skillsTitle },
   { id: 'about', title: t.aboutTitle },
+  { id: 'hire', title: t.hireTitle },
   { id: 'contact', title: t.contactTitle },
 ];
 ---
 
-<section class="py-section">
-  <div class="max-w-page px-gutter mx-auto flex flex-col gap-4">
-    <h1 class="text-5xl font-bold tracking-tight">{t.siteTitle}</h1>
-    <p class="text-accent text-2xl">{t.role}</p>
-    <p class="max-w-measure">{t.availability}</p>
-    <p class="text-muted">{t.placeholder}</p>
-  </div>
-</section>
+<Hero locale={locale} />
 
 {sections.map((s) => (
   <Section id={s.id} title={s.title}>
