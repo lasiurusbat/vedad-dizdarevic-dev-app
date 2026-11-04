@@ -21,6 +21,10 @@ export const en = {
   aboutTitle: 'About',
   contactTitle: 'Contact',
 
+  readCaseStudy: 'Read the case study',
+  backToWork: 'Back to selected work',
+  viewFullSize: 'View full size',
+
   footerRights: 'All rights reserved.',
 
   notFoundTitle: 'Page not found',
