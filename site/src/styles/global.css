@@ -123,26 +123,28 @@
   }
 }
 
-/* Case study MDX: map the typography plugin onto the semantic tokens (no prose-invert needed). */
-@layer components {
-  .prose {
-    --tw-prose-body: var(--fg);
-    --tw-prose-headings: var(--fg);
-    --tw-prose-lead: var(--muted);
-    --tw-prose-links: var(--accent);
-    --tw-prose-bold: var(--fg);
-    --tw-prose-counters: var(--muted);
-    --tw-prose-bullets: var(--muted);
-    --tw-prose-hr: var(--border);
-    --tw-prose-quotes: var(--fg);
-    --tw-prose-quote-borders: var(--border-strong);
-    --tw-prose-captions: var(--muted);
-    --tw-prose-code: var(--fg);
-    --tw-prose-pre-code: var(--fg);
-    --tw-prose-pre-bg: var(--surface);
-    --tw-prose-th-borders: var(--border-strong);
-    --tw-prose-td-borders: var(--border);
-    max-width: var(--container-measure);
-    font-size: var(--text-base);
-  }
+/*
+ * Case study MDX: map the typography plugin onto the semantic tokens (no prose-invert needed).
+ * Deliberately NOT inside @layer: the plugin's own defaults are emitted in the utilities layer,
+ * and unlayered rules beat every layer.
+ */
+.prose {
+  --tw-prose-body: var(--fg);
+  --tw-prose-headings: var(--fg);
+  --tw-prose-lead: var(--muted);
+  --tw-prose-links: var(--accent);
+  --tw-prose-bold: var(--fg);
+  --tw-prose-counters: var(--muted);
+  --tw-prose-bullets: var(--muted);
+  --tw-prose-hr: var(--border);
+  --tw-prose-quotes: var(--fg);
+  --tw-prose-quote-borders: var(--border-strong);
+  --tw-prose-captions: var(--muted);
+  --tw-prose-code: var(--fg);
+  --tw-prose-pre-code: var(--fg);
+  --tw-prose-pre-bg: var(--surface);
+  --tw-prose-th-borders: var(--border-strong);
+  --tw-prose-td-borders: var(--border);
+  max-width: var(--container-measure);
+  font-size: var(--text-base);
 }
