@@ -42,6 +42,7 @@ export const en = {
   viewFullSize: 'View full size',
   galleryPrev: 'Previous screenshot',
   galleryNext: 'Next screenshot',
+  diagramSimplified: 'Simplified diagram.',
   diagramTextAlternative: 'Text description of the diagram',
   diagramNeedsJs:
     'The diagram needs JavaScript. Open the text description above for the same information.',

@@ -14,20 +14,18 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Next (in this order)
 
-1. **Open the PR** for `feat/dark-console-theme` (the owner merges). The deploy runs on merge; check the live site in both themes and the smoke test.
-2. **`feat/diagram-logos`** has two local, unpushed commits from before the design pass (brand logos, drag only when zoomed in, "Simplified diagram." caption). Rebase onto `main` after step 1, re-check the colours against the blue-teal tokens, then PR.
-3. **Fix the Tailwind typography backticks** around inline code in prose (`.prose code::before, .prose code::after { content: none }` in `site/src/styles/global.css`); the owner asked for it to ride along with the next content PR.
-4. **Sorted German version** (`de/sorted.mdx`), including German texts for the gallery cards, the `costs` block and the problem log. Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
-5. **Tests for the new pieces:** gallery prev/next and edge fades, the random hero variant (exactly one visible), reduced motion.
-6. **Infrastructure screenshot for Sorted:** retake the Grafana prod dashboard (fix the Uptime panel that shows "No data"); a good candidate for the gallery. Never caption it as customer traffic.
-7. **RainAlert case study** (EN, then DE), DevOps-first like Sorted; reuse `costs` and `ProblemLog` where the notes support them. The puddle image is AI-generated; say so in the caption.
-8. Rest of Phase 4: Skills groups, Work with me, How this site is built; About still lacks languages; About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
-9. **Check AWS's icon usage terms** (icons are unmodified; decide whether an attribution line is needed). Phase 0 inputs still open: Impressum details (needed by D20).
-10. **Owner:** add `e2e` to the required checks on `main`.
-11. Header CV link comes with Phase 5; footer links to How-this-site-is-built, Impressum and Datenschutz when those pages exist.
-12. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
-13. **Live check** of the geo redirect through a German VPN.
-14. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget; the home page now ships the hero diagram SVGs and a small script (no React).
+1. **Fix the Tailwind typography backticks** around inline code in prose (`.prose code::before, .prose code::after { content: none }` in `site/src/styles/global.css`); the owner asked for it to ride along with the next content PR.
+2. **Sorted German version** (`de/sorted.mdx`), including German texts for the gallery cards, the `costs` block and the problem log. Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
+3. **Tests for the new pieces:** gallery prev/next and edge fades, the random hero variant (exactly one visible), reduced motion.
+4. **Infrastructure screenshot for Sorted:** retake the Grafana prod dashboard (fix the Uptime panel that shows "No data"); a good candidate for the gallery. Never caption it as customer traffic.
+5. **RainAlert case study** (EN, then DE), DevOps-first like Sorted; reuse `costs` and `ProblemLog` where the notes support them. The puddle image is AI-generated; say so in the caption.
+6. Rest of Phase 4: Skills groups, Work with me, How this site is built; About still lacks languages; About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
+7. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagram in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
+8. **Owner:** add `e2e` to the required checks on `main`.
+9. Header CV link comes with Phase 5; footer links to How-this-site-is-built, Impressum and Datenschutz when those pages exist.
+10. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
+11. **Live check** of the geo redirect through a German VPN.
+12. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget (diagram-page JS budget proposed at 140 KB gzipped); the home page now ships the hero diagram SVGs and a small script (no React).
 
 ## Key rotation
 
