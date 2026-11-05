@@ -9,3 +9,4 @@ documentation/
 case-studies/
 CLAUDE.md
 site/src/assets/aws-icons/
+.claude/

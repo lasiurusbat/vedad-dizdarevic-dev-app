@@ -230,7 +230,7 @@ Single page with anchored sections, plus a detail page per case study.
 ### Case studies
 
 - [x] Content collection schema (`src/content.config.ts`): title, summary, problem, stack (list), decisions (list of `{decision, why}`), outcome metrics, repo URL, live/visual links, diagram reference, language  _(Done: `site/src/content.config.ts`; one MDX file per language in `site/src/content/case-studies/{en,de}/<slug>.mdx`, the language is the folder, `draft: true` hides an entry from production builds; a generic draft `example` entry exists only to test the layout, delete it when the first real case study lands.)_
-- [x] Case study 1: **sorted.onl** _(English done in PR #19; German pending. Demo-data screenshots as light/dark pairs; repo is private, so the page says so.)_
+- [x] Case study 1: **sorted.onl** _(English merged in #19 and rewritten DevOps-first as a live, commercially available product with the sorted.onl link; German and the diagram pending. Demo-data screenshots as light/dark pairs in "The workload"; repo is private, so the page says so. Needs an infrastructure screenshot (pipeline run, plan summary or Grafana); the Grafana prod screenshot is a placeholder to be retaken, with the Uptime panel fixed.)_
 - [ ] Case study 2: **rainalert.live**
 - [ ] Case study 3 (optional): **this site**
 - [ ] Each has: problem in 1–2 sentences, architecture diagram, stack, 2–3 decisions with trade-offs (cost, security, reliability), outcome, links to repo and something live (pipeline run, Grafana screenshot)
@@ -241,10 +241,10 @@ Single page with anchored sections, plus a detail page per case study.
 
 - [x] **Spike first (½ d), done 2026-11-05:** `@astrojs/react` + `@xyflow/react` in Astro with one diagram; measure gzipped JS, confirm it works under the report-only CSP (no inline-style violations; try `client:only="react"`), decide the diagram-page JS budget
   _Result: `@astrojs/react` and `client:only` fail the CSP (Astro's island wrapper emits an inline script, an inline `<style>` and a `style` attribute). Use a plain module script instead (`site/src/diagrams/mount.ts`): it mounts React Flow when the diagram scrolls into view, so there is no inline code and `script-src 'self'` / `style-src 'self'` stay unchanged. Cost on a diagram page: about 128 KB gzipped (React Flow 60, react-dom 64, loader and CSS 4); pages without a diagram load none of it. Proposed diagram-page JS budget: 140 KB gzipped. Mobile: the diagram keeps a readable width inside a keyboard-focusable, sideways-scrolling wrapper, because shrinking it to 360px makes the text about 5px. `tests/e2e/diagram.spec.ts` enforces the production CSP and fails on any violation._
-- [ ] Diagram component renders typed nodes/edges from `site/src/diagrams/`; AWS Architecture Icons stored locally as SVGs; hydrated only where used
-- [ ] Light/dark: node and edge colours use the semantic tokens
-- [ ] Each diagram has a text alternative (short description of the flow) and a static fallback image for `<noscript>` and pre-hydration
-- [ ] Mobile: fit-to-view on load, touch pan/zoom doesn't trap page scroll; complex diagrams get a simplified layout
+- [x] Diagram component renders typed nodes/edges from `site/src/diagrams/`; AWS Architecture Icons stored locally as SVGs; hydrated only where used _(Done in #20: `ArchitectureDiagram.astro` + `mount.ts`, loaded when the diagram scrolls into view; the 10 icons are unmodified, release 07312026. Open: check AWS's icon usage terms; Cloudflare and GitHub nodes are text-only.)_
+- [x] Light/dark: node and edge colours use the semantic tokens _(axe passes in both themes)_
+- [ ] Each diagram has a text alternative (short description of the flow) and a static fallback image for `<noscript>` and pre-hydration _(Text alternative done in `<details>`, EN only; the DE text and the static fallback image are open.)_
+- [x] Mobile: fit-to-view on load, touch pan/zoom doesn't trap page scroll; complex diagrams get a simplified layout _(Done differently: below 640px the diagram keeps a readable width in a sideways-scrolling, keyboard-focusable wrapper instead of a second layout; drag-pan is for a fine pointer only; on desktop the figure is wider than the text column.)_
 
 ### Skills
 
