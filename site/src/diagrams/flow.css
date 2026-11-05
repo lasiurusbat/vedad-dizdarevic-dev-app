@@ -70,7 +70,7 @@
   font-weight: 600;
 }
 .react-flow__node-group {
-  border: 1px dashed var(--border-strong);
+  border: 3px dashed var(--border-strong);
   border-radius: var(--radius-md);
   background: transparent;
 }
