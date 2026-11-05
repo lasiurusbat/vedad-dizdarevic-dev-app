@@ -65,9 +65,15 @@ const t = useTranslations(locale);
     text-wrap: wrap;
   }
 
-  /* The role line is 20% smaller than the name. */
+  /* The role line is exactly as wide as the name. Text width scales linearly with font size,
+     so the ratio is measured once per language (Inter Tight, weight 500, -0.01em tracking) and
+     holds at every viewport. Re-measure if the name, the role text or the font changes. */
   .role {
-    font-size: 0.8em;
+    font-size: 0.676em;
+  }
+
+  .role:lang(de) {
+    font-size: 0.64em;
   }
 
   /* 10% smaller than the text-lg it used to be. */
