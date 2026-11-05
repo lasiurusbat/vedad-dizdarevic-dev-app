@@ -1,0 +1,124 @@
+---
+title: 'Sorted: a multi-tenant SaaS platform on AWS, in Terraform'
+summary: 'The AWS platform behind a live multi-tenant support-ticket SaaS. One Terraform module builds dev and prod, CI/CD uses no long-lived keys, and inbound mail is encrypted and malware-scanned. Built and run solo in six weeks.'
+problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and "the AI cannot do harm" had to be enforced by code and infrastructure, for a commercial product with one person to run it.'
+stack:
+  [
+    'AWS (ECS Fargate, RDS, ALB, SES, SNS, S3, KMS, GuardDuty)',
+    'Terraform',
+    'GitHub Actions + OIDC',
+    'Cloudflare',
+    'Grafana Cloud',
+    'Workload: TypeScript, Bun, React 19, PostgreSQL (row-level security)',
+  ]
+decisions:
+  - decision: 'One Terraform module builds every environment; dev and prod are separate roots that only set flags'
+    why: 'Environments cannot drift, and the production topology (Multi-AZ database, a NAT gateway per zone, on-demand Fargate) is a few flag flips away instead of a rebuild. The price is a module of about 3,000 lines that has to stay generic.'
+  - decision: 'Keyless delivery: GitHub OIDC, immutable ECR tags, a reviewed image tag as the deploy, rollback as a one-line change'
+    why: 'No long-lived AWS keys exist anywhere, and a version always means the same bytes. The deploy role is an administrator because terraform apply creates IAM, networks and databases; it is limited by trust instead, pinned to immutable repository IDs and one GitHub environment. A permission boundary would be better, and I list it as a gap.'
+  - decision: 'Perimeter by construction: the ALB admits only Cloudflare ranges, security groups reference each other, and unscanned attachments cannot be read'
+    why: 'A bug in the app cannot expose the database or serve an unscanned file, because the bucket policy denies any object not tagged NO_THREATS_FOUND by GuardDuty. The cost is manual upkeep of the Cloudflare IP list, documented in the runbook.'
+  - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
+    why: 'Fixed cost before launch stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
+outcomes:
+  - label: 'Environments built from one module'
+    value: '2 (dev, prod)'
+  - label: 'Long-lived AWS keys in CI/CD'
+    value: '0'
+  - label: 'Offline Terraform tests'
+    value: '22'
+  - label: 'Built and run solo'
+    value: '6 weeks'
+  - label: 'Dev cost per month (est., was ~$105)'
+    value: '~$40'
+  - label: 'Prod cost per month (est.)'
+    value: '~$150'
+repoPrivate: true
+liveLinks:
+  - label: 'Sorted, live'
+    url: 'https://sorted.onl'
+order: 10
+draft: false
+---
+
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
+import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
+import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
+import ticketDark from '../../../assets/case-studies/sorted/ticket-dark.png';
+import dashboardLight from '../../../assets/case-studies/sorted/dashboard-light.png';
+import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.png';
+
+## Scope
+
+Sorted is a commercial SaaS product, live at [sorted.onl](https://sorted.onl): self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it in six weeks (September 17 to October 31, 2026). This write-up describes the production configuration, defined in Terraform and reviewed. The cost figures are my own estimates from the docs in the repository, not billing data, and failover has been designed but not drilled.
+
+## Architecture
+
+The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx and the Bun server in one Fargate task, then RDS PostgreSQL in private subnets. The mail path is customer email, SES receipt rule, S3 (own KMS key) and SNS, a signed webhook on the ALB, a saved ticket, a `pg-boss` job for AI classification, then either the agent queue or an automatic reply out through SES, with delivery events coming back through SNS.
+
+## Infrastructure highlights
+
+- **Compute.** One Fargate task with two containers, on ARM64 for about 20 % lower cost. Rolling deploys use the deployment circuit breaker with automatic rollback, and every database migration must work with the previous release (expand, then contract).
+- **Network.** Security groups reference each other, not CIDRs. RDS accepts connections only from the task. There is no SSH and no bastion; ECS Exec is the break-glass path.
+- **Data.** Private RDS with encryption, a staged rollout of database TLS (`off`, `verify`, `require`) and secrets injected from Secrets Manager.
+- **Mail and attachments.** SES, SNS and S3 form the inbound pipeline. Webhooks trust only SNS signatures, the inbound bucket has its own KMS key, and GuardDuty Malware Protection scans every attachment.
+- **Delivery.** A release is a git tag that runs the full check suite and pushes immutable images. Deploying is a reviewed infrastructure change; the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate`, and 22 offline `terraform test` runs with mocked providers that assert the security properties without an AWS account.
+- **Operations.** Structured JSON logs, Grafana Cloud reading CloudWatch through a read-only role with an External ID, alerts tied to a symptom-first runbook.
+
+
+
+## Problems I hit
+
+| Problem                                                 | Resolution                                                                                                            |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Every visitor looked like one IP, so rate limits were shared | Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB        |
+| Prisma connected without TLS despite `sslmode=verify-full`   | `prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA  |
+| SES webhooks could not be subscribed in the first apply      | SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented  |
+| A rotated secret did not take effect                         | A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment            |
+| GitHub OIDC trust was name-based                             | A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs              |
+
+## The workload
+
+The platform exists to run this application.
+
+Each customer team gets a Sorted address or forwards its own in. An incoming email becomes a ticket. AI classifies it, summarizes it and, for non-transactional questions, answers from the team's knowledge base. **Refund and payment tickets never go to the AI.** Humans work a queue: assign, reply, merge, templates, audit log. It is multi-tenant SaaS with self sign-up, Stripe billing, three team roles, 22 UI languages and a super-admin console. All screenshots below use demo data.
+
+<ThemedScreenshot
+  light={ticketsLight}
+  dark={ticketsDark}
+  alt="The ticket queue of a demo team, Harbor Lane Goods: a table of customer emails with subject, status, category, assignee and last activity, with counters for tickets that need a reply."
+  caption="The ticket queue. Demo data."
+/>
+
+<ThemedScreenshot
+  light={ticketLight}
+  dark={ticketDark}
+  alt="A single ticket: the customer's message, an AI-written answer from the knowledge base marked as such, a reply editor, and a timeline summarizing the story so far."
+  caption="A ticket resolved from the knowledge base. AI-written replies are labelled. Demo data."
+/>
+
+Three structural rules keep the AI safe:
+
+1. **The webhook never calls the AI.** It saves the message and returns 200, so AI latency or failure cannot lose a customer's email.
+2. **Guardrails are code, not prompt text.** The model returns category, priority, confidence and a draft. Application code decides whether anything is sent.
+3. **Every AI failure ends with the ticket open for a human.** A sweep every five minutes opens anything a crash left behind.
+
+<ThemedScreenshot
+  light={dashboardLight}
+  dark={dashboardDark}
+  alt="The team dashboard: tickets waiting, tickets received, the share resolved by AI versus by agents, median first-reply and resolution times, and a tickets-per-day chart."
+  caption="The dashboard, including the split between AI-resolved and agent-resolved tickets. Demo data."
+/>
+
+
+## Limitations and what I would do next
+
+- **One task.** The database fails over across zones, but the single app task is restarted by ECS in the other zone, a short interruption. I have not tested it under load or a real failover, and there is no autoscaling yet.
+- **The deploy role is an administrator.** This is a deliberate trade-off with tight trust conditions. A permission boundary and a scoped policy generated from a plan would be a better end state.
+- **Alert rules live in Grafana, not in Terraform.** Only the IAM role is code today.
+- **Terraform state holds generated secrets in plain text.** The bucket is private and encrypted, but I would create those secrets outside state or rotate them on a schedule.
+- **Backup restore is documented but not drilled.** Both the RDS snapshot and the Deep Archive path need a scheduled restore test.
+- **No WAF rules of my own.** I would add rate-based rules and test them against the SES and Stripe webhooks first, because a challenge on those paths would silently break mail and billing.
+
+I do not claim a formal security audit. I used review passes while building.

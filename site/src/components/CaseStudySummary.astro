@@ -46,10 +46,11 @@ const links = [
   </>
 )}
 
-{links.length > 0 && (
+{(links.length > 0 || data.repoPrivate) && (
   <>
     <h2>{t.caseLinks}</h2>
     <ul>
+      {data.repoPrivate && <li>{t.casePrivateRepo}</li>}
       {links.map((l) => (
         <li>
           <a href={l.url} rel="noopener noreferrer">
