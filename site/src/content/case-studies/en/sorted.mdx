@@ -41,6 +41,7 @@ order: 10
 draft: false
 ---
 
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
 import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
@@ -56,6 +57,12 @@ Sorted is a commercial SaaS product, live at [sorted.onl](https://sorted.onl): s
 ## Architecture
 
 The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx and the Bun server in one Fargate task, then RDS PostgreSQL in private subnets. The mail path is customer email, SES receipt rule, S3 (own KMS key) and SNS, a signed webhook on the ALB, a saved ticket, a `pg-boss` job for AI classification, then either the agent queue or an automatic reply out through SES, with delivery events coming back through SNS.
+
+<ArchitectureDiagram
+  locale="en"
+  id="sorted-production"
+  title="Sorted production architecture on AWS: the request path, the mail path with attachment scanning, and the release path."
+/>
 
 ## Infrastructure highlights
 
