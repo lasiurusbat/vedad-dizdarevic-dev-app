@@ -27,8 +27,8 @@ const sections = [
 
 <Hero locale={locale} />
 
-{sections.map((s) => (
-  <Section id={s.id} title={s.title}>
+{sections.map((s, i) => (
+  <Section id={s.id} title={s.title} bloom={i === 0}>
     {s.id === 'work' && caseStudies.length > 0 ? (
       <div class="grid gap-4 md:grid-cols-2">
         {caseStudies.map((study) => (
