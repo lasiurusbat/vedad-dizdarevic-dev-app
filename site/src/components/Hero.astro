@@ -12,7 +12,9 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<section aria-labelledby="hero-title" class="py-section overflow-x-clip">
+<section aria-labelledby="hero-title" class="py-section relative isolate overflow-x-clip">
+  <!-- Light shaft: starts behind the navbar and drops down behind the diagram. Decorative. -->
+  <div class="shaft" aria-hidden="true"></div>
   <div class="max-w-page px-gutter mx-auto grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
     <div class="flex flex-col items-start gap-stack">
       <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
@@ -47,3 +49,62 @@ const t = useTranslations(locale);
     </div>
   </div>
 </section>
+
+<style>
+  /* The beams are clipped shapes; the blur sits on the parent, so it applies after the clip
+     and every edge is soft. The section clips sideways only, so the shaft can reach up behind
+     the translucent sticky header. */
+  .shaft {
+    display: none;
+    position: absolute;
+    z-index: -1;
+    top: -7rem;
+    right: 2%;
+    width: 58%;
+    height: calc(100% + 7rem);
+    pointer-events: none;
+    background: radial-gradient(ellipse 26% 16% at 58% 8%, var(--shaft-core), transparent);
+    filter: blur(26px);
+  }
+
+  @media (min-width: 64rem) {
+    .shaft {
+      display: block;
+    }
+  }
+
+  .shaft::before,
+  .shaft::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Wide, faint beam. */
+  .shaft::before {
+    background: linear-gradient(to bottom, var(--shaft), transparent 80%);
+    clip-path: polygon(46% 0, 70% 0, 96% 100%, 8% 100%);
+  }
+
+  /* Narrow, brighter core, fading out sooner. */
+  .shaft::after {
+    background: linear-gradient(to bottom, var(--shaft-core), transparent 60%);
+    clip-path: polygon(54% 0, 62% 0, 66% 100%, 30% 100%);
+    animation: breathe 9s ease-in-out infinite alternate;
+  }
+
+  @keyframes breathe {
+    from {
+      opacity: 0.7;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shaft::after {
+      animation: none;
+    }
+  }
+</style>

@@ -28,6 +28,13 @@
   --card-bottom: var(--surface);
   --card-line: rgb(20 22 31 / 0.07);
   --card-shade: rgb(20 22 31 / 0.025);
+  /* Frosted glass frame (screenshot gallery): translucent fill, top-lit edge. */
+  --glass-top: rgb(20 22 31 / 0.035);
+  --glass-bottom: rgb(20 22 31 / 0.005);
+  --glass-edge: rgb(20 22 31 / 0.16);
+  /* Hero light shaft. */
+  --shaft: rgb(74 82 196 / 0.07);
+  --shaft-core: rgb(74 82 196 / 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -43,6 +50,11 @@
     --card-bottom: #10111b;
     --card-line: rgb(255 255 255 / 0.06);
     --card-shade: rgb(255 255 255 / 0.018);
+    --glass-top: rgb(255 255 255 / 0.07);
+    --glass-bottom: rgb(255 255 255 / 0.01);
+    --glass-edge: rgb(255 255 255 / 0.24);
+    --shaft: rgb(152 164 247 / 0.13);
+    --shaft-core: rgb(201 211 238 / 0.18);
   }
 }
 
