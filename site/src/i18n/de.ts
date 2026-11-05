@@ -6,7 +6,7 @@ export const de: Messages = {
   role: 'Cloud- & DevOps-Engineer',
   availability: 'Offen für Festanstellung und freiberufliche Projekte.',
   heroPositioning:
-    'Infrastructure as Code mit Terraform. Produktionsplattformen auf AWS. Container mit Docker und Kubernetes.',
+    'Skalierbare, produktionsreife Cloud-Plattformen mit Infrastructure as Code, AWS-Architektur, Containerisierung und Kubernetes-Orchestrierung.',
   ctaCv: 'Lebenslauf herunterladen',
   comingSoon: 'Folgt in Kürze.',
 
@@ -25,8 +25,12 @@ export const de: Messages = {
   workTitle: 'Ausgewählte Projekte',
   skillsTitle: 'Kenntnisse',
   aboutTitle: 'Über mich',
-  aboutText:
-    'Über zehn Jahre habe ich in 3D/CGI gearbeitet, bevor ich ins Cloud- und DevOps-Engineering gewechselt bin. Im Juli 2024 habe ich die Weiterbildung zum DevOps Engineer bei DataScientest abgeschlossen. Heute baue und betreibe ich Produktionsinfrastruktur auf AWS, mit Terraform und Kubernetes.',
+  aboutP1:
+    'Über zehn Jahre habe ich in 3D/CGI gearbeitet, bevor ich ins Cloud- und DevOps-Engineering gewechselt bin. Dort hatte ich täglich mit Render-Pipelines und großen Datenmengen zu tun, und die Infrastruktur dahinter hat mir am meisten Spaß gemacht. Im Juli 2024 habe ich die Weiterbildung zum DevOps Engineer bei DataScientest abgeschlossen.',
+  aboutP2:
+    'Mein bisher größtes Projekt ist Sorted, ein kommerzielles SaaS-Produkt, dessen AWS-Plattform ich allein aufgebaut habe und betreibe, vom ersten Terraform-Modul bis zur Produktion in sechs Wochen. Auch diese Website ist ein Projekt: Terraform für AWS und Cloudflare, CI/CD über OIDC, Security-Header bei jedem Deploy getestet.',
+  aboutP3:
+    'Ich bereite mich auf die AWS Certified Solutions Architect – Associate vor und bin offen für Festanstellungen und freiberufliche Projekte. Abseits des Terminals: Spiele, Bücher, ein Fahrrad und zu viel Kaffee.',
   hireTitle: 'Zusammenarbeit',
   contactTitle: 'Kontakt',
 

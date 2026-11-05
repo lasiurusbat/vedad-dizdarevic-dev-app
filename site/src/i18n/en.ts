@@ -3,7 +3,7 @@ export const en = {
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
   heroPositioning:
-    'Infrastructure as Code with Terraform. Production platforms on AWS. Containers with Docker and Kubernetes.',
+    'Building scalable, production-ready cloud platforms through Infrastructure as Code, AWS architecture, containerization, and Kubernetes orchestration.',
   ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
@@ -22,8 +22,12 @@ export const en = {
   workTitle: 'Selected work',
   skillsTitle: 'Skills',
   aboutTitle: 'About',
-  aboutText:
-    'I spent more than a decade in 3D/CGI before moving into cloud and DevOps engineering. In July 2024 I completed the DevOps Engineer diploma at DataScientest. Today I build and run production infrastructure on AWS with Terraform and Kubernetes.',
+  aboutP1:
+    'I spent more than a decade in 3D/CGI before moving into cloud and DevOps engineering. There I worked with render pipelines and large files every day, and infrastructure turned out to be the part I enjoyed most. In July 2024 I completed the DevOps Engineer diploma at DataScientest.',
+  aboutP2:
+    'My largest project so far is Sorted, a commercial SaaS product whose AWS platform I built and run on my own, from the first Terraform module to production in six weeks. This site is a project too: Terraform for AWS and Cloudflare, CI/CD through OIDC, security headers tested on every deploy.',
+  aboutP3:
+    "I'm working towards the AWS Certified Solutions Architect – Associate and am open to full-time roles and freelance work. Away from the terminal: games, books, a bike and too much coffee.",
   hireTitle: 'Work with me',
   contactTitle: 'Contact',
 
