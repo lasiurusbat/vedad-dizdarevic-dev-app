@@ -12,8 +12,8 @@ const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
 const PAGE = '/projects/example/';
 
 /** The diagram mounts when it scrolls into view, so bring it there first. */
-async function openDiagram(page: Page) {
-  await page.goto(PAGE);
+async function openDiagram(page: Page, path = PAGE) {
+  await page.goto(path);
   await page.locator('.diagram-mount').scrollIntoViewIfNeeded();
   const diagram = page.getByRole('group', { name: /architecture/i });
   await expect(diagram.locator('.react-flow__node-service').first()).toBeVisible();
@@ -55,6 +55,13 @@ for (const scheme of ['light', 'dark'] as const) {
     expect(results.violations).toEqual([]);
   });
 }
+
+test('the Sorted case study shows the diagram under the production CSP', async ({ page }) => {
+  const diagram = await openDiagram(page, '/projects/sorted/');
+  await expect(diagram.locator('.react-flow__node-service')).toHaveCount(15);
+  expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
+  await expect(page.getByRole('heading', { name: 'Architecture' })).toBeVisible();
+});
 
 test('text alternative lists the flow', async ({ page }) => {
   await page.goto(PAGE);
