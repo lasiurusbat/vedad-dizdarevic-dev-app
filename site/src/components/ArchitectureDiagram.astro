@@ -25,7 +25,9 @@ const steps = locale === 'de' && description.de.length > 0 ? description.de : de
   >
     <div class="diagram-mount" data-diagram={id} data-label={title}></div>
   </div>
-  <figcaption class="text-muted mt-2 text-sm">{title}</figcaption>
+  <figcaption class="text-muted mt-2 text-sm">
+    {t.diagramSimplified} {title}
+  </figcaption>
   <details class="mt-2 text-sm">
     <summary class="inline-flex min-h-11 cursor-pointer items-center underline">
       {t.diagramTextAlternative}

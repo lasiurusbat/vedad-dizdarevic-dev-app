@@ -1,6 +1,6 @@
 import { MarkerType, type Edge } from '@xyflow/react';
-import { icons } from './icons';
-import type { DiagramDefinition, DiagramNode } from './types';
+import { cloudflareLogo, genericIcons, githubMark, icons } from './icons';
+import type { DiagramDefinition, DiagramIcon, DiagramNode } from './types';
 
 const W = 160;
 const H = 56;
@@ -15,14 +15,15 @@ const svc = (
   kind: 'edge' | 'compute' | 'data' | 'mail' | 'security' | 'delivery' | 'external',
   detail?: string,
   inGroup = true,
-  icon?: string,
+  icon?: DiagramIcon,
+  logo?: string,
 ): DiagramNode => ({
   id,
   type: 'service',
   position: { x, y },
   width: W,
   height: H,
-  data: { label, detail, kind, icon },
+  data: { label, detail, kind, icon, logo },
   draggable: false,
   selectable: false,
   focusable: false,
@@ -30,9 +31,9 @@ const svc = (
 });
 
 export const nodes: DiagramNode[] = [
-  svc('users', 400, 0, 'Visitors', 'external', undefined, false),
-  svc('cf', 400, 80, 'Cloudflare', 'edge', 'proxy, TLS, WAF', false),
-  svc('cust', 20, 90, 'Customer email', 'external', undefined, false),
+  svc('users', 400, 0, 'Visitors', 'external', undefined, false, genericIcons.users),
+  svc('cf', 400, 80, 'Cloudflare', 'edge', 'proxy, TLS, WAF', false, undefined, cloudflareLogo),
+  svc('cust', 20, 90, 'Customer email', 'external', undefined, false, genericIcons.email),
   {
     id: GROUP,
     type: 'group',
@@ -54,8 +55,8 @@ export const nodes: DiagramNode[] = [
   svc('rds', 590, 260, 'RDS', 'data', 'primary, zone A', true, icons.rds),
   svc('gd', 400, 370, 'GuardDuty', 'security', 'malware scan', true, icons.guardduty),
   svc('standby', 590, 370, 'RDS standby', 'data', 'zone B, failover', true, icons.rds),
-  svc('gha', 840, 320, 'GitHub Actions', 'delivery', 'OIDC, no keys', false),
-  svc('tag', 840, 230, 'git tag', 'delivery', 'full checks first', false),
+  svc('gha', 840, 320, 'GitHub Actions', 'delivery', 'OIDC, no keys', false, githubMark),
+  svc('tag', 840, 230, 'git tag', 'delivery', 'full checks first', false, githubMark),
 ];
 
 const arrow = { type: MarkerType.ArrowClosed, color: '#8b95a0' } as const;
