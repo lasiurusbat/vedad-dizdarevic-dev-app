@@ -23,6 +23,11 @@
   --accent: #4a52c4;
   --border: #d9dce6;
   --border-strong: #858ea3;
+  /* Card panel (the `card` utility): vertical fade plus faint line art. */
+  --card-top: #ffffff;
+  --card-bottom: var(--surface);
+  --card-line: rgb(20 22 31 / 0.07);
+  --card-shade: rgb(20 22 31 / 0.025);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -34,6 +39,10 @@
     --accent: #98a4f7;
     --border: #1f2433;
     --border-strong: #6b7590;
+    --card-top: #1b1c28;
+    --card-bottom: #10111b;
+    --card-line: rgb(255 255 255 / 0.06);
+    --card-shade: rgb(255 255 255 / 0.018);
   }
 }
 
@@ -137,6 +146,52 @@
 
   ::selection {
     background-color: color-mix(in srgb, var(--accent) 30%, transparent);
+  }
+}
+
+/*
+ * Card panel: a top-lit vertical fade and faint abstract line art in the top-right corner that
+ * fades out downwards. Pure CSS (no image request, CSP-safe), themed through the --card-* tokens.
+ * The art sits on ::before behind the content (isolation + z-index -1), so it never covers
+ * text, and it ignores the pointer, so stretched links keep working. Hard-stop gradients draw
+ * 1px lines at an angle; the half-plane behind the first line is a barely visible shade.
+ */
+@utility card {
+  position: relative;
+  isolation: isolate;
+  background-color: var(--card-bottom);
+  background-image: linear-gradient(to bottom, var(--card-top), var(--card-bottom));
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    pointer-events: none;
+    background-image:
+      linear-gradient(
+        74deg,
+        transparent 66%,
+        var(--card-line) 66%,
+        var(--card-line) calc(66% + 1px),
+        var(--card-shade) calc(66% + 1px)
+      ),
+      linear-gradient(
+        106deg,
+        transparent 84%,
+        var(--card-line) 84%,
+        var(--card-line) calc(84% + 1px),
+        transparent calc(84% + 1px)
+      ),
+      linear-gradient(
+        58deg,
+        transparent 90%,
+        var(--card-line) 90%,
+        var(--card-line) calc(90% + 1px),
+        transparent calc(90% + 1px)
+      );
+    mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
   }
 }
 
