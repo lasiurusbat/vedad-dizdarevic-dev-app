@@ -18,7 +18,7 @@ const t = useTranslations(locale);
   <div class="max-w-page px-gutter mx-auto grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
     <div class="flex flex-col items-start gap-stack">
       <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
-        <span aria-hidden="true" class="bg-accent size-2 rounded-full"></span>
+        <span aria-hidden="true" class="status-dot bg-accent size-2 rounded-full"></span>
         {t.availability}
       </p>
       <!-- Reads as one two-line headline; the h1 stays the name alone, the role is a paragraph. -->
@@ -52,6 +52,31 @@ const t = useTranslations(locale);
 </section>
 
 <style>
+  /* Availability dot: a soft blink plus a ring that fades outwards, like a live status light. */
+  .status-dot {
+    animation: blink 2.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+    50% {
+      opacity: 0.45;
+    }
+    70% {
+      box-shadow: 0 0 0 5px transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot {
+      animation: none;
+    }
+  }
+
   /* Name and role at one size, like a two-line display headline: one line each on wide
      screens, wrapping on phones. */
   .headline {
