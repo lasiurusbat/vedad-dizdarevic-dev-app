@@ -40,6 +40,7 @@ export const en = {
   caseDecisions: 'Decisions and trade-offs',
   caseOutcome: 'Outcome',
   caseLinks: 'Links',
+  casePrivateRepo: 'Source code: private repository',
   caseRepo: 'Source code',
   caseWhy: 'Why',
 

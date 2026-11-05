@@ -43,6 +43,7 @@ export const de: Messages = {
   caseDecisions: 'Entscheidungen und Abwägungen',
   caseOutcome: 'Ergebnis',
   caseLinks: 'Links',
+  casePrivateRepo: 'Quellcode: privates Repository',
   caseRepo: 'Quellcode',
   caseWhy: 'Warum',
 
