@@ -4,7 +4,7 @@ Source for the personal portfolio site of Vedad Dizdarevic, Cloud & DevOps Engin
 
 The site is itself a portfolio project: a static, bilingual (EN/DE) site with infrastructure as code, CI/CD and monitoring. This repo holds the application. Terraform lives in the sibling **infra** repo.
 
-> **Status:** Phase 1 (repositories and bootstrap) in progress; no site code yet. Commands and structure below describe the target state from the [implementation plan](documentation/implementation-plan.md).
+> **Status:** the site is live. Phases 1–3 are done (tooling, infrastructure, design system and layout) and Phase 4 (content) is in progress: hero, case study pages (Sorted in English), certifications. Remaining work is in the [implementation plan](documentation/implementation-plan.md) and [next steps](documentation/next-steps.md).
 
 ## Architecture
 
@@ -22,10 +22,10 @@ Browser → Cloudflare (DNS, CDN, TLS, Worker) → private S3 bucket (eu-central
 
 | Path                 | Contents                                                                       |
 | -------------------- | ------------------------------------------------------------------------------ |
-| `site/`              | Astro project (pages, components, content, EN/DE strings)                      |
+| `site/`              | Astro project (pages, components, case study MDX, EN/DE strings)               |
 | `worker/`            | Cloudflare Worker (routing, caching, security headers), deployed with Wrangler |
 | `lambda/contact/`    | Contact form handler                                                           |
-| `case-studies/`      | Source notes for the case studies (RainAlert, Sorted)                          |
+| `case-studies/`      | Source notes and raw screenshots, one `cs_<project>/` folder per case study    |
 | `cv/`                | Typst template and data for the EN and DE CV PDFs                              |
 | `tests/`             | `e2e/` Playwright checks, `smoke/` post-deploy checks                          |
 | `documentation/`     | Scope, tech stack, implementation plan, roadmap                                |
@@ -44,7 +44,14 @@ pnpm format:check     # Prettier (use `pnpm format` to fix)
 pre-commit install    # optional: hooks for whitespace, Prettier, gitleaks
 ```
 
-Build, test and deploy commands will be added once Phase 2 creates them.
+```sh
+pnpm --filter @vdd/site dev        # http://localhost:4321/ (draft case studies are shown in dev)
+pnpm --filter @vdd/site check      # astro check (types)
+pnpm --filter @vdd/site build
+pnpm --filter @vdd/worker test     # Worker tests (Vitest in the Workers runtime)
+pnpm --filter @vdd/e2e test        # Playwright + axe against a fresh build
+                                   # first run: pnpm --filter @vdd/e2e exec playwright install chromium
+```
 
 ## Deployment
 
@@ -56,11 +63,11 @@ On merge to `main`, GitHub Actions:
 4. purges the Cloudflare cache
 5. runs the smoke test against the live site
 
-CI authenticates to AWS through OIDC, with no long-lived AWS keys. No infrastructure exists yet. The bucket, deploy role and Cloudflare zone settings are created by the infra repo's pipeline (Phases 1–2), and this deploy workflow is added only after that first apply.
+CI authenticates to AWS through OIDC, with no long-lived AWS keys. The bucket, deploy role and Cloudflare zone settings are created by the infra repo's pipeline.
 
 ## Quality gates
 
-Lighthouse (mobile), axe, Playwright, html-validate and gitleaks run in CI and fail the build when they regress.
+ESLint, Prettier, gitleaks, the Worker tests, the site build and the Playwright + axe sweep (`e2e`) run in CI and fail the build when they regress. Lighthouse budgets and html-validate arrive in Phase 9.
 
 ## Documentation
 
@@ -68,3 +75,4 @@ Lighthouse (mobile), axe, Playwright, html-validate and gitleaks run in CI and f
 - [Tech stack](documentation/tech-stack.md): technology choices, security headers, cost
 - [Implementation plan](documentation/implementation-plan.md): phases and tasks
 - [Roadmap](documentation/roadmap.md): milestones and schedule
+- [Next steps](documentation/next-steps.md): where the last session stopped

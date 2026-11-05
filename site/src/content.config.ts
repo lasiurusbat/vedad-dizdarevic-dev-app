@@ -28,6 +28,8 @@ const caseStudies = defineCollection({
     /** Outcome metrics, e.g. { label: 'Monthly cost', value: '€4' }. */
     outcomes: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
     repoUrl: z.url().optional(),
+    /** The source exists but is not public; the page then says so instead of linking. */
+    repoPrivate: z.boolean().default(false),
     /** Something live or visual: a pipeline run, a Grafana screenshot, a demo. */
     liveLinks: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
     /** Id of a diagram in src/diagrams/ (Phase 4 diagram spike). */
