@@ -34,10 +34,9 @@ export function ServiceNode({ data }: NodeProps<ServiceNodeType>) {
 export function GroupLabel({ data }: NodeProps) {
   return (
     <span className="vdd-group-label">
-      <picture>
-        <source media="(prefers-color-scheme: dark)" srcSet={cloudIcon.dark} />
-        <img src={cloudIcon.light} alt="" width={24} height={24} />
-      </picture>
+      {/* Theme classes from global.css: the header switch or the device setting decides. */}
+      <img className="only-light" src={cloudIcon.light} alt="" width={24} height={24} />
+      <img className="only-dark" src={cloudIcon.dark} alt="" width={24} height={24} />
       {String(data.label)}
     </span>
   );

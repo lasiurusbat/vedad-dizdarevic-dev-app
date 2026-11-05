@@ -4,6 +4,7 @@ import { type Locale, localeUrl, useTranslations } from '../i18n';
 import CTAButton from './CTAButton.astro';
 import ExternalLink from './ExternalLink.astro';
 import LanguageSwitch from './LanguageSwitch.astro';
+import ThemeToggle from './ThemeToggle.astro';
 
 interface Props {
   locale: Locale;
@@ -86,6 +87,9 @@ const barLink =
           </ExternalLink>
         </nav>
       </details>
+
+      <!-- Light/dark switch: the right-most control at every width. -->
+      <ThemeToggle />
     </div>
   </div>
 </header>

@@ -6,7 +6,7 @@
  * fades towards the bottom; it zooms in slightly on hover or focus,
  * and settles from a slight zoom as it scrolls into view where scroll-driven animations exist.
  *
- * Light/dark pairs: the browser picks the one that matches prefers-color-scheme, like
+ * Light/dark pairs: both are rendered and the theme classes show the active one, like
  * ThemedScreenshot. Images go through Astro's image pipeline (WebP under /_astro/), lazy-loaded.
  *
  * Progressive enhancement: without JavaScript the row still scrolls natively and the buttons stay
@@ -74,14 +74,9 @@ const cards = await Promise.all(
         <li class="item card border-border rounded-lg border">
           {badge && <p class="badge">{badge}</p>}
           <div class="shot">
-            <picture>
-              <source
-                media="(prefers-color-scheme: dark)"
-                srcset={c.d.srcset}
-                sizes={sizes}
-                type="image/webp"
-              />
+            <div class="pic">
               <img
+                class="only-light"
                 src={c.l.src}
                 srcset={c.l.srcset}
                 sizes={sizes}
@@ -91,7 +86,18 @@ const cards = await Promise.all(
                 loading="lazy"
                 decoding="async"
               />
-            </picture>
+              <img
+                class="only-dark"
+                src={c.d.src}
+                srcset={c.d.srcset}
+                sizes={sizes}
+                alt={c.alt}
+                width={c.dark.width}
+                height={c.dark.height}
+                loading="lazy"
+                decoding="async"
+              />
+            </div>
           </div>
           <div class="body">
             <p class="font-display text-lg font-medium">{c.title}</p>
@@ -218,7 +224,7 @@ const cards = await Promise.all(
     overflow: hidden;
   }
 
-  .shot picture {
+  .shot .pic {
     display: block;
     overflow: hidden;
     border-radius: 0.5rem 0 0 0;
