@@ -39,6 +39,8 @@
   /* Section divider line and the light bloom below it. */
   --divider: light-dark(rgb(20 22 31 / 0.1), rgb(255 255 255 / 0.09));
   --bloom: light-dark(rgb(56 100 116 / 0.03), rgb(205 222 230 / 0.055));
+  /* Bigger bloom at the top of every page, spilling down from under the header. */
+  --bloom-top: light-dark(rgb(56 100 116 / 0.035), rgb(205 222 230 / 0.075));
 }
 
 :root[data-theme='light'] {
@@ -221,6 +223,33 @@
       );
     mask-image: linear-gradient(to bottom, #000 0%, transparent 75%);
   }
+}
+
+/*
+ * Top-of-page bloom: a large, soft light spilling down from under the header's bottom line, on
+ * every page (same idea as the first section divider, bigger). Behind the content, decorative.
+ */
+.page {
+  position: relative;
+  isolation: isolate;
+}
+
+.page::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: min(44rem, 90vh);
+  pointer-events: none;
+  /* Three stops so the falloff has no visible edge. */
+  background: radial-gradient(
+    ellipse 60% 100% at 50% 0,
+    var(--bloom-top),
+    color-mix(in srgb, var(--bloom-top) 45%, transparent) 38%,
+    transparent 75%
+  );
 }
 
 /*
