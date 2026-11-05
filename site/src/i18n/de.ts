@@ -45,6 +45,7 @@ export const de: Messages = {
   viewFullSize: 'Vollbild ansehen',
   galleryPrev: 'Vorheriger Screenshot',
   galleryNext: 'Nächster Screenshot',
+  diagramSimplified: 'Vereinfachtes Diagramm.',
   diagramTextAlternative: 'Textbeschreibung des Diagramms',
   diagramNeedsJs:
     'Das Diagramm benötigt JavaScript. Dieselben Informationen stehen in der Textbeschreibung darüber.',
