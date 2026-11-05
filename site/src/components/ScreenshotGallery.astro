@@ -2,13 +2,12 @@
 /*
  * Horizontal screenshot gallery for case studies, after the betterstack.com feature rows: a row
  * of cards that scrolls sideways (swipe, trackpad, keyboard, or the prev/next buttons), with the
- * cards running off the edge faded out. Each screenshot sits in a frosted-glass frame (translucent
- * fill, top-lit edge, blur) and fades towards the bottom; it zooms in slightly on hover or focus,
+ * cards running off the edge faded out. Each screenshot bleeds off the card's right edge and
+ * fades towards the bottom; it zooms in slightly on hover or focus,
  * and settles from a slight zoom as it scrolls into view where scroll-driven animations exist.
  *
  * Light/dark pairs: the browser picks the one that matches prefers-color-scheme, like
  * ThemedScreenshot. Images go through Astro's image pipeline (WebP under /_astro/), lazy-loaded.
- * The full-size link also follows the theme (two links, one hidden per scheme).
  *
  * Progressive enhancement: without JavaScript the row still scrolls natively and the buttons stay
  * hidden. CSP: no inline styles or scripts; state is classes and attributes only. Under
@@ -46,7 +45,6 @@ async function variants(src: ImageMetadata) {
   return {
     srcset: images.map((i, n) => `${i.src} ${widths[n]}w`).join(', '),
     src: images[1]!.src,
-    full: images[2]!.src,
   };
 }
 
@@ -75,7 +73,7 @@ const cards = await Promise.all(
       {cards.map((c) => (
         <li class="item card border-border rounded-lg border">
           {badge && <p class="badge">{badge}</p>}
-          <div class="glass">
+          <div class="shot">
             <picture>
               <source
                 media="(prefers-color-scheme: dark)"
@@ -96,16 +94,8 @@ const cards = await Promise.all(
             </picture>
           </div>
           <div class="body">
-            <p class="text-lg font-medium">{c.title}</p>
+            <p class="font-display text-lg font-medium">{c.title}</p>
             <p class="text-muted mt-2">{c.text}</p>
-            <a href={c.l.full} class="full light-only text-accent text-sm">
-              {t.viewFullSize}
-              <span class="sr-only">: {c.title}</span>
-            </a>
-            <a href={c.d.full} class="full dark-only text-accent text-sm">
-              {t.viewFullSize}
-              <span class="sr-only">: {c.title}</span>
-            </a>
           </div>
         </li>
       ))}
@@ -132,7 +122,7 @@ const cards = await Promise.all(
     min-width: 2.75rem;
     min-height: 2.75rem;
     color: var(--fg);
-    border-radius: 9999px;
+    border-radius: 0.625rem;
     cursor: pointer;
   }
 
@@ -141,7 +131,7 @@ const cards = await Promise.all(
     height: 2.25rem;
     padding: 0.625rem;
     border: 1px solid var(--border-strong);
-    border-radius: 9999px;
+    border-radius: 0.625rem;
     fill: none;
     stroke: currentColor;
     stroke-width: 1.5;
@@ -202,15 +192,15 @@ const cards = await Promise.all(
     scroll-snap-align: start;
   }
 
-  /* Pill on the glass frame's top edge, above the screenshot content so it hides nothing.
-     Outside the glass, so the glass fade and mask do not touch it. */
+  /* Pill above the screenshot's top edge, so it hides nothing. Outside .shot, so the
+     screenshot's fade does not touch it. */
   .badge {
     position: absolute;
     z-index: 1;
     top: 0.5rem;
     right: 1rem;
     padding: 0.125rem 0.625rem;
-    border: 1px solid var(--glass-edge);
+    border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
     border-radius: 9999px;
     background: color-mix(in srgb, var(--bg) 80%, transparent);
     backdrop-filter: blur(8px);
@@ -220,33 +210,21 @@ const cards = await Promise.all(
     line-height: 1.4;
   }
 
-  /* Frosted glass: translucent fill, a gradient edge that is lit at the top and fades out
-     downwards, a 1px rim highlight and a backdrop blur. It bleeds off the right edge of the
-     card, and the screenshot fades out towards the bottom. */
-  .glass {
-    margin: 1.25rem 0 0 1.25rem;
-    padding: 0.75rem 0 0 0.75rem;
-    border: 1px solid transparent;
-    border-right: 0;
-    border-bottom: 0;
-    border-radius: 0.875rem 0 0 0;
-    background:
-      linear-gradient(to bottom, var(--glass-top), var(--glass-bottom)) padding-box,
-      linear-gradient(to bottom, var(--glass-edge), transparent 75%) border-box;
-    box-shadow: inset 0 1px 0 0 var(--glass-edge);
-    backdrop-filter: blur(12px);
+  /* The screenshot bleeds off the right edge of the card and fades out towards the bottom. */
+  .shot {
+    margin: 1.75rem 0 0 1.25rem;
     mask-image: linear-gradient(to bottom, #000 55%, transparent 98%);
-    aspect-ratio: 16 / 10.5;
+    aspect-ratio: 16 / 10;
     overflow: hidden;
   }
 
-  .glass picture {
+  .shot picture {
     display: block;
     overflow: hidden;
     border-radius: 0.5rem 0 0 0;
   }
 
-  .glass img {
+  .shot img {
     display: block;
     width: 100%;
     height: auto;
@@ -254,15 +232,15 @@ const cards = await Promise.all(
     transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
   }
 
-  .item:hover .glass img,
-  .item:focus-within .glass img {
+  .item:hover .shot img,
+  .item:focus-within .shot img {
     transform: scale(1.04);
   }
 
   /* Settles from a slight zoom as the card scrolls into view. Uses `scale`, so it composes
      with the hover `transform`. */
   @supports (animation-timeline: view()) {
-    .glass img {
+    .shot img {
       animation: settle linear both;
       animation-timeline: view(inline);
       animation-range: entry 0% cover 45%;
@@ -286,27 +264,6 @@ const cards = await Promise.all(
     padding: 0.5rem 1.5rem 1.25rem;
   }
 
-  .full {
-    display: inline-flex;
-    align-items: center;
-    min-height: 2.75rem;
-    margin-top: auto;
-    text-underline-offset: 0.2em;
-  }
-
-  .dark-only {
-    display: none;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .light-only {
-      display: none;
-    }
-    .dark-only {
-      display: inline-flex;
-    }
-  }
-
   /* On wide screens the gallery breaks out of the 70ch text column, up to the page width. */
   @media (min-width: 64rem) {
     .gallery {
@@ -318,12 +275,12 @@ const cards = await Promise.all(
   }
 
   @media (prefers-reduced-motion: reduce) {
-    .glass img {
+    .shot img {
       transition: none;
       animation: none;
     }
-    .item:hover .glass img,
-    .item:focus-within .glass img {
+    .item:hover .shot img,
+    .item:focus-within .shot img {
       transform: none;
     }
   }
