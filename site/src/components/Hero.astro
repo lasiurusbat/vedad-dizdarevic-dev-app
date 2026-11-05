@@ -87,7 +87,10 @@ const t = useTranslations(locale);
      100cqi / 7.40 = 13.5cqi; 13.3cqi leaves a hair of room for rounding. The role keeps its
      own measured ratio to the name (below), so it matches the same width. */
   .headline {
-    font-size: 13.3cqi;
+    /* Capped at the desktop size (4.5rem): on tablets the column is the full page width, and an
+       uncapped name would be ~96px tall. There it is narrower than the sentence; on phones
+       and desktops the cap never applies. */
+    font-size: min(13.3cqi, 4.5rem);
     line-height: 1.08;
     letter-spacing: -0.01em;
   }
