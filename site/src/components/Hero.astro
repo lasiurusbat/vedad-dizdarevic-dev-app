@@ -16,7 +16,7 @@ const t = useTranslations(locale);
   <!-- Light shaft: starts behind the navbar and drops down behind the diagram. Decorative. -->
   <div class="shaft" aria-hidden="true"></div>
   <div class="max-w-page px-gutter mx-auto grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
-    <div class="flex flex-col items-start gap-stack">
+    <div class="hero-text flex flex-col items-start gap-stack">
       <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
         <span aria-hidden="true" class="status-dot bg-accent size-2 rounded-full"></span>
         {t.availability}
@@ -77,33 +77,42 @@ const t = useTranslations(locale);
     }
   }
 
-  /* Name and role at one size, like a two-line display headline: one line each on wide
-     screens, wrapping on phones. */
+  /* The text column is a size container, so the headline can scale to its width. */
+  .hero-text {
+    container-type: inline-size;
+  }
+
+  /* Name and role span the full width of the text column, the same width as the positioning
+     sentence below. "Vedad Dizdarevic" is 7.40em wide in Inter Tight 500 at -0.01em, so
+     100cqi / 7.40 = 13.5cqi; 13.3cqi leaves a hair of room for rounding. The role keeps its
+     own measured ratio to the name (below), so it matches the same width. */
   .headline {
-    font-size: clamp(2.25rem, 0.6rem + 2.4vw, 3rem);
+    font-size: 13.3cqi;
     line-height: 1.08;
     letter-spacing: -0.01em;
   }
 
   .headline > * {
     line-height: inherit;
-    text-wrap: wrap;
+    white-space: nowrap;
   }
 
   /* The role line is exactly as wide as the name. Text width scales linearly with font size,
      so the ratio is measured once per language (Inter Tight, weight 500, -0.01em tracking) and
      holds at every viewport. Re-measure if the name, the role text or the font changes. */
   .role {
-    font-size: 0.676em;
+    font-size: 0.684em;
   }
 
   .role:lang(de) {
-    font-size: 0.64em;
+    font-size: 0.646em;
   }
 
-  /* 10% smaller than the text-lg it used to be. */
+  /* 10% smaller than the text-lg it used to be. Plain wrapping (not the site-wide
+     text-wrap: pretty), so its lines fill the column like the headline above. */
   .positioning {
     font-size: calc(var(--text-lg) * 0.9);
+    text-wrap: wrap;
   }
 
   /* White with a slight downward fade, like the reference headline. Falls back to the plain
