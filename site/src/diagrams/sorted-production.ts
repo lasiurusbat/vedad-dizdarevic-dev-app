@@ -109,6 +109,12 @@ export const sortedProduction: DiagramDefinition = {
       'Attachments go to a second S3 bucket that GuardDuty scans; nothing can be read until the scan marks it clean.',
       'A git tag in GitHub Actions runs the checks and pushes an immutable image to ECR using an OIDC role without stored keys. ECS pulls that image when it starts a task.',
     ],
-    de: [],
+    de: [
+      'Besucher erreichen Cloudflare, das HTTPS an einen Application Load Balancer in AWS eu-central-1 weiterleitet. Der Load Balancer akzeptiert nur Cloudflare-Adressen.',
+      'Der Load Balancer leitet Anfragen an einen Fargate-Task mit nginx und dem Bun-Server weiter. Dieser spricht mit einer privaten RDS-PostgreSQL-Datenbank, deren synchrone Standby-Instanz in einer zweiten Zone läuft.',
+      'Kunden-E-Mails kommen bei SES an, landen in einem S3-Bucket mit eigenem KMS-Schlüssel und benachrichtigen SNS, das einen signierten Webhook am Load Balancer aufruft. Antworten verschickt der Task über SES.',
+      'Anhänge gehen in einen zweiten S3-Bucket, den GuardDuty scannt. Gelesen werden kann erst, wenn der Scan die Datei als sauber markiert hat.',
+      'Ein Git-Tag startet in GitHub Actions die Prüfungen und lädt ein unveränderliches Image über eine OIDC-Rolle ohne gespeicherte Schlüssel in ECR hoch. ECS holt dieses Image beim Start eines Tasks.',
+    ],
   },
 };
