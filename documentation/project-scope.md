@@ -29,7 +29,7 @@ Since the site is itself a showcase, host it in a way that demonstrates your ski
 
 ## Must-have features
 
-- A sharp positioning statement at the top. Name, role, and one line on what makes you different. Your decade in 3D/CGI plus production infrastructure work at showroom+ is a differentiator, so use it instead of hiding it.
+- A sharp positioning statement at the top. Name, role, and one line on what makes you different. Your decade in 3D/CGI plus production AWS, Terraform and Kubernetes work is a differentiator, so use it instead of hiding it. The hero does not mention showroom+, since it is not DevOps work.
 - Two or three flagship project case studies (sorted.onl and rainalert.live). This is the core of the site. Each one should have:
   - The problem or goal in a sentence or two
   - An architecture diagram
