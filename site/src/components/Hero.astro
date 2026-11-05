@@ -15,19 +15,20 @@ const t = useTranslations(locale);
 <section aria-labelledby="hero-title" class="py-section relative isolate overflow-x-clip">
   <!-- Light shaft: starts behind the navbar and drops down behind the diagram. Decorative. -->
   <div class="shaft" aria-hidden="true"></div>
-  <div class="max-w-page px-gutter mx-auto grid items-center gap-12 lg:grid-cols-[minmax(0,1fr)_minmax(0,1.05fr)]">
+  <div class="max-w-page px-gutter mx-auto grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
     <div class="flex flex-col items-start gap-stack">
       <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
         <span aria-hidden="true" class="bg-accent size-2 rounded-full"></span>
         {t.availability}
       </p>
-      <div>
-        <h1 id="hero-title" class="text-5xl">
+      <!-- Reads as one two-line headline; the h1 stays the name alone, the role is a paragraph. -->
+      <div class="headline">
+        <h1 id="hero-title" class="name">
           {t.siteTitle}
         </h1>
-        <p class="text-accent font-display mt-2 text-2xl font-medium">{t.role}</p>
+        <p class="text-accent font-display font-medium">{t.role}</p>
       </div>
-      <p class="max-w-measure text-xl">{t.heroPositioning}</p>
+      <p class="max-w-measure text-muted text-lg">{t.heroPositioning}</p>
       <div class="flex flex-wrap gap-3">
         <CTAButton href={`${localeUrl(locale)}#contact`}>{t.navContact}</CTAButton>
         {CV_URL && (
@@ -51,6 +52,33 @@ const t = useTranslations(locale);
 </section>
 
 <style>
+  /* Name and role at one size, like a two-line display headline: one line each on wide
+     screens, wrapping on phones. */
+  .headline {
+    font-size: clamp(2.25rem, 0.6rem + 2.4vw, 3rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .headline > * {
+    line-height: inherit;
+    text-wrap: wrap;
+  }
+
+  /* White with a slight downward fade, like the reference headline. Falls back to the plain
+     text colour where background-clip: text is missing. */
+  @supports (background-clip: text) {
+    .name {
+      background-image: linear-gradient(
+        to bottom,
+        var(--fg) 30%,
+        color-mix(in srgb, var(--fg) 72%, var(--muted))
+      );
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
   /* The beams are clipped shapes; the blur sits on the parent, so it applies after the clip
      and every edge is soft. The section clips sideways only, so the shaft can reach up behind
      the translucent sticky header. */
