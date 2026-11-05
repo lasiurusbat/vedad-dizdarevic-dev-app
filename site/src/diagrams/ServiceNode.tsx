@@ -13,11 +13,13 @@ function NodeIcon({ icon }: { icon: DiagramIcon }) {
   if (typeof icon === 'string') {
     return <img src={icon} alt="" width={32} height={32} className="vdd-node-icon" />;
   }
+  // Light/dark pair: both rendered, the theme classes from global.css show the active one, so it
+  // follows the header switch as well as the device setting.
   return (
-    <picture className="vdd-node-icon">
-      <source media="(prefers-color-scheme: dark)" srcSet={icon.dark} />
-      <img src={icon.light} alt="" width={32} height={32} />
-    </picture>
+    <>
+      <img src={icon.light} alt="" width={32} height={32} className="vdd-node-icon only-light" />
+      <img src={icon.dark} alt="" width={32} height={32} className="vdd-node-icon only-dark" />
+    </>
   );
 }
 
