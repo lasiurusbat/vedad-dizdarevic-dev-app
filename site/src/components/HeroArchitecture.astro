@@ -30,8 +30,8 @@ const G = 22; // group icon size
         data-variant={v.id}
       >
         <rect class="frame" x="80" y="6" width="750" height="548" rx="10"></rect>
-        <image class="cloud-light" href={cloudIcon.light} x="80" y="6" width="28" height="28" />
-        <image class="cloud-dark" href={cloudIcon.dark} x="80" y="6" width="28" height="28" />
+        <image class="only-light" href={cloudIcon.light} x="80" y="6" width="28" height="28" />
+        <image class="only-dark" href={cloudIcon.dark} x="80" y="6" width="28" height="28" />
         <text class="group-label" x="116" y="25">
           AWS Cloud
         </text>
@@ -247,19 +247,6 @@ const G = 22; // group icon size
     }
     to {
       stroke-dashoffset: -120;
-    }
-  }
-
-  .cloud-dark {
-    display: none;
-  }
-
-  @media (prefers-color-scheme: dark) {
-    .cloud-light {
-      display: none;
-    }
-    .cloud-dark {
-      display: inline;
     }
   }
 

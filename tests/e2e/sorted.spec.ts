@@ -15,8 +15,10 @@ test('Sorted case study: private repo noted, screenshots served from /_astro/ wi
 }) => {
   await page.goto('/projects/sorted/');
   await expect(page.getByText('Source code: private repository')).toBeVisible();
+  // Three screenshots, each as a light/dark pair; only the version for the active theme shows.
   const imgs = page.locator('figure img');
-  await expect(imgs).toHaveCount(3);
+  await expect(imgs).toHaveCount(6);
+  await expect(page.locator('figure img:visible')).toHaveCount(3);
   for (const img of await imgs.all()) {
     expect(await img.getAttribute('src')).toMatch(/^\/_astro\/.+\.webp$/);
     expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(30);
