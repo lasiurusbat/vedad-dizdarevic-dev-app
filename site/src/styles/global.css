@@ -5,32 +5,32 @@
 /*
  * Semantic colour tokens. Components use bg-bg / text-fg, never dark: variants; the values
  * switch with the OS theme. Contrast (WCAG 2.x), measured against bg / surface:
- *   light  fg 18.0 / 16.7   muted 7.6 / 7.0   accent 6.4 / 5.9   border-strong 3.3 / 3.0
- *   dark   fg 18.9 / 18.0   muted 8.8 / 8.3   accent 8.1 / 7.7   border-strong 4.1 / 3.9
+ *   light  fg 18.0 / 16.7   muted 8.1 / 7.5   accent 6.5 / 6.0   border-strong 3.3 / 3.0
+ *   dark   fg 18.9 / 18.0   muted 9.0 / 8.5   accent 8.6 / 8.1   border-strong 4.4 / 4.2
  * Body text and muted text meet AAA (7:1); accent text meets AA (4.5:1) everywhere.
  * `border` is a decorative divider; use `border-strong` for the edge of an input or control.
  *
  * Dark is a "console" look: near-black canvas, one step up for surfaces, hairline borders
- * instead of shadows, and one indigo accent kept for links and actions. Light uses the same
- * indigo hue so the two themes read as one brand.
+ * instead of shadows, and one heavily desaturated blue-teal accent kept for links and actions.
+ * Light uses the same hue so the two themes read as one brand; greys lean the same way.
  */
 :root {
   color-scheme: light dark;
   --bg: #ffffff;
   --surface: #f5f6fa;
   --fg: #14161f;
-  --muted: #4b5468;
-  --accent: #4a52c4;
+  --muted: #44525b;
+  --accent: #386474;
   --border: #d9dce6;
-  --border-strong: #858ea3;
+  --border-strong: #83909a;
   /* Card panel (the `card` utility): vertical fade plus faint line art. */
   --card-top: #ffffff;
   --card-bottom: var(--surface);
   --card-line: rgb(20 22 31 / 0.07);
   --card-shade: rgb(20 22 31 / 0.025);
   /* Hero light shaft. */
-  --shaft: rgb(74 82 196 / 0.07);
-  --shaft-core: rgb(74 82 196 / 0.08);
+  --shaft: rgb(56 100 116 / 0.07);
+  --shaft-core: rgb(56 100 116 / 0.08);
 }
 
 @media (prefers-color-scheme: dark) {
@@ -38,16 +38,16 @@
     --bg: #0f101a;
     --surface: #151621;
     --fg: #ffffff;
-    --muted: #a6b0cc;
-    --accent: #98a4f7;
+    --muted: #a6b5be;
+    --accent: #8fb4c3;
     --border: #1f2433;
-    --border-strong: #6b7590;
+    --border-strong: #6c7c86;
     --card-top: #1b1c28;
     --card-bottom: #10111b;
     --card-line: rgb(255 255 255 / 0.06);
     --card-shade: rgb(255 255 255 / 0.018);
-    --shaft: rgb(152 164 247 / 0.13);
-    --shaft-core: rgb(201 211 238 / 0.18);
+    --shaft: rgb(143 180 195 / 0.13);
+    --shaft-core: rgb(205 222 230 / 0.18);
   }
 }
 
@@ -89,12 +89,12 @@
 
   /*
    * Primary action fill, the only gradient on the site; the same in both themes. White text
-   * on it: 5.0:1 at the lightest stop, 6.6:1 on hover. The rim is a 1px inset top highlight,
+   * on it: 5.0:1 at the lightest stop, 7.5:1 on hover. The rim is a 1px inset top highlight,
    * used instead of a drop shadow.
    */
-  --color-fill-from: #4f57c9;
-  --color-fill-to: #5b63d3;
-  --color-fill-hover: #444cba;
+  --color-fill-from: #3d6878;
+  --color-fill-to: #4a7686;
+  --color-fill-hover: #335a69;
   --shadow-rim: inset 0 1px 3px 0 rgb(255 255 255 / 0.25);
 
   /* Readable line length for running text. */
