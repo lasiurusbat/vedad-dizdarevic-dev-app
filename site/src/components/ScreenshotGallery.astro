@@ -1,0 +1,366 @@
+---
+/*
+ * Horizontal screenshot gallery for case studies, after the betterstack.com feature rows: a row
+ * of cards that scrolls sideways (swipe, trackpad, keyboard, or the prev/next buttons), with the
+ * cards running off the edge faded out. Each screenshot sits in a frosted-glass frame (translucent
+ * fill, top-lit edge, blur) and fades towards the bottom; it zooms in slightly on hover or focus,
+ * and settles from a slight zoom as it scrolls into view where scroll-driven animations exist.
+ *
+ * Light/dark pairs: the browser picks the one that matches prefers-color-scheme, like
+ * ThemedScreenshot. Images go through Astro's image pipeline (WebP under /_astro/), lazy-loaded.
+ * The full-size link also follows the theme (two links, one hidden per scheme).
+ *
+ * Progressive enhancement: without JavaScript the row still scrolls natively and the buttons stay
+ * hidden. CSP: no inline styles or scripts; state is classes and attributes only. Under
+ * prefers-reduced-motion there is no zoom and scrolling is instant.
+ */
+import { getImage } from 'astro:assets';
+import type { ImageMetadata } from 'astro';
+import { getLocale, useTranslations } from '../i18n';
+
+interface Item {
+  light: ImageMetadata;
+  dark: ImageMetadata;
+  /** Describes what the screenshot shows. Required, never "screenshot". */
+  alt: string;
+  title: string;
+  text: string;
+}
+
+interface Props {
+  /** Accessible name of the scrolling region. */
+  label: string;
+  /** Optional badge shown on top of every screenshot, e.g. "Demo data". */
+  badge?: string;
+  items: Item[];
+}
+
+const { label, badge, items } = Astro.props;
+const t = useTranslations(getLocale(Astro.currentLocale));
+
+const widths = [640, 960, 1440];
+const sizes = '(min-width: 72rem) 56rem, 80vw';
+
+async function variants(src: ImageMetadata) {
+  const images = await Promise.all(widths.map((width) => getImage({ src, width, format: 'webp' })));
+  return {
+    srcset: images.map((i, n) => `${i.src} ${widths[n]}w`).join(', '),
+    src: images[1]!.src,
+    full: images[2]!.src,
+  };
+}
+
+const cards = await Promise.all(
+  items.map(async (i) => ({ ...i, l: await variants(i.light), d: await variants(i.dark) })),
+);
+---
+
+<figure class="not-prose gallery my-10" data-gallery>
+  <div class="controls" hidden data-controls>
+    <button type="button" class="ctl" aria-label={t.galleryPrev} data-prev>
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="M10 3 5 8l5 5"></path>
+      </svg>
+    </button>
+    <button type="button" class="ctl" aria-label={t.galleryNext} data-next>
+      <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+        <path d="m6 3 5 5-5 5"></path>
+      </svg>
+    </button>
+  </div>
+
+  {/* Focusable so keyboard users can scroll it with the arrow keys. */}
+  <div class="track" role="region" aria-label={label} tabindex="0" data-track>
+    <ul class="row" role="list">
+      {cards.map((c) => (
+        <li class="item card border-border rounded-lg border">
+          {badge && <p class="badge">{badge}</p>}
+          <div class="glass">
+            <picture>
+              <source
+                media="(prefers-color-scheme: dark)"
+                srcset={c.d.srcset}
+                sizes={sizes}
+                type="image/webp"
+              />
+              <img
+                src={c.l.src}
+                srcset={c.l.srcset}
+                sizes={sizes}
+                alt={c.alt}
+                width={c.light.width}
+                height={c.light.height}
+                loading="lazy"
+                decoding="async"
+              />
+            </picture>
+          </div>
+          <div class="body">
+            <p class="text-lg font-medium">{c.title}</p>
+            <p class="text-muted mt-2">{c.text}</p>
+            <a href={c.l.full} class="full light-only text-accent text-sm">
+              {t.viewFullSize}
+              <span class="sr-only">: {c.title}</span>
+            </a>
+            <a href={c.d.full} class="full dark-only text-accent text-sm">
+              {t.viewFullSize}
+              <span class="sr-only">: {c.title}</span>
+            </a>
+          </div>
+        </li>
+      ))}
+    </ul>
+  </div>
+</figure>
+
+<style>
+  .controls {
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.25rem;
+    margin-bottom: 0.5rem;
+  }
+
+  .controls[hidden] {
+    display: none;
+  }
+
+  .ctl {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    color: var(--fg);
+    border-radius: 9999px;
+    cursor: pointer;
+  }
+
+  .ctl svg {
+    width: 2.25rem;
+    height: 2.25rem;
+    padding: 0.625rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 9999px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    transition: background-color 0.2s ease;
+  }
+
+  .ctl:hover svg {
+    background: var(--surface);
+  }
+
+  .ctl:disabled {
+    cursor: default;
+    opacity: 0.35;
+  }
+
+  .track {
+    overflow-x: auto;
+    overscroll-behavior-x: contain;
+    scroll-snap-type: x mandatory;
+    scrollbar-width: none;
+    border-radius: 1rem;
+  }
+
+  .track::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Edge fades, set by the script from the scroll position. */
+  .track.fade-end {
+    mask-image: linear-gradient(to right, #000 calc(100% - 7rem), transparent);
+  }
+  .track.fade-start {
+    mask-image: linear-gradient(to right, transparent, #000 4rem);
+  }
+  .track.fade-start.fade-end {
+    mask-image: linear-gradient(
+      to right,
+      transparent,
+      #000 4rem,
+      #000 calc(100% - 7rem),
+      transparent
+    );
+  }
+
+  .row {
+    display: flex;
+    gap: 1rem;
+  }
+
+  .item {
+    display: flex;
+    /* One full card plus a quarter of the next: w + gap + w/4 = 100%. */
+    flex: 0 0 calc((100% - 1rem) * 0.8);
+    flex-direction: column;
+    overflow: hidden;
+    scroll-snap-align: start;
+  }
+
+  /* Pill on the glass frame's top edge, above the screenshot content so it hides nothing.
+     Outside the glass, so the glass fade and mask do not touch it. */
+  .badge {
+    position: absolute;
+    z-index: 1;
+    top: 0.5rem;
+    right: 1rem;
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--glass-edge);
+    border-radius: 9999px;
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter: blur(8px);
+    color: var(--fg);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    line-height: 1.4;
+  }
+
+  /* Frosted glass: translucent fill, a gradient edge that is lit at the top and fades out
+     downwards, a 1px rim highlight and a backdrop blur. It bleeds off the right edge of the
+     card, and the screenshot fades out towards the bottom. */
+  .glass {
+    margin: 1.25rem 0 0 1.25rem;
+    padding: 0.75rem 0 0 0.75rem;
+    border: 1px solid transparent;
+    border-right: 0;
+    border-bottom: 0;
+    border-radius: 0.875rem 0 0 0;
+    background:
+      linear-gradient(to bottom, var(--glass-top), var(--glass-bottom)) padding-box,
+      linear-gradient(to bottom, var(--glass-edge), transparent 75%) border-box;
+    box-shadow: inset 0 1px 0 0 var(--glass-edge);
+    backdrop-filter: blur(12px);
+    mask-image: linear-gradient(to bottom, #000 55%, transparent 98%);
+    aspect-ratio: 16 / 10.5;
+    overflow: hidden;
+  }
+
+  .glass picture {
+    display: block;
+    overflow: hidden;
+    border-radius: 0.5rem 0 0 0;
+  }
+
+  .glass img {
+    display: block;
+    width: 100%;
+    height: auto;
+    transform-origin: top left;
+    transition: transform 0.6s cubic-bezier(0.25, 0.1, 0.25, 1);
+  }
+
+  .item:hover .glass img,
+  .item:focus-within .glass img {
+    transform: scale(1.04);
+  }
+
+  /* Settles from a slight zoom as the card scrolls into view. Uses `scale`, so it composes
+     with the hover `transform`. */
+  @supports (animation-timeline: view()) {
+    .glass img {
+      animation: settle linear both;
+      animation-timeline: view(inline);
+      animation-range: entry 0% cover 45%;
+    }
+  }
+
+  @keyframes settle {
+    from {
+      scale: 1.08;
+    }
+    to {
+      scale: 1;
+    }
+  }
+
+  .body {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    align-items: flex-start;
+    padding: 0.5rem 1.5rem 1.25rem;
+  }
+
+  .full {
+    display: inline-flex;
+    align-items: center;
+    min-height: 2.75rem;
+    margin-top: auto;
+    text-underline-offset: 0.2em;
+  }
+
+  .dark-only {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .light-only {
+      display: none;
+    }
+    .dark-only {
+      display: inline-flex;
+    }
+  }
+
+  /* On wide screens the gallery breaks out of the 70ch text column, up to the page width. */
+  @media (min-width: 64rem) {
+    .gallery {
+      width: min(
+        calc(var(--container-page) - 2 * var(--spacing-gutter)),
+        calc(100vw - 2 * var(--spacing-gutter) - 1.5rem)
+      );
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .glass img {
+      transition: none;
+      animation: none;
+    }
+    .item:hover .glass img,
+    .item:focus-within .glass img {
+      transform: none;
+    }
+  }
+</style>
+
+<script>
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  for (const root of document.querySelectorAll<HTMLElement>('[data-gallery]')) {
+    const track = root.querySelector<HTMLElement>('[data-track]')!;
+    const prev = root.querySelector<HTMLButtonElement>('[data-prev]')!;
+    const next = root.querySelector<HTMLButtonElement>('[data-next]')!;
+    const item = track.querySelector<HTMLElement>('li')!;
+    root.querySelector<HTMLElement>('[data-controls]')!.hidden = false;
+
+    const update = () => {
+      const max = track.scrollWidth - track.clientWidth;
+      const atStart = track.scrollLeft <= 2;
+      const atEnd = track.scrollLeft >= max - 2;
+      track.classList.toggle('fade-start', !atStart);
+      track.classList.toggle('fade-end', !atEnd);
+      prev.disabled = atStart;
+      next.disabled = atEnd;
+    };
+
+    const step = (dir: number) => {
+      const gap = parseFloat(getComputedStyle(track.firstElementChild!).columnGap) || 0;
+      track.scrollBy({
+        left: dir * (item.offsetWidth + gap),
+        behavior: reduced.matches ? 'auto' : 'smooth',
+      });
+    };
+
+    prev.addEventListener('click', () => step(-1));
+    next.addEventListener('click', () => step(1));
+    track.addEventListener('scroll', update, { passive: true });
+    new ResizeObserver(update).observe(track);
+    update();
+  }
+</script>
