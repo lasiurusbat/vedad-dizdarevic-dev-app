@@ -1,16 +1,15 @@
 ---
-title: 'Sorted: an AI-assisted support platform on AWS'
-summary: 'A multi-tenant support-ticket SaaS that I built and operated alone in six weeks: ECS Fargate, RDS and SES on AWS, all in Terraform, with keyless CI/CD and AI that cannot send a refund answer.'
-problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and "the AI cannot do harm" had to be enforced by code and infrastructure, for a product with no revenue yet and one person to run it.'
+title: 'Sorted: a multi-tenant SaaS platform on AWS, in Terraform'
+summary: 'The AWS platform behind a live multi-tenant support-ticket SaaS. One Terraform module builds dev and prod, CI/CD uses no long-lived keys, and inbound mail is encrypted and malware-scanned. Built and run solo in six weeks.'
+problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and "the AI cannot do harm" had to be enforced by code and infrastructure, for a commercial product with one person to run it.'
 stack:
   [
     'AWS (ECS Fargate, RDS, ALB, SES, SNS, S3, KMS, GuardDuty)',
     'Terraform',
     'GitHub Actions + OIDC',
     'Cloudflare',
-    'TypeScript, Bun, React 19',
-    'PostgreSQL (row-level security)',
     'Grafana Cloud',
+    'Workload: TypeScript, Bun, React 19, PostgreSQL (row-level security)',
   ]
 decisions:
   - decision: 'One Terraform module builds every environment; dev and prod are separate roots that only set flags'
@@ -22,19 +21,22 @@ decisions:
   - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
     why: 'Fixed cost before launch stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
 outcomes:
-  - label: 'Built and run solo'
-    value: '6 weeks'
-  - label: 'Commits (app / infra)'
-    value: '413 / 69'
+  - label: 'Environments built from one module'
+    value: '2 (dev, prod)'
+  - label: 'Long-lived AWS keys in CI/CD'
+    value: '0'
   - label: 'Offline Terraform tests'
     value: '22'
-  - label: 'Test files (unit / e2e)'
-    value: '~530 / ~280'
+  - label: 'Built and run solo'
+    value: '6 weeks'
   - label: 'Dev cost per month (est., was ~$105)'
     value: '~$40'
   - label: 'Prod cost per month (est.)'
     value: '~$150'
 repoPrivate: true
+liveLinks:
+  - label: 'Sorted, live'
+    url: 'https://sorted.onl'
 order: 10
 draft: false
 ---
@@ -49,9 +51,36 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 
 ## Scope
 
-Sorted is a training project that I treated like a production system. I built the application, the infrastructure, the pipelines and the operations in six weeks (September 17 to October 31, 2026). This write-up describes the production configuration that the launch switches on. It is defined in Terraform and reviewed, but it has not served customers yet. The cost figures are my own estimates from the docs in the repository, not billing data, and failover has been designed but not drilled.
+Sorted is a commercial SaaS product, live at [sorted.onl](https://sorted.onl): self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it in six weeks (September 17 to October 31, 2026). This write-up describes the production configuration, defined in Terraform and reviewed. The cost figures are my own estimates from the docs in the repository, not billing data, and failover has been designed but not drilled.
 
-## The product
+## Architecture
+
+The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx and the Bun server in one Fargate task, then RDS PostgreSQL in private subnets. The mail path is customer email, SES receipt rule, S3 (own KMS key) and SNS, a signed webhook on the ALB, a saved ticket, a `pg-boss` job for AI classification, then either the agent queue or an automatic reply out through SES, with delivery events coming back through SNS.
+
+## Infrastructure highlights
+
+- **Compute.** One Fargate task with two containers, on ARM64 for about 20 % lower cost. Rolling deploys use the deployment circuit breaker with automatic rollback, and every database migration must work with the previous release (expand, then contract).
+- **Network.** Security groups reference each other, not CIDRs. RDS accepts connections only from the task. There is no SSH and no bastion; ECS Exec is the break-glass path.
+- **Data.** Private RDS with encryption, a staged rollout of database TLS (`off`, `verify`, `require`) and secrets injected from Secrets Manager.
+- **Mail and attachments.** SES, SNS and S3 form the inbound pipeline. Webhooks trust only SNS signatures, the inbound bucket has its own KMS key, and GuardDuty Malware Protection scans every attachment.
+- **Delivery.** A release is a git tag that runs the full check suite and pushes immutable images. Deploying is a reviewed infrastructure change; the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate`, and 22 offline `terraform test` runs with mocked providers that assert the security properties without an AWS account.
+- **Operations.** Structured JSON logs, Grafana Cloud reading CloudWatch through a read-only role with an External ID, alerts tied to a symptom-first runbook.
+
+
+
+## Problems I hit
+
+| Problem                                                 | Resolution                                                                                                            |
+| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
+| Every visitor looked like one IP, so rate limits were shared | Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB        |
+| Prisma connected without TLS despite `sslmode=verify-full`   | `prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA  |
+| SES webhooks could not be subscribed in the first apply      | SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented  |
+| A rotated secret did not take effect                         | A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment            |
+| GitHub OIDC trust was name-based                             | A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs              |
+
+## The workload
+
+The platform exists to run this application.
 
 Each customer team gets a Sorted address or forwards its own in. An incoming email becomes a ticket. AI classifies it, summarizes it and, for non-transactional questions, answers from the team's knowledge base. **Refund and payment tickets never go to the AI.** Humans work a queue: assign, reply, merge, templates, audit log. It is multi-tenant SaaS with self sign-up, Stripe billing, three team roles, 22 UI languages and a super-admin console. All screenshots below use demo data.
 
@@ -69,24 +98,11 @@ Each customer team gets a Sorted address or forwards its own in. An incoming ema
   caption="A ticket resolved from the knowledge base. AI-written replies are labelled. Demo data."
 />
 
-## Architecture
-
-The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx and the Bun server in one Fargate task, then RDS PostgreSQL in private subnets. The mail path is customer email, SES receipt rule, S3 (own KMS key) and SNS, a signed webhook on the ALB, a saved ticket, a `pg-boss` job for AI classification, then either the agent queue or an automatic reply out through SES, with delivery events coming back through SNS.
-
 Three structural rules keep the AI safe:
 
 1. **The webhook never calls the AI.** It saves the message and returns 200, so AI latency or failure cannot lose a customer's email.
 2. **Guardrails are code, not prompt text.** The model returns category, priority, confidence and a draft. Application code decides whether anything is sent.
 3. **Every AI failure ends with the ticket open for a human.** A sweep every five minutes opens anything a crash left behind.
-
-## Infrastructure highlights
-
-- **Compute.** One Fargate task with two containers, on ARM64 for about 20 % lower cost. Rolling deploys use the deployment circuit breaker with automatic rollback, and every database migration must work with the previous release (expand, then contract).
-- **Network.** Security groups reference each other, not CIDRs. RDS accepts connections only from the task. There is no SSH and no bastion; ECS Exec is the break-glass path.
-- **Data.** Private RDS with encryption, a staged rollout of database TLS (`off`, `verify`, `require`) and secrets injected from Secrets Manager.
-- **Mail and attachments.** SES, SNS and S3 form the inbound pipeline. Webhooks trust only SNS signatures, the inbound bucket has its own KMS key, and GuardDuty Malware Protection scans every attachment.
-- **Delivery.** A release is a git tag that runs the full check suite and pushes immutable images. Deploying is a reviewed infrastructure change; the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate`, and 22 offline `terraform test` runs with mocked providers that assert the security properties without an AWS account.
-- **Operations.** Structured JSON logs, Grafana Cloud reading CloudWatch through a read-only role with an External ID, alerts tied to a symptom-first runbook.
 
 <ThemedScreenshot
   light={dashboardLight}
@@ -95,15 +111,6 @@ Three structural rules keep the AI safe:
   caption="The dashboard, including the split between AI-resolved and agent-resolved tickets. Demo data."
 />
 
-## Problems I hit
-
-| Problem                                                 | Resolution                                                                                                            |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Every visitor looked like one IP, so rate limits were shared | Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB        |
-| Prisma connected without TLS despite `sslmode=verify-full`   | `prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA  |
-| SES webhooks could not be subscribed in the first apply      | SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented  |
-| A rotated secret did not take effect                         | A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment            |
-| GitHub OIDC trust was name-based                             | A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs              |
 
 ## Limitations and what I would do next
 
