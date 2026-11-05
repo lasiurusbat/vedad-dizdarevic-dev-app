@@ -1,6 +1,7 @@
 ---
 import { type Locale, useTranslations } from '../i18n';
 import type { CaseStudy } from '../lib/caseStudies';
+import CostComparison from './CostComparison.astro';
 
 interface Props {
   locale: Locale;
@@ -35,14 +36,16 @@ const links = [
 {data.outcomes.length > 0 && (
   <>
     <h2>{t.caseOutcome}</h2>
-    <dl class="not-prose my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
+    {/* One panel of large stats separated by hairlines; the value reads first, the label explains. */}
+    <dl class="not-prose stats card border-border my-6 rounded-lg border">
       {data.outcomes.map((o) => (
-        <div class="border-border bg-surface rounded-lg border p-4">
+        <div class="stat">
           <dt class="text-muted text-sm">{o.label}</dt>
-          <dd class="mt-1 text-2xl font-semibold">{o.value}</dd>
+          <dd class="font-display">{o.value}</dd>
         </div>
       ))}
     </dl>
+    {data.costs && <CostComparison costs={data.costs} />}
   </>
 )}
 
@@ -61,3 +64,47 @@ const links = [
     </ul>
   </>
 )}
+
+<style>
+  /* Two columns on phones, four on wide screens; hairlines between cells, no boxes. */
+  .stats {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  @media (min-width: 48rem) {
+    .stats {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+
+  .stat {
+    display: flex;
+    flex-direction: column-reverse;
+    justify-content: flex-end;
+    gap: 0.375rem;
+    padding: 1.25rem;
+  }
+
+  /* Hairlines: between columns, and between rows on phones. */
+  .stat + .stat {
+    border-left: 1px solid var(--border);
+  }
+
+  @media (max-width: 47.99rem) {
+    .stat:nth-child(odd) {
+      border-left: 0;
+    }
+    .stat:nth-child(n + 3) {
+      border-top: 1px solid var(--border);
+    }
+  }
+
+  .stat dd {
+    font-size: clamp(2rem, 1.4rem + 2.2vw, 3rem);
+    font-weight: 500;
+    line-height: 1;
+    letter-spacing: -0.01em;
+    font-variant-numeric: tabular-nums;
+  }
+</style>

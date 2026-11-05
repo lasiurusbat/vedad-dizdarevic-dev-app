@@ -222,7 +222,7 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Hero
 
-- [x] Name, role (Cloud & DevOps Engineer), one-line positioning that uses the 3D/CGI + production infrastructure background _(draft copy, owner to review)_
+- [x] Name, role (Cloud & DevOps Engineer), one-line positioning in the owner's wording (IaC, platform architecture, containerization, Kubernetes orchestration); the 3D/CGI background moved to About on 2026-11-05
 - [x] Clear availability line: open to full-time roles and freelance work
 - [ ] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/site.ts` is set, Phase 5)_
 - [x] EN + DE
@@ -254,7 +254,7 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### About
 
-- [ ] Short path from 3D/CGI to DevOps, what you're aiming for, languages, a line of personality (games, books, biking, coffee)
+- [ ] Short path from 3D/CGI to DevOps (live in EN and DE: decade in 3D/CGI and render pipelines, DataScientest diploma July 2024, Sorted and this site as proof, AWS SAA in progress, games/books/bike/coffee; languages still open), what you're aiming for, languages, a line of personality (games, books, biking, coffee)
 - [ ] Optional photo (optimized, with alt text)
 
 ### Work with me

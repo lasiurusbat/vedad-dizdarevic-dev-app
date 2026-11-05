@@ -2,14 +2,20 @@
 interface Props {
   id: string;
   title: string;
+  /** Light bloom under the divider; only the first section after the hero has it. */
+  bloom?: boolean;
 }
 
-const { id, title } = Astro.props;
+const { id, title, bloom = false } = Astro.props;
 ---
 
-<section id={id} aria-labelledby={`${id}-title`} class="py-section">
+<section
+  id={id}
+  aria-labelledby={`${id}-title`}
+  class:list={['section py-section', bloom && 'has-bloom']}
+>
   <div class="max-w-page px-gutter mx-auto">
-    <h2 id={`${id}-title`} class="text-3xl font-bold">
+    <h2 id={`${id}-title`} class="text-3xl">
       {title}
     </h2>
     <div class="mt-6">
@@ -17,3 +23,40 @@ const { id, title } = Astro.props;
     </div>
   </div>
 </section>
+
+<style>
+  /* Divider between sections: a hairline across the page that fades at both ends. The first
+     section after the hero also gets a soft bloom spilling downwards from the line: opaque
+     above, light below, for depth. Decorative pseudo-elements, behind the content. */
+  .section {
+    position: relative;
+    isolation: isolate;
+  }
+
+  .section::before,
+  .has-bloom::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  .section::before {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--divider) 15%,
+      var(--divider) 85%,
+      transparent
+    );
+  }
+
+  .has-bloom::after {
+    z-index: -1;
+    height: 18rem;
+    background: radial-gradient(ellipse 45% 100% at 50% 0, var(--bloom), transparent 70%);
+  }
+</style>

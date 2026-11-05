@@ -4,7 +4,7 @@ summary: 'The AWS platform behind a live multi-tenant support-ticket SaaS. One T
 problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and "the AI cannot do harm" had to be enforced by code and infrastructure, for a commercial product with one person to run it.'
 stack:
   [
-    'AWS (ECS Fargate, RDS, ALB, SES, SNS, S3, KMS, GuardDuty)',
+    'AWS (ECS Fargate, RDS, ALB, SES, SNS, S3, GuardDuty)',
     'Terraform',
     'GitHub Actions + OIDC',
     'Cloudflare',
@@ -21,18 +21,40 @@ decisions:
   - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
     why: 'Fixed cost before launch stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
 outcomes:
-  - label: 'Environments built from one module'
-    value: '2 (dev, prod)'
+  - label: 'Environments from one Terraform module (dev, prod)'
+    value: '2'
   - label: 'Long-lived AWS keys in CI/CD'
     value: '0'
   - label: 'Offline Terraform tests'
     value: '22'
   - label: 'Built and run solo'
-    value: '6 weeks'
-  - label: 'Dev cost per month (est., was ~$105)'
-    value: '~$40'
-  - label: 'Prod cost per month (est.)'
-    value: '~$150'
+    value: '6 wk'
+costs:
+  title: 'Monthly cost, estimated'
+  highlight: '−62% in dev'
+  itemHeader: 'Line item'
+  columns:
+    - label: 'Dev, before'
+      total: 105
+    - label: 'Dev, now'
+      total: 40
+      emphasis: true
+    - label: 'Prod, at go-live'
+      total: 150
+  rows:
+    - item: 'NAT gateway'
+      values: [38, 0, 75]
+    - item: 'Load balancer (ALB)'
+      values: [20, 20, 20]
+    - item: 'Fargate task'
+      values: [20, 2, 20]
+    - item: 'RDS database'
+      values: [14, 5, 27]
+    - item: 'Public IPv4'
+      values: [7, 11, 7]
+    - item: 'Container Insights'
+      values: [5, 0, null]
+  footnote: 'My estimates from the architecture docs, at on-demand eu-central-1 prices for 730 hours a month; not billing data. Totals are the docs’ rounded figures. Dev now runs the task on Fargate Spot about 50 hours a week, stops the database about 65% of the time and has no NAT gateway. Prod assumes a Multi-AZ database and two NAT gateways, before the Savings Plan; Container Insights is not itemised for prod.'
 repoPrivate: true
 liveLinks:
   - label: 'Sorted, live'
@@ -42,7 +64,8 @@ draft: false
 ---
 
 import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
-import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
+import ProblemLog from '../../../components/ProblemLog.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
 import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
 import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
@@ -77,13 +100,35 @@ The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx a
 
 ## Problems I hit
 
-| Problem                                                 | Resolution                                                                                                            |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Every visitor looked like one IP, so rate limits were shared | Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB        |
-| Prisma connected without TLS despite `sslmode=verify-full`   | `prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA  |
-| SES webhooks could not be subscribed in the first apply      | SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented  |
-| A rotated secret did not take effect                         | A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment            |
-| GitHub OIDC trust was name-based                             | A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs              |
+<ProblemLog
+  items={[
+    {
+      area: 'Networking',
+      problem: 'Every visitor looked like one IP, so rate limits were shared',
+      fix: "Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB",
+    },
+    {
+      area: 'Database',
+      problem: 'Prisma connected without TLS despite `sslmode=verify-full`',
+      fix: "`prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA",
+    },
+    {
+      area: 'Messaging',
+      problem: 'SES webhooks could not be subscribed in the first apply',
+      fix: 'SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented',
+    },
+    {
+      area: 'Deployment',
+      problem: 'A rotated secret did not take effect',
+      fix: 'A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment',
+    },
+    {
+      area: 'Security',
+      problem: 'GitHub OIDC trust was name-based',
+      fix: 'A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs',
+    },
+  ]}
+/>
 
 ## The workload
 
@@ -91,18 +136,32 @@ The platform exists to run this application.
 
 Each customer team gets a Sorted address or forwards its own in. An incoming email becomes a ticket. AI classifies it, summarizes it and, for non-transactional questions, answers from the team's knowledge base. **Refund and payment tickets never go to the AI.** Humans work a queue: assign, reply, merge, templates, audit log. It is multi-tenant SaaS with self sign-up, Stripe billing, three team roles, 22 UI languages and a super-admin console. All screenshots below use demo data.
 
-<ThemedScreenshot
-  light={ticketsLight}
-  dark={ticketsDark}
-  alt="The ticket queue of a demo team, Harbor Lane Goods: a table of customer emails with subject, status, category, assignee and last activity, with counters for tickets that need a reply."
-  caption="The ticket queue. Demo data."
-/>
-
-<ThemedScreenshot
-  light={ticketLight}
-  dark={ticketDark}
-  alt="A single ticket: the customer's message, an AI-written answer from the knowledge base marked as such, a reply editor, and a timeline summarizing the story so far."
-  caption="A ticket resolved from the knowledge base. AI-written replies are labelled. Demo data."
+<ScreenshotGallery
+  label="Sorted screenshots, demo data"
+  badge="Demo data"
+  items={[
+    {
+      light: ticketsLight,
+      dark: ticketsDark,
+      alt: 'The ticket queue of a demo team, Harbor Lane Goods: a table of customer emails with subject, status, category, assignee and last activity, with counters for tickets that need a reply.',
+      title: 'The ticket queue',
+      text: 'Customer emails as tickets, with status, category, assignee and counters for what needs a reply.',
+    },
+    {
+      light: ticketLight,
+      dark: ticketDark,
+      alt: 'A single ticket: the customer\'s message, an AI-written answer from the knowledge base marked as such, a reply editor, and a timeline summarizing the story so far.',
+      title: 'A ticket resolved from the knowledge base',
+      text: 'AI-written replies are labelled.',
+    },
+    {
+      light: dashboardLight,
+      dark: dashboardDark,
+      alt: 'The team dashboard: tickets waiting, tickets received, the share resolved by AI versus by agents, median first-reply and resolution times, and a tickets-per-day chart.',
+      title: 'The dashboard',
+      text: 'Including the split between AI-resolved and agent-resolved tickets.',
+    },
+  ]}
 />
 
 Three structural rules keep the AI safe:
@@ -110,13 +169,6 @@ Three structural rules keep the AI safe:
 1. **The webhook never calls the AI.** It saves the message and returns 200, so AI latency or failure cannot lose a customer's email.
 2. **Guardrails are code, not prompt text.** The model returns category, priority, confidence and a draft. Application code decides whether anything is sent.
 3. **Every AI failure ends with the ticket open for a human.** A sweep every five minutes opens anything a crash left behind.
-
-<ThemedScreenshot
-  light={dashboardLight}
-  dark={dashboardDark}
-  alt="The team dashboard: tickets waiting, tickets received, the share resolved by AI versus by agents, median first-reply and resolution times, and a tickets-per-day chart."
-  caption="The dashboard, including the split between AI-resolved and agent-resolved tickets. Demo data."
-/>
 
 
 ## Limitations and what I would do next
