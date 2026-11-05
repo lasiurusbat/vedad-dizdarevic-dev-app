@@ -51,6 +51,10 @@ export const en = {
   casePrivateRepo: 'Source code: private repository',
   caseRepo: 'Source code',
   caseWhy: 'Why',
+  costTotal: 'Total',
+  problemArea: 'Area',
+  problemSymptom: 'What broke',
+  problemFix: 'Fix',
 
   footerRights: 'All rights reserved.',
 

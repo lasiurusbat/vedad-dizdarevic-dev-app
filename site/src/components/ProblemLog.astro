@@ -1,0 +1,187 @@
+---
+/*
+ * "Problems I hit" as an incident log: numbered rows, each with an area tag, what broke and the
+ * fix. One bordered panel with hairline rows, like a console log or changelog. Wide screens show
+ * three columns under a small header row; phones stack each entry with the fix set off by a thin
+ * rule. Text in `backticks` renders as inline code chips.
+ *
+ * Semantics: an ordered list; each entry's parts are labelled for screen readers by the visible
+ * column headers on wide screens and by sr-only labels everywhere.
+ */
+import { getLocale, useTranslations } from '../i18n';
+
+interface Entry {
+  /** Short area tag, e.g. 'Networking'. */
+  area: string;
+  problem: string;
+  fix: string;
+}
+
+interface Props {
+  items: Entry[];
+}
+
+const { items } = Astro.props;
+const t = useTranslations(getLocale(Astro.currentLocale));
+
+/** Splits on `backticks` into text and code parts. */
+const parts = (s: string) =>
+  s
+    .split(/(`[^`]+`)/)
+    .map((p) =>
+      p.startsWith('`') && p.endsWith('`')
+        ? { code: true, text: p.slice(1, -1) }
+        : { code: false, text: p },
+    );
+---
+
+<div class="not-prose log card border-border my-6 rounded-lg border">
+  <div class="cols" aria-hidden="true">
+    <span>{t.problemArea}</span>
+    <span>{t.problemSymptom}</span>
+    <span>{t.problemFix}</span>
+  </div>
+  <ol role="list">
+    {items.map((it, i) => (
+      <li class="entry">
+        <div class="meta">
+          <span class="index">{String(i + 1).padStart(2, '0')}</span>
+          <span class="tag">
+            <span class="sr-only">{t.problemArea}: </span>
+            {it.area}
+          </span>
+        </div>
+        <p class="problem">
+          <span class="sr-only">{t.problemSymptom}: </span>
+          {parts(it.problem).map((p) => (p.code ? <code>{p.text}</code> : p.text))}
+        </p>
+        <p class="fix">
+          <span class="fix-label" aria-hidden="true">
+            {t.problemFix}
+          </span>
+          <span class="sr-only">{t.problemFix}: </span>
+          {parts(it.fix).map((p) => (p.code ? <code>{p.text}</code> : p.text))}
+        </p>
+      </li>
+    ))}
+  </ol>
+</div>
+
+<style>
+  .log {
+    padding: 0 1.25rem;
+  }
+
+  .cols {
+    display: none;
+  }
+
+  .entry {
+    display: grid;
+    gap: 0.5rem;
+    padding: 1.25rem 0;
+  }
+
+  .entry + .entry {
+    border-top: 1px solid var(--border);
+  }
+
+  .meta {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+  }
+
+  .index {
+    color: var(--muted);
+    font-family: var(--font-mono);
+    font-size: var(--text-xs);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .tag {
+    padding: 0.0625rem 0.5rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 9999px;
+    color: var(--muted);
+    font-size: var(--text-xs);
+    line-height: 1.6;
+  }
+
+  .problem {
+    font-weight: 500;
+  }
+
+  /* On phones the fix sits under the problem, set off by a thin accent rule. */
+  .fix {
+    padding-left: 0.875rem;
+    border-left: 2px solid color-mix(in srgb, var(--accent) 55%, transparent);
+    color: var(--muted);
+  }
+
+  .fix-label {
+    display: block;
+    color: var(--accent);
+    font-size: var(--text-xs);
+    font-weight: 500;
+  }
+
+  code {
+    padding: 0.0625rem 0.375rem;
+    border: 1px solid var(--border);
+    border-radius: 0.375rem;
+    background: var(--bg);
+    color: var(--fg);
+    font-family: var(--font-mono);
+    font-size: 0.85em;
+    white-space: nowrap;
+  }
+
+  /* Wide screens: three aligned columns under a small header row. */
+  @media (min-width: 48rem) {
+    .log {
+      padding: 0 1.5rem;
+    }
+
+    .cols,
+    .entry {
+      display: grid;
+      grid-template-columns: 8.5rem minmax(0, 1fr) minmax(0, 1.25fr);
+      gap: 1.5rem;
+    }
+
+    .cols {
+      padding: 0.875rem 0;
+      border-bottom: 1px solid var(--border);
+      color: var(--muted);
+      font-size: var(--text-xs);
+      font-weight: 500;
+    }
+
+    .meta {
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 0.375rem;
+    }
+
+    .fix {
+      padding-left: 0;
+      border-left: 0;
+    }
+
+    .fix-label {
+      display: none;
+    }
+  }
+
+  /* Wide screens: break out of the 70ch text column to the page width, like the diagram and
+     the screenshot gallery, so the three columns have room. */
+  @media (min-width: 64rem) {
+    .log {
+      width: min(
+        calc(var(--container-page) - 2 * var(--spacing-gutter)),
+        calc(100vw - 2 * var(--spacing-gutter) - 1.5rem)
+      );
+    }
+  }
+</style>
