@@ -24,11 +24,11 @@ const groupHover = {
   primary: 'group-hover:from-fill-hover group-hover:to-fill-from',
   secondary: 'group-hover:bg-surface',
 };
-const pill = 'inline-flex items-center justify-center rounded-full font-medium transition-colors';
+const pill = 'inline-flex items-center justify-center rounded-md font-medium transition-colors';
 ---
 
 {size === 'sm' ? (
-  <a href={href} class="group inline-flex min-h-11 items-center rounded-full no-underline">
+  <a href={href} class="group inline-flex min-h-11 items-center rounded-md no-underline">
     <span class={`${pill} h-9 px-4 text-sm ${look[variant]} ${groupHover[variant]}`}>
       <slot />
     </span>

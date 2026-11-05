@@ -121,11 +121,19 @@ const watch = ['M703 80 H640 V140 H342', 'M703 495 H630'];
     mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 55%, transparent 100%);
   }
 
-  /* From 1280px up, 20% wider than its grid column (there is room beside the page container);
-     the hero clips any overflow and the mask fades the edges. */
+  /* Larger than its grid column and pulled up and to the left, so it nearly touches the hero
+     text; the hero clips sideways overflow and the mask fades every edge. */
+  @media (min-width: 64rem) {
+    .scene {
+      width: 122%;
+      margin: -4rem 0 0 -10%;
+    }
+  }
+
   @media (min-width: 80rem) {
     .scene {
-      width: 120%;
+      width: 142%;
+      margin: -6rem 0 0 -14%;
     }
   }
 

@@ -26,14 +26,14 @@ const link =
   'inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-3 text-fg no-underline hover:bg-surface';
 // Wide-screen nav: tighter, smaller text, like a dev-tool console bar.
 const barLink =
-  'inline-flex min-h-11 items-center whitespace-nowrap rounded-full px-3 text-sm text-fg no-underline hover:bg-surface';
+  'inline-flex min-h-11 items-center whitespace-nowrap rounded-md px-3 text-sm text-fg no-underline hover:bg-surface';
 ---
 
 <header class="border-border bg-bg/60 sticky top-0 z-40 border-b backdrop-blur">
   <div class="max-w-page px-gutter mx-auto flex h-14 items-center justify-between gap-2">
     <a
       href={home}
-      class="inline-flex min-h-11 items-center whitespace-nowrap text-[0.9375rem] font-medium tracking-[-0.02em] no-underline"
+      class="inline-flex min-h-11 items-center whitespace-nowrap font-display text-[0.9375rem] font-medium no-underline"
     >
       {t.siteTitle}
     </a>
