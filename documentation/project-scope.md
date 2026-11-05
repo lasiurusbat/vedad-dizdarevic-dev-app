@@ -29,7 +29,7 @@ Since the site is itself a showcase, host it in a way that demonstrates your ski
 
 ## Must-have features
 
-- A sharp positioning statement at the top. Name, role, and one line of fragments on the work: Infrastructure as Code with Terraform, production platforms on AWS, containers with Docker and Kubernetes. The decade in 3D/CGI is told in the About section, not the hero (owner's decision, 2026-11-05). The hero does not mention showroom+, since it is not DevOps work.
+- A sharp positioning statement at the top. Name, role, and one line on the work: "Building scalable, production-ready cloud platforms through Infrastructure as Code, AWS architecture, containerization, and Kubernetes orchestration." (owner's wording). The decade in 3D/CGI is told in the About section, not the hero (owner's decision, 2026-11-05). The hero does not mention showroom+, since it is not DevOps work.
 - Two or three flagship project case studies (sorted.onl and rainalert.live). This is the core of the site. Each one should have:
   - The problem or goal in a sentence or two
   - An architecture diagram
