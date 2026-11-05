@@ -6,7 +6,7 @@ export const de: Messages = {
   role: 'Cloud- & DevOps-Engineer',
   availability: 'Offen für Festanstellung und freiberufliche Projekte.',
   heroPositioning:
-    'Nach über zehn Jahren in 3D/CGI baue und betreibe ich Produktionsinfrastruktur auf AWS, mit Terraform und Kubernetes.',
+    'Infrastructure as Code mit Terraform. Produktionsplattformen auf AWS. Container mit Docker und Kubernetes.',
   ctaCv: 'Lebenslauf herunterladen',
   comingSoon: 'Folgt in Kürze.',
 
@@ -25,6 +25,8 @@ export const de: Messages = {
   workTitle: 'Ausgewählte Projekte',
   skillsTitle: 'Kenntnisse',
   aboutTitle: 'Über mich',
+  aboutText:
+    'Über zehn Jahre habe ich in 3D/CGI gearbeitet, bevor ich ins Cloud- und DevOps-Engineering gewechselt bin. Im Juli 2024 habe ich die Weiterbildung zum DevOps Engineer bei DataScientest abgeschlossen. Heute baue und betreibe ich Produktionsinfrastruktur auf AWS, mit Terraform und Kubernetes.',
   hireTitle: 'Zusammenarbeit',
   contactTitle: 'Kontakt',
 

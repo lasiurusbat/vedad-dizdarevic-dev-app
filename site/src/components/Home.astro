@@ -43,6 +43,8 @@ const sections = [
       </div>
     ) : s.id === 'skills' ? (
       <Credentials locale={locale} />
+    ) : s.id === 'about' ? (
+      <p class="max-w-measure text-lg">{t.aboutText}</p>
     ) : (
       <p class="text-muted">{t.comingSoon}</p>
     )}
