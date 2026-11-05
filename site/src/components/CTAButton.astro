@@ -2,18 +2,42 @@
 interface Props {
   href: string;
   variant?: 'primary' | 'secondary';
+  /**
+   * `sm` is for the header: the visible pill is 36px, drawn on an inner span, while the link
+   * itself stays 44px tall so the touch target does not shrink.
+   */
+  size?: 'md' | 'sm';
 }
 
-const { href, variant = 'primary' } = Astro.props;
+const { href, variant = 'primary', size = 'md' } = Astro.props;
 
-const base =
-  'inline-flex min-h-11 items-center justify-center rounded-md px-5 py-2 font-medium no-underline transition-colors';
-const variants = {
-  primary: 'bg-accent text-bg hover:opacity-90',
-  secondary: 'border border-border-strong text-fg hover:bg-surface',
+// Primary: the one gradient on the site (tokens in global.css), white text in both themes.
+const look = {
+  primary: 'bg-linear-353 from-fill-from to-fill-to text-white shadow-rim',
+  secondary: 'border border-border-strong text-fg',
 };
+const hover = {
+  primary: 'hover:from-fill-hover hover:to-fill-from',
+  secondary: 'hover:bg-surface',
+};
+const groupHover = {
+  primary: 'group-hover:from-fill-hover group-hover:to-fill-from',
+  secondary: 'group-hover:bg-surface',
+};
+const pill = 'inline-flex items-center justify-center rounded-md font-medium transition-colors';
 ---
 
-<a href={href} class={`${base} ${variants[variant]}`}>
-  <slot />
-</a>
+{size === 'sm' ? (
+  <a href={href} class="group inline-flex min-h-11 items-center rounded-md no-underline">
+    <span class={`${pill} h-9 px-4 text-sm ${look[variant]} ${groupHover[variant]}`}>
+      <slot />
+    </span>
+  </a>
+) : (
+  <a
+    href={href}
+    class={`${pill} min-h-11 px-5 py-2 no-underline ${look[variant]} ${hover[variant]}`}
+  >
+    <slot />
+  </a>
+)}

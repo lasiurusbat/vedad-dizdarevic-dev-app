@@ -1,0 +1,281 @@
+---
+/*
+ * Decorative hero graphic: a made-up AWS architecture on a dot grid, tilted in perspective, with
+ * data packets travelling along the connections. Three variants (Fargate, EKS, EC2; data in
+ * src/diagrams/hero-variants.ts) are in the HTML; a small script reveals one at random on every
+ * page load, avoiding a repeat of the last one in the same tab. Without JavaScript the first one
+ * shows. Not real systems (the case studies hold those), so the graphic is aria-hidden.
+ *
+ * CSP: inline SVG markup only, no style attributes; the script is bundled into an external file.
+ * Layout uses SVG geometry attributes; colours, perspective and animation live in this
+ * component's bundled stylesheet. Icons are the official AWS Architecture Icons, unmodified,
+ * loaded from 'self' (hidden variants are display:none, so their icons load only if shown).
+ * Packets: every path has pathLength=100 and a dash of 4 with a 120 gap, so one dash travels
+ * the whole path and then disappears; delays stagger the hops into a chain.
+ */
+import { cloudIcon } from '../diagrams/icons';
+import { heroVariants } from '../diagrams/hero-variants';
+
+const S = 44; // icon size in viewBox units
+const G = 22; // group icon size
+---
+
+<div class="scene" aria-hidden="true" data-hero-arch>
+  <div class="panel">
+    {heroVariants.map((v, i) => (
+      <svg
+        viewBox="0 0 840 560"
+        class:list={['graph', i > 0 && 'is-hidden']}
+        focusable="false"
+        data-variant={v.id}
+      >
+        <rect class="frame" x="80" y="6" width="750" height="548" rx="10"></rect>
+        <image class="cloud-light" href={cloudIcon.light} x="80" y="6" width="28" height="28" />
+        <image class="cloud-dark" href={cloudIcon.dark} x="80" y="6" width="28" height="28" />
+        <text class="group-label" x="116" y="25">
+          AWS Cloud
+        </text>
+        <text class="label" x="818" y="25" text-anchor="end">
+          eu-central-1
+        </text>
+
+        {v.groups.map((g) => (
+          <>
+            <rect
+              class:list={['group', g.cls]}
+              x={g.x}
+              y={g.y}
+              width={g.w}
+              height={g.h}
+              rx="8"
+            ></rect>
+            {g.icon && <image href={g.icon} x={g.x} y={g.y} width={G} height={G} />}
+            <text
+              class="group-label"
+              x={g.end ? g.x + g.w - 12 : g.x + (g.icon ? G + 6 : 12)}
+              y={g.y + (g.icon ? 15 : 18)}
+              text-anchor={g.end ? 'end' : 'start'}
+            >
+              {g.label}
+            </text>
+          </>
+        ))}
+
+        {v.watch.map((d) => (
+          <path class="watch" d={d}></path>
+        ))}
+        {v.edges.map((e) => (
+          <path class="wire" d={e.d} pathLength="100"></path>
+        ))}
+        {v.edges.map((e) => (
+          <path class:list={['pkt', `hop-${e.hop}`]} d={e.d} pathLength="100"></path>
+        ))}
+
+        {v.nodes.map((n) => (
+          <g transform={`translate(${n.x - S / 2} ${n.y - S / 2})`}>
+            <rect class="halo" x="-5" y="-5" width={S + 10} height={S + 10} rx="10"></rect>
+            <image href={n.icon} width={S} height={S} />
+            <text class="label" x={S / 2} y={S + 18} text-anchor="middle">
+              {n.label}
+            </text>
+          </g>
+        ))}
+      </svg>
+    ))}
+  </div>
+</div>
+
+<script>
+  // Pick one variant per page load; avoid showing the same one twice in a row in this tab.
+  for (const root of document.querySelectorAll<HTMLElement>('[data-hero-arch]')) {
+    const variants = [...root.querySelectorAll<SVGSVGElement>('[data-variant]')];
+    let last: string | null = null;
+    try {
+      last = sessionStorage.getItem('hero-arch');
+    } catch {
+      // Storage blocked: any variant will do.
+    }
+    const pool = variants.filter((v) => v.dataset.variant !== last);
+    const pick = pool[Math.floor(Math.random() * pool.length)] ?? variants[0]!;
+    for (const v of variants) v.classList.toggle('is-hidden', v !== pick);
+    try {
+      sessionStorage.setItem('hero-arch', pick.dataset.variant ?? '');
+    } catch {
+      // Ignore.
+    }
+  }
+</script>
+
+<style>
+  /* Fades in, so the swap to the randomly picked variant is never seen. */
+  .scene {
+    animation: appear 0.6s ease-out 0.1s both;
+    perspective: 1600px;
+    /* Fade the edges into the page, like a screenshot floating on the canvas. */
+    mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 55%, transparent 100%);
+  }
+
+  /* Larger than its grid column and pulled up and to the left, so it nearly touches the hero
+     text; the hero clips sideways overflow and the mask fades every edge. */
+  @media (min-width: 64rem) {
+    .scene {
+      width: 122%;
+      margin: -4rem 0 0 -10%;
+    }
+  }
+
+  @media (min-width: 80rem) {
+    .scene {
+      width: 142%;
+      margin: -6rem 0 0 -14%;
+    }
+  }
+
+  /* No box: no border or fill, so nothing has a hard edge. The dot grid and the scene mask
+     fade everything into the canvas. */
+  .panel {
+    position: relative;
+    isolation: isolate;
+    padding: 1.25rem;
+    transform: rotateX(14deg) rotateY(-20deg) rotateZ(2deg);
+    transform-origin: 40% 50%;
+  }
+
+  /* Dot matrix behind the graph: densest under the middle, gone well before any edge. */
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: -6%;
+    z-index: -1;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--fg) 18%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 12px 12px;
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 30%, transparent 100%);
+  }
+
+  .graph {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .frame {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.5;
+  }
+
+  .group {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.45;
+  }
+
+  .vpc {
+    fill: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+
+  .az {
+    stroke-dasharray: 5 4;
+  }
+
+  .inner {
+    stroke: var(--accent);
+    stroke-opacity: 0.45;
+    stroke-dasharray: 2 4;
+  }
+
+  .graph.is-hidden {
+    display: none;
+  }
+
+  .group-label,
+  .label {
+    fill: var(--muted);
+    font-size: 13px;
+  }
+
+  .group-label {
+    font-weight: 500;
+  }
+
+  .halo {
+    fill: var(--bg);
+    stroke: var(--border);
+  }
+
+  .wire,
+  .watch {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.25;
+    stroke-opacity: 0.6;
+  }
+
+  .watch {
+    stroke-dasharray: 4 4;
+  }
+
+  .pkt {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 4 120;
+    stroke-dashoffset: 4;
+    filter: drop-shadow(0 0 4px var(--accent));
+    animation: flow 2.4s linear infinite;
+  }
+
+  .hop-1 {
+    animation-delay: 0.6s;
+  }
+  .hop-2 {
+    animation-delay: 1.2s;
+  }
+  .hop-3 {
+    animation-delay: 1.8s;
+  }
+
+  @keyframes flow {
+    from {
+      stroke-dashoffset: 4;
+    }
+    to {
+      stroke-dashoffset: -120;
+    }
+  }
+
+  .cloud-dark {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .cloud-light {
+      display: none;
+    }
+    .cloud-dark {
+      display: inline;
+    }
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .scene {
+      animation: none;
+    }
+
+    .pkt {
+      display: none;
+    }
+  }
+</style>

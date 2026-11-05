@@ -27,6 +27,34 @@ const caseStudies = defineCollection({
       .max(4),
     /** Outcome metrics, e.g. { label: 'Monthly cost', value: '€4' }. */
     outcomes: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+    /**
+     * Optional cost comparison under the outcomes: monthly estimates per environment, itemised.
+     * Always estimates; `footnote` must say where the figures come from. A `null` cell means
+     * "not itemised" (shown as a dash). `total` is the source's own rounded figure, so it may
+     * differ slightly from the sum of the rows.
+     */
+    costs: z
+      .object({
+        title: z.string(),
+        /** Short callout next to the title, e.g. '−62% in dev'. */
+        highlight: z.string().optional(),
+        itemHeader: z.string(),
+        columns: z
+          .array(
+            z.object({
+              label: z.string(),
+              total: z.number(),
+              /** The column the chart is about; gets the accent colour. */
+              emphasis: z.boolean().default(false),
+            }),
+          )
+          .min(2)
+          .max(4),
+        rows: z.array(z.object({ item: z.string(), values: z.array(z.number().nullable()) })),
+        currency: z.string().default('$'),
+        footnote: z.string(),
+      })
+      .optional(),
     repoUrl: z.url().optional(),
     /** The source exists but is not public; the page then says so instead of linking. */
     repoPrivate: z.boolean().default(false),

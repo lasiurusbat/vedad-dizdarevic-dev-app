@@ -7,7 +7,8 @@ const pages = [
     lang: 'en',
     role: 'Cloud & DevOps Engineer',
     availability: /open to full-time roles and freelance work/i,
-    positioning: /after more than a decade in 3D\/CGI/i,
+    positioning: /production-ready cloud platforms through infrastructure as code/i,
+    about: /more than a decade in 3D\/CGI/i,
     contact: 'Contact',
     contactHref: '/#contact',
   },
@@ -16,7 +17,8 @@ const pages = [
     lang: 'de',
     role: 'Cloud- & DevOps-Engineer',
     availability: /offen für festanstellung und freiberufliche projekte/i,
-    positioning: /nach über zehn jahren in 3D\/CGI/i,
+    positioning: /produktionsreife cloud-plattformen mit infrastructure as code/i,
+    about: /über zehn jahre habe ich in 3D\/CGI/i,
     contact: 'Kontakt',
     contactHref: '/de/#contact',
   },
@@ -35,6 +37,9 @@ for (const p of pages) {
       await expect(hero.getByText(p.role, { exact: true })).toBeVisible();
       await expect(hero.getByText(p.availability)).toBeVisible();
       await expect(hero.getByText(p.positioning)).toBeVisible();
+      // The career change lives in About, not in the hero.
+      await expect(hero.getByText(/3D\/CGI/)).toHaveCount(0);
+      await expect(page.locator('#about').getByText(p.about)).toBeVisible();
 
       // Contact, GitHub and LinkedIn are reachable from the hero itself, with 44px targets.
       const contact = hero.getByRole('link', { name: p.contact, exact: true });

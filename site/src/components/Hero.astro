@@ -2,6 +2,7 @@
 import { CV_URL, GITHUB_URL, LINKEDIN_URL } from '../site';
 import { type Locale, localeUrl, useTranslations } from '../i18n';
 import CTAButton from './CTAButton.astro';
+import HeroArchitecture from './HeroArchitecture.astro';
 
 interface Props {
   locale: Locale;
@@ -11,32 +12,180 @@ const { locale } = Astro.props;
 const t = useTranslations(locale);
 ---
 
-<section aria-labelledby="hero-title" class="py-section">
-  <div class="max-w-page px-gutter mx-auto flex flex-col items-start gap-stack">
-    <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
-      <span aria-hidden="true" class="bg-accent size-2 rounded-full"></span>
-      {t.availability}
-    </p>
-    <div>
-      <h1 id="hero-title" class="text-5xl font-bold tracking-tight">
-        {t.siteTitle}
-      </h1>
-      <p class="text-accent mt-2 text-2xl font-medium">{t.role}</p>
-    </div>
-    <p class="max-w-measure text-xl">{t.heroPositioning}</p>
-    <div class="flex flex-wrap gap-3">
-      <CTAButton href={`${localeUrl(locale)}#contact`}>{t.navContact}</CTAButton>
-      {CV_URL && (
-        <CTAButton href={CV_URL} variant="secondary">
-          {t.ctaCv}
+<section aria-labelledby="hero-title" class="py-section relative isolate overflow-x-clip">
+  <!-- Light shaft: starts behind the navbar and drops down behind the diagram. Decorative. -->
+  <div class="shaft" aria-hidden="true"></div>
+  <div class="max-w-page px-gutter mx-auto grid items-center gap-12 lg:grid-cols-[minmax(0,1.1fr)_minmax(0,1fr)]">
+    <div class="hero-text flex flex-col items-start gap-stack">
+      <p class="border-border bg-surface inline-flex items-center gap-2 rounded-full border px-3 py-1 text-sm">
+        <span aria-hidden="true" class="status-dot bg-accent size-2 rounded-full"></span>
+        {t.availability}
+      </p>
+      <!-- Reads as one two-line headline; the h1 stays the name alone, the role is a paragraph. -->
+      <div class="headline">
+        <h1 id="hero-title" class="name">
+          {t.siteTitle}
+        </h1>
+        <p class="role text-accent font-display font-medium">{t.role}</p>
+      </div>
+      <p class="positioning max-w-measure text-muted">{t.heroPositioning}</p>
+      <div class="flex flex-wrap gap-3">
+        <CTAButton href={`${localeUrl(locale)}#contact`}>{t.navContact}</CTAButton>
+        {CV_URL && (
+          <CTAButton href={CV_URL} variant="secondary">
+            {t.ctaCv}
+          </CTAButton>
+        )}
+        <CTAButton href={GITHUB_URL} variant="secondary">
+          {t.github}
         </CTAButton>
-      )}
-      <CTAButton href={GITHUB_URL} variant="secondary">
-        {t.github}
-      </CTAButton>
-      <CTAButton href={LINKEDIN_URL} variant="secondary">
-        {t.linkedin}
-      </CTAButton>
+        <CTAButton href={LINKEDIN_URL} variant="secondary">
+          {t.linkedin}
+        </CTAButton>
+      </div>
+    </div>
+    <!-- Decorative only; hidden on small screens so the CTAs stay in the first view. -->
+    <div class="hidden lg:block">
+      <HeroArchitecture />
     </div>
   </div>
 </section>
+
+<style>
+  /* Availability dot: a soft blink plus a ring that fades outwards, like a live status light. */
+  .status-dot {
+    animation: blink 2.4s ease-in-out infinite;
+  }
+
+  @keyframes blink {
+    0%,
+    100% {
+      opacity: 1;
+      box-shadow: 0 0 0 0 color-mix(in srgb, var(--accent) 55%, transparent);
+    }
+    50% {
+      opacity: 0.45;
+    }
+    70% {
+      box-shadow: 0 0 0 5px transparent;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .status-dot {
+      animation: none;
+    }
+  }
+
+  /* The text column is a size container, so the headline can scale to its width. */
+  .hero-text {
+    container-type: inline-size;
+  }
+
+  /* Name and role span the full width of the text column, the same width as the positioning
+     sentence below. "Vedad Dizdarevic" is 7.40em wide in Inter Tight 500 at -0.01em, so
+     100cqi / 7.40 = 13.5cqi; 13.3cqi leaves a hair of room for rounding. The role keeps its
+     own measured ratio to the name (below), so it matches the same width. */
+  .headline {
+    /* Capped at the desktop size (4.5rem): on tablets the column is the full page width, and an
+       uncapped name would be ~96px tall. There it is narrower than the sentence; on phones
+       and desktops the cap never applies. */
+    font-size: min(13.3cqi, 4.5rem);
+    line-height: 1.08;
+    letter-spacing: -0.01em;
+  }
+
+  .headline > * {
+    line-height: inherit;
+    white-space: nowrap;
+  }
+
+  /* The role line is exactly as wide as the name. Text width scales linearly with font size,
+     so the ratio is measured once per language (Inter Tight, weight 500, -0.01em tracking) and
+     holds at every viewport. Re-measure if the name, the role text or the font changes. */
+  .role {
+    font-size: 0.684em;
+  }
+
+  .role:lang(de) {
+    font-size: 0.646em;
+  }
+
+  /* 10% smaller than the text-lg it used to be. Plain wrapping (not the site-wide
+     text-wrap: pretty), so its lines fill the column like the headline above. */
+  .positioning {
+    font-size: calc(var(--text-lg) * 0.9);
+    text-wrap: wrap;
+  }
+
+  /* White with a slight downward fade, like the reference headline. Falls back to the plain
+     text colour where background-clip: text is missing. */
+  @supports (background-clip: text) {
+    .name {
+      background-image: linear-gradient(
+        to bottom,
+        var(--fg) 30%,
+        color-mix(in srgb, var(--fg) 72%, var(--muted))
+      );
+      background-clip: text;
+      color: transparent;
+    }
+  }
+
+  /* The beams are clipped shapes; the blur sits on the parent, so it applies after the clip
+     and every edge is soft. The section clips sideways only, so the shaft can reach up behind
+     the translucent sticky header. */
+  .shaft {
+    display: none;
+    position: absolute;
+    z-index: -1;
+    top: -7rem;
+    right: 2%;
+    width: 58%;
+    height: calc(100% + 7rem);
+    pointer-events: none;
+    background: radial-gradient(ellipse 26% 16% at 58% 8%, var(--shaft-core), transparent);
+    filter: blur(26px);
+  }
+
+  @media (min-width: 64rem) {
+    .shaft {
+      display: block;
+    }
+  }
+
+  .shaft::before,
+  .shaft::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Wide, faint beam. */
+  .shaft::before {
+    background: linear-gradient(to bottom, var(--shaft), transparent 80%);
+    clip-path: polygon(46% 0, 70% 0, 96% 100%, 8% 100%);
+  }
+
+  /* Narrow, brighter core, fading out sooner. */
+  .shaft::after {
+    background: linear-gradient(to bottom, var(--shaft-core), transparent 60%);
+    clip-path: polygon(54% 0, 62% 0, 66% 100%, 30% 100%);
+    animation: breathe 9s ease-in-out infinite alternate;
+  }
+
+  @keyframes breathe {
+    from {
+      opacity: 0.7;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .shaft::after {
+      animation: none;
+    }
+  }
+</style>
