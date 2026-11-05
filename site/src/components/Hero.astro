@@ -26,9 +26,9 @@ const t = useTranslations(locale);
         <h1 id="hero-title" class="name">
           {t.siteTitle}
         </h1>
-        <p class="text-accent font-display font-medium">{t.role}</p>
+        <p class="role text-accent font-display font-medium">{t.role}</p>
       </div>
-      <p class="max-w-measure text-muted text-lg">{t.heroPositioning}</p>
+      <p class="positioning max-w-measure text-muted">{t.heroPositioning}</p>
       <div class="flex flex-wrap gap-3">
         <CTAButton href={`${localeUrl(locale)}#contact`}>{t.navContact}</CTAButton>
         {CV_URL && (
@@ -63,6 +63,16 @@ const t = useTranslations(locale);
   .headline > * {
     line-height: inherit;
     text-wrap: wrap;
+  }
+
+  /* The role line is 20% smaller than the name. */
+  .role {
+    font-size: 0.8em;
+  }
+
+  /* 10% smaller than the text-lg it used to be. */
+  .positioning {
+    font-size: calc(var(--text-lg) * 0.9);
   }
 
   /* White with a slight downward fade, like the reference headline. Falls back to the plain
