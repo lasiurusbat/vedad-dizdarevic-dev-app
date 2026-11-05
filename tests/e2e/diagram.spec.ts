@@ -89,6 +89,41 @@ test('mobile: page keeps its width, scrolls over the diagram, text stays readabl
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before);
 });
 
+test('desktop: drag pans the diagram, the wheel still scrolls the page, Ctrl+wheel zooms', async ({
+  page,
+}) => {
+  const diagram = await openDiagram(page);
+  const viewport = diagram.locator('.react-flow__viewport');
+  const transform = () => viewport.evaluate((el) => getComputedStyle(el).transform);
+  const box = (await diagram.boundingBox())!;
+  const cx = box.x + box.width / 2;
+  const cy = box.y + box.height / 2;
+
+  const before = await transform();
+  await page.mouse.move(cx, cy);
+  await page.mouse.down();
+  await page.mouse.move(cx + 80, cy + 40, { steps: 6 });
+  await page.mouse.up();
+  expect(await transform()).not.toBe(before);
+
+  const scrollBefore = await page.evaluate(() => window.scrollY);
+  await page.mouse.wheel(0, 300);
+  await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollBefore);
+
+  const zoomBefore = await transform();
+  await page.keyboard.down('Control');
+  await page.mouse.wheel(0, -300);
+  await page.keyboard.up('Control');
+  await expect.poll(transform).not.toBe(zoomBefore);
+});
+
+test('desktop: the figure is wider and taller than the text column', async ({ page }) => {
+  const diagram = await openDiagram(page);
+  const box = (await diagram.boundingBox())!;
+  expect(box.width).toBeGreaterThan(1000);
+  expect(box.height).toBeGreaterThanOrEqual(700);
+});
+
 test('screenshots for review', async ({ page }) => {
   const diagram = await openDiagram(page);
   await page.waitForTimeout(500);

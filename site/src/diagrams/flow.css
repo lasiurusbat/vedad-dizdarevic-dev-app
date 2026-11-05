@@ -82,7 +82,7 @@
   fill: var(--surface);
 }
 /* d3-zoom sets touch-action: none on the pane, which would trap a vertical swipe over the diagram.
-   Panning and wheel zoom are off, so hand scrolling back to the browser. */
+   Drag-panning is only enabled for a fine pointer (see FlowDiagram), so on touch the browser scrolls. */
 .react-flow__renderer,
 .react-flow__pane,
 .react-flow__viewport {
@@ -98,4 +98,12 @@
 .react-flow__controls-button {
   width: 44px;
   height: 44px;
+}
+
+/* Mouse drag pans the diagram. */
+.vdd-flow[data-pan='true'] .react-flow__pane {
+  cursor: grab;
+}
+.vdd-flow[data-pan='true'] .react-flow__pane.dragging {
+  cursor: grabbing;
 }

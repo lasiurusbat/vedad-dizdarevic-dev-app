@@ -51,7 +51,7 @@ export const nodes: DiagramNode[] = [
   svc('ecr', 590, 150, 'ECR', 'delivery', 'immutable tags', true, icons.ecr),
   svc('s3mail', 20, 260, 'S3 inbound mail', 'data', 'own KMS key', true, icons.s3),
   svc('s3att', 400, 260, 'S3 attachments', 'data', 'scan before read', true, icons.s3),
-  svc('rds', 590, 260, 'RDS', 'data', 'PostgreSQL, zone A', true, icons.rds),
+  svc('rds', 590, 260, 'RDS', 'data', 'primary, zone A', true, icons.rds),
   svc('gd', 400, 370, 'GuardDuty', 'security', 'malware scan', true, icons.guardduty),
   svc('standby', 590, 370, 'RDS standby', 'data', 'zone B, failover', true, icons.rds),
   svc('gha', 840, 320, 'GitHub Actions', 'delivery', 'OIDC, no keys', false),

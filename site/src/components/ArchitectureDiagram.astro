@@ -15,7 +15,7 @@ const description = sortedProduction.description;
 const steps = locale === 'de' && description.de.length > 0 ? description.de : description.en;
 ---
 
-<figure class="not-prose my-8">
+<figure class="not-prose diagram my-8">
   {/* Focusable so keyboard users can scroll it sideways on a narrow screen. */}
   <div
     class="border-border overflow-x-auto rounded-lg border"
@@ -44,8 +44,21 @@ const steps = locale === 'de' && description.de.length > 0 ? description.de : de
 <style>
   /* Reserves the space before the script runs, so the page does not jump. */
   .diagram-mount {
-    height: clamp(26rem, 70vw, 40rem);
+    height: clamp(30rem, 70vw, 44rem);
     background: var(--surface);
+  }
+  /* On wide screens the figure breaks out of the 70ch text column, up to the page width, and is
+     taller, so the labels stay readable. */
+  @media (min-width: 64rem) {
+    .diagram {
+      width: min(
+        calc(var(--container-page) - 2 * var(--spacing-gutter)),
+        calc(100vw - 2 * var(--spacing-gutter) - 1.5rem)
+      );
+    }
+    .diagram-mount {
+      height: 46rem;
+    }
   }
   /* Below ~640px the diagram keeps a readable width and the wrapper scrolls sideways. */
   @media (max-width: 39.99rem) {
