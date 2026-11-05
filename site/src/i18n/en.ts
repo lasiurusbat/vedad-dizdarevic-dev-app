@@ -3,7 +3,7 @@ export const en = {
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
   heroPositioning:
-    'Building scalable, production-ready cloud platforms through Infrastructure as Code, AWS architecture, containerization, and Kubernetes orchestration.',
+    'Building scalable, production-ready cloud platforms through Infrastructure as Code, cloud architecture, containerization, and Kubernetes orchestration.',
   ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
