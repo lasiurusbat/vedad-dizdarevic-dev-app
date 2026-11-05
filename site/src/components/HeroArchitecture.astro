@@ -1,0 +1,195 @@
+---
+/*
+ * Decorative hero graphic: a made-up AWS architecture on a dot-matrix panel, tilted in
+ * perspective, with data packets travelling along the connections. Not a real system (the case
+ * studies hold those), so it is aria-hidden and carries no claims.
+ *
+ * CSP: inline SVG markup only, no style attributes, no script. Layout uses SVG geometry
+ * attributes; colours, perspective and animation live in this component's bundled stylesheet.
+ * Icons are the official AWS Architecture Icons, unmodified, loaded from 'self'.
+ * Packets: every path has pathLength=100 and a dash of 4 with a 120 gap, so one dash travels
+ * the whole path and then disappears; delays stagger the hops into a chain.
+ */
+import { cloudIcon, icons } from '../diagrams/icons';
+
+const S = 44; // icon size in viewBox units
+
+const nodes = [
+  { id: 'elb', x: 110, y: 210, icon: icons.elb, label: 'Load balancer' },
+  { id: 'fa', x: 260, y: 120, icon: icons.fargate, label: 'Fargate' },
+  { id: 'fb', x: 260, y: 300, icon: icons.fargate, label: 'Fargate' },
+  { id: 'rds', x: 430, y: 210, icon: icons.rds, label: 'RDS' },
+  { id: 'sns', x: 430, y: 72, icon: icons.sns, label: 'SNS' },
+  { id: 'ses', x: 570, y: 72, icon: icons.ses, label: 'SES' },
+  { id: 's3', x: 430, y: 348, icon: icons.s3, label: 'S3' },
+  { id: 'gd', x: 570, y: 280, icon: icons.guardduty, label: 'GuardDuty' },
+];
+
+// `hop` picks the animation delay class, so packets move through the system in order.
+const edges = [
+  { d: 'M0 210 H88', hop: 0 },
+  { d: 'M132 210 H185 V120 H238', hop: 1 },
+  { d: 'M132 210 H185 V300 H238', hop: 1 },
+  { d: 'M282 120 H350 V210 H408', hop: 2 },
+  { d: 'M282 300 H350 V210 H408', hop: 2 },
+  { d: 'M260 98 V72 H408', hop: 2 },
+  { d: 'M260 322 V348 H408', hop: 3 },
+  { d: 'M452 72 H548', hop: 3 },
+];
+const watch = 'M548 280 H500 V210 H452'; // GuardDuty: watches, no packets
+---
+
+<div class="scene" aria-hidden="true">
+  <div class="panel">
+    <svg viewBox="0 0 640 420" class="graph" focusable="false">
+      <rect class="frame" x="70" y="14" width="560" height="392" rx="10"></rect>
+      <image class="cloud-light" href={cloudIcon.light} x="70" y="14" width="28" height="28" />
+      <image class="cloud-dark" href={cloudIcon.dark} x="70" y="14" width="28" height="28" />
+      <text class="group-label" x="106" y="33">
+        AWS Cloud
+      </text>
+
+      <path class="watch" d={watch}></path>
+      {edges.map((e) => (
+        <path class="wire" d={e.d} pathLength="100"></path>
+      ))}
+      {edges.map((e) => (
+        <path class:list={['pkt', `hop-${e.hop}`]} d={e.d} pathLength="100"></path>
+      ))}
+
+      {nodes.map((n) => (
+        <g transform={`translate(${n.x - S / 2} ${n.y - S / 2})`}>
+          <rect class="halo" x="-5" y="-5" width={S + 10} height={S + 10} rx="10"></rect>
+          <image href={n.icon} width={S} height={S} />
+          <text class="label" x={S / 2} y={S + 18} text-anchor="middle">
+            {n.label}
+          </text>
+        </g>
+      ))}
+    </svg>
+  </div>
+</div>
+
+<style>
+  .scene {
+    perspective: 1600px;
+    /* Fade the edges into the page, like a screenshot floating on the canvas. */
+    mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 55%, transparent 100%);
+  }
+
+  .panel {
+    position: relative;
+    isolation: isolate;
+    padding: 1.25rem;
+    border: 1px solid var(--border);
+    border-radius: 1rem;
+    background-image: linear-gradient(to bottom, var(--card-top), var(--card-bottom));
+    transform: rotateX(14deg) rotateY(-20deg) rotateZ(2deg);
+    transform-origin: 40% 50%;
+  }
+
+  /* Dot matrix behind the graph. */
+  .panel::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    border-radius: inherit;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--fg) 16%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 12px 12px;
+    mask-image: linear-gradient(135deg, #000 10%, transparent 90%);
+  }
+
+  .graph {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .frame {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.5;
+  }
+
+  .group-label,
+  .label {
+    fill: var(--muted);
+    font-size: 12px;
+  }
+
+  .group-label {
+    font-weight: 500;
+  }
+
+  .halo {
+    fill: var(--bg);
+    stroke: var(--border);
+  }
+
+  .wire,
+  .watch {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.25;
+    stroke-opacity: 0.6;
+  }
+
+  .watch {
+    stroke-dasharray: 4 4;
+  }
+
+  .pkt {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 4 120;
+    stroke-dashoffset: 4;
+    filter: drop-shadow(0 0 4px var(--accent));
+    animation: flow 2.4s linear infinite;
+  }
+
+  .hop-1 {
+    animation-delay: 0.6s;
+  }
+  .hop-2 {
+    animation-delay: 1.2s;
+  }
+  .hop-3 {
+    animation-delay: 1.8s;
+  }
+
+  @keyframes flow {
+    from {
+      stroke-dashoffset: 4;
+    }
+    to {
+      stroke-dashoffset: -120;
+    }
+  }
+
+  .cloud-dark {
+    display: none;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    .cloud-light {
+      display: none;
+    }
+    .cloud-dark {
+      display: inline;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pkt {
+      display: none;
+    }
+  }
+</style>
