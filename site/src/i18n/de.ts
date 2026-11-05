@@ -54,6 +54,10 @@ export const de: Messages = {
   casePrivateRepo: 'Quellcode: privates Repository',
   caseRepo: 'Quellcode',
   caseWhy: 'Warum',
+  costTotal: 'Summe',
+  problemArea: 'Bereich',
+  problemSymptom: 'Was nicht ging',
+  problemFix: 'Lösung',
 
   footerRights: 'Alle Rechte vorbehalten.',
 

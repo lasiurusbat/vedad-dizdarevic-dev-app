@@ -21,18 +21,40 @@ decisions:
   - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
     why: 'Fixed cost before launch stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
 outcomes:
-  - label: 'Environments built from one module'
-    value: '2 (dev, prod)'
+  - label: 'Environments from one Terraform module (dev, prod)'
+    value: '2'
   - label: 'Long-lived AWS keys in CI/CD'
     value: '0'
   - label: 'Offline Terraform tests'
     value: '22'
   - label: 'Built and run solo'
-    value: '6 weeks'
-  - label: 'Dev cost per month (est., was ~$105)'
-    value: '~$40'
-  - label: 'Prod cost per month (est.)'
-    value: '~$150'
+    value: '6 wk'
+costs:
+  title: 'Monthly cost, estimated'
+  highlight: '−62% in dev'
+  itemHeader: 'Line item'
+  columns:
+    - label: 'Dev, before'
+      total: 105
+    - label: 'Dev, now'
+      total: 40
+      emphasis: true
+    - label: 'Prod, at go-live'
+      total: 150
+  rows:
+    - item: 'NAT gateway'
+      values: [38, 0, 75]
+    - item: 'Load balancer (ALB)'
+      values: [20, 20, 20]
+    - item: 'Fargate task'
+      values: [20, 2, 20]
+    - item: 'RDS database'
+      values: [14, 5, 27]
+    - item: 'Public IPv4'
+      values: [7, 11, 7]
+    - item: 'Container Insights'
+      values: [5, 0, null]
+  footnote: 'My estimates from the architecture docs, at on-demand eu-central-1 prices for 730 hours a month; not billing data. Totals are the docs’ rounded figures. Dev now runs the task on Fargate Spot about 50 hours a week, stops the database about 65% of the time and has no NAT gateway. Prod assumes a Multi-AZ database and two NAT gateways, before the Savings Plan; Container Insights is not itemised for prod.'
 repoPrivate: true
 liveLinks:
   - label: 'Sorted, live'
@@ -43,6 +65,7 @@ draft: false
 
 import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
+import ProblemLog from '../../../components/ProblemLog.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
 import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
 import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
@@ -77,13 +100,35 @@ The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx a
 
 ## Problems I hit
 
-| Problem                                                 | Resolution                                                                                                            |
-| ------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- |
-| Every visitor looked like one IP, so rate limits were shared | Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB        |
-| Prisma connected without TLS despite `sslmode=verify-full`   | `prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA  |
-| SES webhooks could not be subscribed in the first apply      | SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented  |
-| A rotated secret did not take effect                         | A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment            |
-| GitHub OIDC trust was name-based                             | A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs              |
+<ProblemLog
+  items={[
+    {
+      area: 'Networking',
+      problem: 'Every visitor looked like one IP, so rate limits were shared',
+      fix: "Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB",
+    },
+    {
+      area: 'Database',
+      problem: 'Prisma connected without TLS despite `sslmode=verify-full`',
+      fix: "`prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA",
+    },
+    {
+      area: 'Messaging',
+      problem: 'SES webhooks could not be subscribed in the first apply',
+      fix: 'SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented',
+    },
+    {
+      area: 'Deployment',
+      problem: 'A rotated secret did not take effect',
+      fix: 'A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment',
+    },
+    {
+      area: 'Security',
+      problem: 'GitHub OIDC trust was name-based',
+      fix: 'A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs',
+    },
+  ]}
+/>
 
 ## The workload
 
