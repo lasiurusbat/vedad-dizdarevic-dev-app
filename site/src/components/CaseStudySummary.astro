@@ -37,7 +37,7 @@ const links = [
     <h2>{t.caseOutcome}</h2>
     <dl class="not-prose my-6 grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
       {data.outcomes.map((o) => (
-        <div class="border-border bg-surface rounded-lg border p-4">
+        <div class="card border-border rounded-lg border p-4">
           <dt class="text-muted text-sm">{o.label}</dt>
           <dd class="mt-1 text-2xl font-medium">{o.value}</dd>
         </div>
