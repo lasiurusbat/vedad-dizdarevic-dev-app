@@ -14,42 +14,86 @@ import { cloudIcon, icons } from '../diagrams/icons';
 
 const S = 44; // icon size in viewBox units
 
+// Two Availability Zones in one VPC; managed services outside the VPC on the right.
 const nodes = [
-  { id: 'elb', x: 110, y: 210, icon: icons.elb, label: 'Load balancer' },
-  { id: 'fa', x: 260, y: 120, icon: icons.fargate, label: 'Fargate' },
-  { id: 'fb', x: 260, y: 300, icon: icons.fargate, label: 'Fargate' },
-  { id: 'rds', x: 430, y: 210, icon: icons.rds, label: 'RDS' },
-  { id: 'sns', x: 430, y: 72, icon: icons.sns, label: 'SNS' },
-  { id: 'ses', x: 570, y: 72, icon: icons.ses, label: 'SES' },
-  { id: 's3', x: 430, y: 348, icon: icons.s3, label: 'S3' },
-  { id: 'gd', x: 570, y: 280, icon: icons.guardduty, label: 'GuardDuty' },
+  { x: 180, y: 302, icon: icons.elb, label: 'Load balancer' },
+  { x: 320, y: 140, icon: icons.fargate, label: 'Fargate task' },
+  { x: 320, y: 235, icon: icons.fargate, label: 'Fargate task' },
+  { x: 320, y: 380, icon: icons.fargate, label: 'Fargate task' },
+  { x: 320, y: 475, icon: icons.fargate, label: 'Fargate task' },
+  { x: 500, y: 188, icon: icons.rds, label: 'RDS primary' },
+  { x: 500, y: 428, icon: icons.rds, label: 'RDS replica' },
+  { x: 725, y: 80, icon: icons.ecr, label: 'ECR' },
+  { x: 725, y: 185, icon: icons.s3, label: 'S3' },
+  { x: 725, y: 290, icon: icons.sns, label: 'SNS' },
+  { x: 725, y: 395, icon: icons.ses, label: 'SES' },
+  { x: 725, y: 495, icon: icons.guardduty, label: 'GuardDuty' },
+];
+
+// Dashed boxes with a text label (no group icons for these, so no symbol is invented).
+const groups = [
+  { x: 110, y: 46, w: 520, h: 496, label: 'VPC', cls: 'vpc', end: false },
+  { x: 128, y: 74, w: 484, h: 220, label: 'Availability Zone A', cls: 'az', end: true },
+  { x: 128, y: 310, w: 484, h: 220, label: 'Availability Zone B', cls: 'az', end: true },
 ];
 
 // `hop` picks the animation delay class, so packets move through the system in order.
 const edges = [
-  { d: 'M0 210 H88', hop: 0 },
-  { d: 'M132 210 H185 V120 H238', hop: 1 },
-  { d: 'M132 210 H185 V300 H238', hop: 1 },
-  { d: 'M282 120 H350 V210 H408', hop: 2 },
-  { d: 'M282 300 H350 V210 H408', hop: 2 },
-  { d: 'M260 98 V72 H408', hop: 2 },
-  { d: 'M260 322 V348 H408', hop: 3 },
-  { d: 'M452 72 H548', hop: 3 },
+  { d: 'M0 302 H158', hop: 0 },
+  { d: 'M202 302 H255 V140 H298', hop: 1 },
+  { d: 'M202 302 H255 V235 H298', hop: 1 },
+  { d: 'M202 302 H255 V380 H298', hop: 1 },
+  { d: 'M202 302 H255 V475 H298', hop: 1 },
+  { d: 'M342 140 H420 V188 H478', hop: 2 },
+  { d: 'M342 235 H420 V188 H478', hop: 2 },
+  { d: 'M342 380 H420 V428 H478', hop: 2 },
+  { d: 'M342 475 H420 V428 H478', hop: 2 },
+  { d: 'M320 118 V60 H660 V185 H703', hop: 2 },
+  { d: 'M342 245 H395 V302 H680 V290 H703', hop: 2 },
+  { d: 'M522 188 H565 V428 H522', hop: 3 },
+  { d: 'M747 290 H795 V395 H747', hop: 3 },
 ];
-const watch = 'M548 280 H500 V210 H452'; // GuardDuty: watches, no packets
+// Control-plane links: dashed, no packets.
+const watch = ['M703 80 H640 V140 H342', 'M703 495 H630'];
 ---
 
 <div class="scene" aria-hidden="true">
   <div class="panel">
-    <svg viewBox="0 0 640 420" class="graph" focusable="false">
-      <rect class="frame" x="70" y="14" width="560" height="392" rx="10"></rect>
-      <image class="cloud-light" href={cloudIcon.light} x="70" y="14" width="28" height="28" />
-      <image class="cloud-dark" href={cloudIcon.dark} x="70" y="14" width="28" height="28" />
-      <text class="group-label" x="106" y="33">
+    <svg viewBox="0 0 840 560" class="graph" focusable="false">
+      <rect class="frame" x="80" y="6" width="750" height="548" rx="10"></rect>
+      <image class="cloud-light" href={cloudIcon.light} x="80" y="6" width="28" height="28" />
+      <image class="cloud-dark" href={cloudIcon.dark} x="80" y="6" width="28" height="28" />
+      <text class="group-label" x="116" y="25">
         AWS Cloud
       </text>
+      <text class="label" x="818" y="25" text-anchor="end">
+        eu-central-1
+      </text>
 
-      <path class="watch" d={watch}></path>
+      {groups.map((g) => (
+        <>
+          <rect
+            class:list={['group', g.cls]}
+            x={g.x}
+            y={g.y}
+            width={g.w}
+            height={g.h}
+            rx="8"
+          ></rect>
+          <text
+            class="group-label"
+            x={g.end ? g.x + g.w - 12 : g.x + 12}
+            y={g.y + 18}
+            text-anchor={g.end ? 'end' : 'start'}
+          >
+            {g.label}
+          </text>
+        </>
+      ))}
+
+      {watch.map((d) => (
+        <path class="watch" d={d}></path>
+      ))}
       {edges.map((e) => (
         <path class="wire" d={e.d} pathLength="100"></path>
       ))}
@@ -75,6 +119,14 @@ const watch = 'M548 280 H500 V210 H452'; // GuardDuty: watches, no packets
     perspective: 1600px;
     /* Fade the edges into the page, like a screenshot floating on the canvas. */
     mask-image: radial-gradient(ellipse 75% 70% at 50% 45%, #000 55%, transparent 100%);
+  }
+
+  /* From 1280px up, 20% wider than its grid column (there is room beside the page container);
+     the hero clips any overflow and the mask fades the edges. */
+  @media (min-width: 80rem) {
+    .scene {
+      width: 120%;
+    }
   }
 
   .panel {
@@ -117,10 +169,24 @@ const watch = 'M548 280 H500 V210 H452'; // GuardDuty: watches, no packets
     stroke-opacity: 0.5;
   }
 
+  .group {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.45;
+  }
+
+  .vpc {
+    fill: color-mix(in srgb, var(--accent) 4%, transparent);
+  }
+
+  .az {
+    stroke-dasharray: 5 4;
+  }
+
   .group-label,
   .label {
     fill: var(--muted);
-    font-size: 12px;
+    font-size: 13px;
   }
 
   .group-label {
