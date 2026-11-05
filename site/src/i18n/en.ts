@@ -3,7 +3,7 @@ export const en = {
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
   heroPositioning:
-    'After more than a decade in 3D/CGI, I build and run production infrastructure on AWS with Terraform and Kubernetes.',
+    'Infrastructure as Code with Terraform. Production platforms on AWS. Containers with Docker and Kubernetes.',
   ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
@@ -22,6 +22,8 @@ export const en = {
   workTitle: 'Selected work',
   skillsTitle: 'Skills',
   aboutTitle: 'About',
+  aboutText:
+    'I spent more than a decade in 3D/CGI before moving into cloud and DevOps engineering. In July 2024 I completed the DevOps Engineer diploma at DataScientest. Today I build and run production infrastructure on AWS with Terraform and Kubernetes.',
   hireTitle: 'Work with me',
   contactTitle: 'Contact',
 
