@@ -1,0 +1,82 @@
+---
+/*
+ * Light/dark switch at the right end of the header. Until it is used, the site follows the
+ * device setting; a click stores the opposite of the active theme in localStorage and sets
+ * data-theme on <html> (public/theme.js re-applies it before paint on every page).
+ *
+ * The icon and the accessible name both follow the active theme through the .only-light /
+ * .only-dark classes (a moon and "Switch to dark theme" in light, a sun and "Switch to light
+ * theme" in dark), so no state has to be rendered by script. The button only shows once
+ * theme.js has added the `js` class, so it never appears where it cannot work.
+ */
+import { getLocale, useTranslations } from '../i18n';
+
+const t = useTranslations(getLocale(Astro.currentLocale));
+---
+
+<button type="button" class="theme-toggle" data-theme-toggle>
+  <span class="only-light sr-only">{t.themeToDark}</span>
+  <span class="only-dark sr-only">{t.themeToLight}</span>
+  <svg class="only-light" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z"></path>
+  </svg>
+  <svg class="only-dark" viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+    <circle cx="12" cy="12" r="4"></circle>
+    <path d="M12 2.5v2M12 19.5v2M2.5 12h2M19.5 12h2M5.3 5.3l1.4 1.4M17.3 17.3l1.4 1.4M5.3 18.7l1.4-1.4M17.3 6.7l1.4-1.4"></path>
+  </svg>
+</button>
+
+<style>
+  .theme-toggle {
+    display: none;
+    align-items: center;
+    justify-content: center;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    border-radius: 0.625rem;
+    color: var(--fg);
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+  }
+
+  :global(:root.js) .theme-toggle {
+    display: inline-flex;
+  }
+
+  .theme-toggle:hover {
+    background: var(--surface);
+  }
+
+  svg {
+    width: 1.125rem;
+    height: 1.125rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.6;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+</style>
+
+<script>
+  const dark = window.matchMedia('(prefers-color-scheme: dark)');
+
+  for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
+    button.addEventListener('click', () => {
+      const root = document.documentElement;
+      const active = root.dataset.theme ?? (dark.matches ? 'dark' : 'light');
+      const next = active === 'dark' ? 'light' : 'dark';
+      root.dataset.theme = next;
+      try {
+        localStorage.setItem('theme', next);
+      } catch {
+        // Storage blocked: the choice lasts for this page only.
+      }
+      const color = next === 'dark' ? '#0f101a' : '#ffffff';
+      for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
+        meta.setAttribute('content', color);
+        meta.removeAttribute('media');
+      }
+    });
+  }
+</script>

@@ -10,6 +10,8 @@ export const de: Messages = {
   ctaCv: 'Lebenslauf herunterladen',
   comingSoon: 'Folgt in Kürze.',
 
+  themeToDark: 'Zum dunklen Design wechseln',
+  themeToLight: 'Zum hellen Design wechseln',
   skipToContent: 'Zum Inhalt springen',
   mainNav: 'Hauptnavigation',
   menu: 'Menü',

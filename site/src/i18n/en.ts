@@ -7,6 +7,8 @@ export const en = {
   ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
+  themeToDark: 'Switch to dark theme',
+  themeToLight: 'Switch to light theme',
   skipToContent: 'Skip to content',
   mainNav: 'Main',
   menu: 'Menu',
