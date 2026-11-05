@@ -2,15 +2,17 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-05 (day 4, evening)
+## Stopped at: 2026-11-05 (day 4, end of day)
 
-**Done today:** the Sorted case study went DevOps-first and live-commercial (#19), the diagram spike merged (#20), the docs (#21), the hero line (#22) and the Sorted diagram (#23) merged. Then a full design pass on `feat/dark-console-theme` (19 commits, pushed, **PR not opened yet**):
+**Everything from today is merged and deployed** (no open PRs; deploy and CI green on `main` at #27). Today: the Sorted case study DevOps-first (#19), diagram spike (#20), docs (#21), hero line (#22), Sorted diagram (#23), the design pass (#24, #25), the header light/dark switch and top-of-page bloom (#28), and diagram logos and theme-aware icons (#27, rebased onto the design pass).
 
-- **Look:** Better Stack-inspired "console" style (the owner pasted its style reference): near-black canvas, heavily desaturated blue-teal accent, Inter Tight headings (Fontsource), 10px button corners, gradient Contact button, `card` utility with a top-lit fade and line art, header 80% opaque, section dividers that fade at both ends (light bloom under the first one only). Details: tech-stack.md, Styling, "Visual style".
-- **Hero:** name and role as one display headline spanning the text column (fixed per-language ratios, see the CLAUDE.md rule), the owner's positioning line ("Building scalable, production-ready cloud platforms through Infrastructure as Code, platform architecture, containerization, and Kubernetes orchestration."), blinking availability dot, an animated made-up AWS diagram in three variants (Fargate, EKS, EC2) picked at random per load, and a light shaft behind it. Six new official AWS icons (release 07312026, unmodified).
-- **About** has its first text (EN, DE): 3D/CGI and render pipelines, the DataScientest diploma, Sorted and this site as proof, AWS SAA in progress, personality line. The 3D/CGI story moved out of the hero (owner's decision).
-- **Sorted page:** the three screenshots are a sideways-scrolling gallery with a "Demo data" badge; outcomes are a metric strip plus a cost comparison card (figures from `case-studies/Sorted-architecture.md`, labelled estimates); "Problems I hit" is an incident log.
-- Rejected along the way: a hero screenshot slideshow (the owner wanted the diagram), a frosted-glass frame and full-size links in the gallery.
+- **Look:** Better Stack-inspired "console" style: near-black canvas, heavily desaturated blue-teal accent, Inter Tight headings (Fontsource), 10px button corners, gradient Contact button, `card` utility with a top-lit fade and line art, section dividers that fade at both ends (light bloom under the first one), a large bloom under the header on every page. Details: tech-stack.md, Styling, "Visual style".
+- **Theme switch:** right end of the header. Follows the device until used, then `localStorage` plus `data-theme` on `<html>`; `public/theme.js` applies it before paint. Tokens use `light-dark()`; theme-specific images use `.only-light` / `.only-dark`. Never theme with `prefers-color-scheme` media or `dark:` (rule in CLAUDE.md).
+- **Hero:** name and role as one display headline spanning the text column (per-language ratios, rule in CLAUDE.md), the owner's line ("Building scalable, production-ready cloud platforms through Infrastructure as Code, platform architecture, containerization, and Kubernetes orchestration."), blinking availability dot, a made-up AWS diagram in three random variants (Fargate, EKS, EC2) with a light shaft.
+- **About** has its first text (EN, DE): 3D/CGI and render pipelines, the DataScientest diploma, Sorted and this site as proof, AWS SAA in progress, a personality line. The 3D/CGI story moved out of the hero (owner's decision).
+- **Sorted page:** sideways screenshot gallery with a "Demo data" badge, a metric strip, a cost comparison card (owner's estimates from `case-studies/Sorted-architecture.md`), "Problems I hit" as an incident log, and the architecture diagram with GitHub/Cloudflare logos.
+- **How the owner works on design:** screenshots of betterstack.com with one-line requests; render every change in light and dark (and a phone width) before reporting. Rejected along the way: a hero screenshot slideshow, a frosted-glass gallery frame, full-size image links.
+- **Branch hygiene lesson:** pushing stale local branches created a conflicting PR (#26, closed). Before pushing old branches, check whether their content is already on `main`; rebase real work first.
 
 ## Next (in this order)
 
@@ -37,7 +39,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
 - The Sorted page states costs as estimates and says failover and backup restores are designed but not drilled. Update only when the owner confirms a drill happened. The owner approved publishing that the deploy role is an administrator (2026-11-04).
 - Untracked local files: `.claude/` (the installed `copywriting` skill from `coreyhaines31/marketingskills`, MIT; decide whether to commit or git-ignore it), `case-studies/Sorted-architecture.md` (source for the diagram and the cost card), the Grafana placeholder screenshot and a stray `architecture.md:Zone.Identifier` (delete it).
-- The preview server (`astro preview`, port 4321) may still be running from this session: `pnpm --filter @vdd/site exec astro preview stop`.
+- The preview server (`astro preview`, port 4321) may still be running: `pnpm --filter @vdd/site exec astro preview stop`.
+- Old local branches whose PRs are merged can be deleted (`git branch --merged origin/main`); `feat/sorted-diagram` has one local commit that duplicates #27 and can go too.
 - e2e runs rebuild `site/dist` with `SHOW_DRAFTS=1`; rebuild without it before using `astro preview` to judge the production page.
 - Node 20 deprecation warning in the deploy run (`configure-aws-credentials@v5`, `pnpm/action-setup@v4`); bump the actions when newer majors exist.
 - The Worker maps S3 403 to the 404 page, so a broken key would show as 404s; the smoke test's 200 on `/` is what catches that.
