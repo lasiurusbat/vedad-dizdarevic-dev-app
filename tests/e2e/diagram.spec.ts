@@ -96,7 +96,7 @@ test('mobile: page keeps its width, scrolls over the diagram, text stays readabl
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before);
 });
 
-test('desktop: drag pans the diagram, the wheel still scrolls the page, Ctrl+wheel zooms', async ({
+test('desktop: dragging works only after zooming in, the wheel scrolls the page', async ({
   page,
 }) => {
   const diagram = await openDiagram(page);
@@ -105,23 +105,34 @@ test('desktop: drag pans the diagram, the wheel still scrolls the page, Ctrl+whe
   const box = (await diagram.boundingBox())!;
   const cx = box.x + box.width / 2;
   const cy = box.y + box.height / 2;
+  const drag = async () => {
+    await page.mouse.move(cx, cy);
+    await page.mouse.down();
+    await page.mouse.move(cx + 80, cy + 40, { steps: 6 });
+    await page.mouse.up();
+  };
 
-  const before = await transform();
-  await page.mouse.move(cx, cy);
-  await page.mouse.down();
-  await page.mouse.move(cx + 80, cy + 40, { steps: 6 });
-  await page.mouse.up();
-  expect(await transform()).not.toBe(before);
+  // At the fitted view the whole diagram is visible: dragging does nothing.
+  await expect(diagram).toHaveAttribute('data-pan', 'false');
+  const fitted = await transform();
+  await drag();
+  expect(await transform()).toBe(fitted);
 
+  // The plain wheel scrolls the page.
   const scrollBefore = await page.evaluate(() => window.scrollY);
   await page.mouse.wheel(0, 300);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(scrollBefore);
 
-  const zoomBefore = await transform();
+  // Ctrl+wheel zooms in; from then on dragging pans.
+  await page.mouse.move(cx, cy);
   await page.keyboard.down('Control');
-  await page.mouse.wheel(0, -300);
+  await page.mouse.wheel(0, -400);
   await page.keyboard.up('Control');
-  await expect.poll(transform).not.toBe(zoomBefore);
+  await expect(diagram).toHaveAttribute('data-pan', 'true');
+  const zoomed = await transform();
+  expect(zoomed).not.toBe(fitted);
+  await drag();
+  expect(await transform()).not.toBe(zoomed);
 });
 
 test('desktop: the figure is wider and taller than the text column', async ({ page }) => {

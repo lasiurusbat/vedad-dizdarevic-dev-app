@@ -1,6 +1,6 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { cloudIcon } from './icons';
-import type { ServiceNode as ServiceNodeType } from './types';
+import type { DiagramIcon, ServiceNode as ServiceNodeType } from './types';
 
 const SIDES = [
   { id: 't', position: Position.Top },
@@ -8,6 +8,18 @@ const SIDES = [
   { id: 'b', position: Position.Bottom },
   { id: 'l', position: Position.Left },
 ] as const;
+
+function NodeIcon({ icon }: { icon: DiagramIcon }) {
+  if (typeof icon === 'string') {
+    return <img src={icon} alt="" width={32} height={32} className="vdd-node-icon" />;
+  }
+  return (
+    <picture className="vdd-node-icon">
+      <source media="(prefers-color-scheme: dark)" srcSet={icon.dark} />
+      <img src={icon.light} alt="" width={32} height={32} />
+    </picture>
+  );
+}
 
 export function ServiceNode({ data }: NodeProps<ServiceNodeType>) {
   return (
@@ -22,9 +34,15 @@ export function ServiceNode({ data }: NodeProps<ServiceNodeType>) {
           isConnectable={false}
         />
       ))}
-      {data.icon && <img src={data.icon} alt="" width={32} height={32} className="vdd-node-icon" />}
+      {data.icon && <NodeIcon icon={data.icon} />}
       <span className="vdd-node-text">
-        <span className="vdd-node-label">{data.label}</span>
+        {data.logo ? (
+          <span className="vdd-logo-plate">
+            <img src={data.logo} alt={data.label} height={24} />
+          </span>
+        ) : (
+          <span className="vdd-node-label">{data.label}</span>
+        )}
         {data.detail && <span className="vdd-node-detail">{data.detail}</span>}
       </span>
     </div>

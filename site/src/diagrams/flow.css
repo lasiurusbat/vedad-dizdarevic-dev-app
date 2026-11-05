@@ -82,7 +82,7 @@
   fill: var(--surface);
 }
 /* d3-zoom sets touch-action: none on the pane, which would trap a vertical swipe over the diagram.
-   Drag-panning is only enabled for a fine pointer (see FlowDiagram), so on touch the browser scrolls. */
+   Dragging is off, so the browser keeps scrolling the page. */
 .react-flow__renderer,
 .react-flow__pane,
 .react-flow__viewport {
@@ -100,7 +100,20 @@
   height: 44px;
 }
 
-/* Mouse drag pans the diagram. */
+/* Cloudflare's wordmark is black, so the official logo always sits on a white plate. */
+.vdd-logo-plate {
+  display: inline-flex;
+  align-self: flex-start;
+  padding: 2px 6px;
+  border-radius: 4px;
+  background: #fff;
+}
+.vdd-logo-plate img {
+  display: block;
+  height: 24px;
+  width: auto;
+}
+/* Dragging is enabled only once the visitor has zoomed in past the fitted view. */
 .vdd-flow[data-pan='true'] .react-flow__pane {
   cursor: grab;
 }
