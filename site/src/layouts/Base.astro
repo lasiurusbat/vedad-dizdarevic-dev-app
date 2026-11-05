@@ -65,7 +65,7 @@ const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : loca
       {t.skipToContent}
     </a>
     <Header locale={locale} urls={urls} />
-    <main id="main">
+    <main id="main" class="page">
       <slot />
     </main>
     <Footer locale={locale} />
