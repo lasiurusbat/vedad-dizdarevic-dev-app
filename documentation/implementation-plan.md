@@ -239,7 +239,8 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Diagrams
 
-- [ ] **Spike first (½ d):** `@astrojs/react` + `@xyflow/react` in Astro with one diagram; measure gzipped JS, confirm it works under the report-only CSP (no inline-style violations; try `client:only="react"`), decide the diagram-page JS budget
+- [x] **Spike first (½ d), done 2026-11-05:** `@astrojs/react` + `@xyflow/react` in Astro with one diagram; measure gzipped JS, confirm it works under the report-only CSP (no inline-style violations; try `client:only="react"`), decide the diagram-page JS budget
+  _Result: `@astrojs/react` and `client:only` fail the CSP (Astro's island wrapper emits an inline script, an inline `<style>` and a `style` attribute). Use a plain module script instead (`site/src/diagrams/mount.ts`): it mounts React Flow when the diagram scrolls into view, so there is no inline code and `script-src 'self'` / `style-src 'self'` stay unchanged. Cost on a diagram page: about 128 KB gzipped (React Flow 60, react-dom 64, loader and CSS 4); pages without a diagram load none of it. Proposed diagram-page JS budget: 140 KB gzipped. Mobile: the diagram keeps a readable width inside a keyboard-focusable, sideways-scrolling wrapper, because shrinking it to 360px makes the text about 5px. `tests/e2e/diagram.spec.ts` enforces the production CSP and fails on any violation._
 - [ ] Diagram component renders typed nodes/edges from `site/src/diagrams/`; AWS Architecture Icons stored locally as SVGs; hydrated only where used
 - [ ] Light/dark: node and edge colours use the semantic tokens
 - [ ] Each diagram has a text alternative (short description of the flow) and a static fallback image for `<noscript>` and pre-hydration
