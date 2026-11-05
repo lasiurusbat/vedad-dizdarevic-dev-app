@@ -14,45 +14,60 @@
  * instead of shadows, and one heavily desaturated blue-teal accent kept for links and actions.
  * Light uses the same hue so the two themes read as one brand; greys lean the same way.
  */
+/*
+ * Theme: every token holds its light and dark value via light-dark(), which follows the
+ * `color-scheme` in effect. By default that is the device setting; the header switch sets
+ * data-theme="light" or "dark" on <html> (applied before paint by /theme.js) to override it.
+ */
 :root {
   color-scheme: light dark;
-  --bg: #ffffff;
-  --surface: #f5f6fa;
-  --fg: #14161f;
-  --muted: #44525b;
-  --accent: #386474;
-  --border: #d9dce6;
-  --border-strong: #83909a;
+  --bg: light-dark(#ffffff, #0f101a);
+  --surface: light-dark(#f5f6fa, #151621);
+  --fg: light-dark(#14161f, #ffffff);
+  --muted: light-dark(#44525b, #a6b5be);
+  --accent: light-dark(#386474, #8fb4c3);
+  --border: light-dark(#d9dce6, #1f2433);
+  --border-strong: light-dark(#83909a, #6c7c86);
   /* Card panel (the `card` utility): vertical fade plus faint line art. */
-  --card-top: #ffffff;
-  --card-bottom: var(--surface);
-  --card-line: rgb(20 22 31 / 0.07);
-  --card-shade: rgb(20 22 31 / 0.025);
+  --card-top: light-dark(#ffffff, #1b1c28);
+  --card-bottom: light-dark(#f5f6fa, #10111b);
+  --card-line: light-dark(rgb(20 22 31 / 0.07), rgb(255 255 255 / 0.06));
+  --card-shade: light-dark(rgb(20 22 31 / 0.025), rgb(255 255 255 / 0.018));
   /* Hero light shaft. */
-  --shaft: rgb(56 100 116 / 0.07);
-  --shaft-core: rgb(56 100 116 / 0.08);
+  --shaft: light-dark(rgb(56 100 116 / 0.07), rgb(143 180 195 / 0.13));
+  --shaft-core: light-dark(rgb(56 100 116 / 0.08), rgb(205 222 230 / 0.18));
   /* Section divider line and the light bloom below it. */
-  --divider: rgb(20 22 31 / 0.1);
-  --bloom: rgb(56 100 116 / 0.03);
+  --divider: light-dark(rgb(20 22 31 / 0.1), rgb(255 255 255 / 0.09));
+  --bloom: light-dark(rgb(56 100 116 / 0.03), rgb(205 222 230 / 0.055));
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+}
+
+:root[data-theme='dark'] {
+  color-scheme: dark;
+}
+
+/*
+ * Theme-specific media (screenshots, logos, icons): render both and let these classes show the
+ * one that matches the active theme. Hidden lazy images are never downloaded. Only the inactive
+ * version is ever hidden, so the active one keeps its own display value.
+ */
+:root[data-theme='light'] .only-dark,
+:root[data-theme='dark'] .only-light {
+  display: none !important;
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
-    --bg: #0f101a;
-    --surface: #151621;
-    --fg: #ffffff;
-    --muted: #a6b5be;
-    --accent: #8fb4c3;
-    --border: #1f2433;
-    --border-strong: #6c7c86;
-    --card-top: #1b1c28;
-    --card-bottom: #10111b;
-    --card-line: rgb(255 255 255 / 0.06);
-    --card-shade: rgb(255 255 255 / 0.018);
-    --shaft: rgb(143 180 195 / 0.13);
-    --shaft-core: rgb(205 222 230 / 0.18);
-    --divider: rgb(255 255 255 / 0.09);
-    --bloom: rgb(205 222 230 / 0.055);
+  :root:not([data-theme]) .only-light {
+    display: none !important;
+  }
+}
+
+@media not (prefers-color-scheme: dark) {
+  :root:not([data-theme]) .only-dark {
+    display: none !important;
   }
 }
 

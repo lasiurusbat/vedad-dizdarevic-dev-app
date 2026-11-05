@@ -3,7 +3,7 @@ import { getImage } from 'astro:assets';
 import type { ImageMetadata } from 'astro';
 
 interface Props {
-  /** The same screenshot in the light and the dark UI; the browser picks by prefers-color-scheme. */
+  /** The same screenshot in the light and the dark UI; the one matching the active theme shows. */
   light: ImageMetadata;
   dark: ImageMetadata;
   /** Describes what the screenshot shows. Required, never "screenshot". */
@@ -29,25 +29,30 @@ const d = await variants(dark);
 
 <figure class="not-prose my-8">
   <div class="border-border bg-surface overflow-hidden rounded-lg border">
-    <picture>
-      <source
-        media="(prefers-color-scheme: dark)"
-        srcset={d.srcset}
-        sizes={sizes}
-        type="image/webp"
-      />
-      <img
-        src={l.fallback.src}
-        srcset={l.srcset}
-        sizes={sizes}
-        alt={alt}
-        width={light.width}
-        height={light.height}
-        loading="lazy"
-        decoding="async"
-        class="h-auto w-full"
-      />
-    </picture>
+    {/* Both versions; .only-light / .only-dark hide the inactive one (the header switch or the
+        device setting decides), and a hidden lazy image is never downloaded. */}
+    <img
+      src={l.fallback.src}
+      srcset={l.srcset}
+      sizes={sizes}
+      alt={alt}
+      width={light.width}
+      height={light.height}
+      loading="lazy"
+      decoding="async"
+      class="only-light h-auto w-full"
+    />
+    <img
+      src={d.fallback.src}
+      srcset={d.srcset}
+      sizes={sizes}
+      alt={alt}
+      width={dark.width}
+      height={dark.height}
+      loading="lazy"
+      decoding="async"
+      class="only-dark h-auto w-full"
+    />
   </div>
   {caption && <figcaption class="text-muted mt-2 text-sm">{caption}</figcaption>}
 </figure>
