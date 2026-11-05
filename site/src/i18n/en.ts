@@ -3,7 +3,7 @@ export const en = {
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
   heroPositioning:
-    'Over a decade in 3D/CGI, now building and running production cloud infrastructure.',
+    'After more than a decade in 3D/CGI, I build and run production infrastructure on AWS with Terraform and Kubernetes.',
   ctaCv: 'Download CV',
   comingSoon: 'Coming soon.',
 
