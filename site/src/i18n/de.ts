@@ -6,7 +6,7 @@ export const de: Messages = {
   role: 'Cloud- & DevOps-Engineer',
   availability: 'Offen für Festanstellung und freiberufliche Projekte.',
   heroPositioning:
-    'Über ein Jahrzehnt in 3D/CGI, heute Aufbau und Betrieb von Cloud-Infrastruktur im Produktivbetrieb.',
+    'Nach über zehn Jahren in 3D/CGI baue und betreibe ich Produktionsinfrastruktur auf AWS, mit Terraform und Kubernetes.',
   ctaCv: 'Lebenslauf herunterladen',
   comingSoon: 'Folgt in Kürze.',
 
