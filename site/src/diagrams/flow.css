@@ -1,0 +1,109 @@
+/* React Flow ships only layout CSS (base.css). Colours come from the site tokens, so the diagram
+   follows the visitor's theme without a dark: variant. No inline <style>, no third-party origin. */
+.vdd-flow {
+  height: 100%;
+  background: var(--surface);
+  --xy-background-color: var(--surface);
+  --xy-background-pattern-dots-color-default: var(--border);
+  --xy-edge-stroke-default: var(--border-strong);
+}
+.vdd-node {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 0.5rem;
+  width: 100%;
+  height: 100%;
+  padding: 0 0.5rem;
+  border: 1px solid var(--border-strong);
+  border-left-width: 4px;
+  border-radius: var(--radius-sm);
+  background: var(--bg);
+  color: var(--fg);
+  text-align: left;
+  font-size: 13px;
+  line-height: 1.25;
+}
+.vdd-node[data-kind='edge'] {
+  border-left-color: var(--accent);
+}
+.vdd-node[data-kind='delivery'] {
+  border-left-color: #b45f06;
+}
+.vdd-node[data-kind='security'] {
+  border-left-color: #2e7d32;
+}
+.vdd-node[data-kind='data'] {
+  border-left-color: #6a4fb3;
+}
+.vdd-node[data-kind='mail'] {
+  border-left-color: #00838f;
+}
+.vdd-node-icon {
+  flex: none;
+}
+.vdd-node-text {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+}
+.vdd-node-label {
+  font-weight: 600;
+}
+.vdd-node-detail {
+  color: var(--muted);
+  font-size: 11px;
+}
+.vdd-handle {
+  opacity: 0;
+  pointer-events: none;
+}
+.vdd-group-label {
+  position: absolute;
+  top: 6px;
+  left: 8px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  color: var(--muted);
+  font-size: 12px;
+  font-weight: 600;
+}
+.react-flow__node-group {
+  border: 3px dashed var(--border-strong);
+  border-radius: var(--radius-md);
+  background: transparent;
+}
+.react-flow__edge-text {
+  font-size: 11px;
+  fill: var(--muted);
+}
+.react-flow__edge-textbg {
+  fill: var(--surface);
+}
+/* d3-zoom sets touch-action: none on the pane, which would trap a vertical swipe over the diagram.
+   Drag-panning is only enabled for a fine pointer (see FlowDiagram), so on touch the browser scrolls. */
+.react-flow__renderer,
+.react-flow__pane,
+.react-flow__viewport {
+  touch-action: auto !important;
+}
+/* The diagram is wider than a phone. The wrapper scrolls sideways instead of shrinking the text. */
+@media (max-width: 39.99rem) {
+  .react-flow__controls {
+    display: none;
+  }
+}
+/* Controls: keep touch targets at 44px. */
+.react-flow__controls-button {
+  width: 44px;
+  height: 44px;
+}
+
+/* Mouse drag pans the diagram. */
+.vdd-flow[data-pan='true'] .react-flow__pane {
+  cursor: grab;
+}
+.vdd-flow[data-pan='true'] .react-flow__pane.dragging {
+  cursor: grabbing;
+}

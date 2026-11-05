@@ -32,6 +32,9 @@ export const en = {
   readCaseStudy: 'Read the case study',
   backToWork: 'Back to selected work',
   viewFullSize: 'View full size',
+  diagramTextAlternative: 'Text description of the diagram',
+  diagramNeedsJs:
+    'The diagram needs JavaScript. Open the text description above for the same information.',
 
   caseProblem: 'The problem',
   caseDecisions: 'Decisions and trade-offs',

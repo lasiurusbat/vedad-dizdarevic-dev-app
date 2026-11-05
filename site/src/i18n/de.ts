@@ -35,6 +35,9 @@ export const de: Messages = {
   readCaseStudy: 'Fallstudie lesen',
   backToWork: 'Zurück zu den ausgewählten Projekten',
   viewFullSize: 'Vollbild ansehen',
+  diagramTextAlternative: 'Textbeschreibung des Diagramms',
+  diagramNeedsJs:
+    'Das Diagramm benötigt JavaScript. Dieselben Informationen stehen in der Textbeschreibung darüber.',
 
   caseProblem: 'Das Problem',
   caseDecisions: 'Entscheidungen und Abwägungen',
