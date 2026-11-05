@@ -222,7 +222,7 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Hero
 
-- [x] Name, role (Cloud & DevOps Engineer), one-line positioning in the owner's wording (IaC, cloud architecture, containerization, Kubernetes orchestration); the 3D/CGI background moved to About on 2026-11-05
+- [x] Name, role (Cloud & DevOps Engineer), one-line positioning in the owner's wording (IaC, platform architecture, containerization, Kubernetes orchestration); the 3D/CGI background moved to About on 2026-11-05
 - [x] Clear availability line: open to full-time roles and freelance work
 - [ ] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/site.ts` is set, Phase 5)_
 - [x] EN + DE
