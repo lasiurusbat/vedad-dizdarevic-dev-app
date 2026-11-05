@@ -6,7 +6,7 @@ export const de: Messages = {
   role: 'Cloud- & DevOps-Engineer',
   availability: 'Offen für Festanstellung und freiberufliche Projekte.',
   heroPositioning:
-    'Skalierbare, produktionsreife Cloud-Plattformen mit Infrastructure as Code, Cloud-Architektur, Containerisierung und Kubernetes-Orchestrierung.',
+    'Skalierbare, produktionsreife Cloud-Plattformen mit Infrastructure as Code, Plattformarchitektur, Containerisierung und Kubernetes-Orchestrierung.',
   ctaCv: 'Lebenslauf herunterladen',
   comingSoon: 'Folgt in Kürze.',
 
