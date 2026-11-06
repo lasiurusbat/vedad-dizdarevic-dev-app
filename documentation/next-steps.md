@@ -2,32 +2,34 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-05 (day 4, end of day)
+## Stopped at: 2026-11-06 (day 5)
 
-**Everything from today is merged and deployed** (no open PRs; deploy and CI green on `main` at #27). Today: the Sorted case study DevOps-first (#19), diagram spike (#20), docs (#21), hero line (#22), Sorted diagram (#23), the design pass (#24, #25), the header light/dark switch and top-of-page bloom (#28), and diagram logos and theme-aware icons (#27, rebased onto the design pass).
+**Everything from today is merged** (#30–#37; no open PRs). Today was the Sorted page and the look:
 
-- **Look:** Better Stack-inspired "console" style: near-black canvas, heavily desaturated blue-teal accent, DM Sans headings (Fontsource; Inter Tight until 2026-11-06), Inter body at 15–16px, 10px button corners, gradient Contact button, `card` utility with a top-lit fade and line art, section dividers that fade at both ends (light bloom under the first one), a large bloom under the header on every page. Details: tech-stack.md, Styling, "Visual style".
-- **Theme switch:** right end of the header. Follows the device until used, then `localStorage` plus `data-theme` on `<html>`; `public/theme.js` applies it before paint. Tokens use `light-dark()`; theme-specific images use `.only-light` / `.only-dark`. Never theme with `prefers-color-scheme` media or `dark:` (rule in CLAUDE.md).
-- **Hero:** name and role as one display headline spanning the text column (per-language ratios, rule in CLAUDE.md), the owner's line ("Building scalable, production-ready cloud platforms through Infrastructure as Code, platform architecture, containerization, and Kubernetes orchestration."), blinking availability dot, a made-up AWS diagram in three random variants (Fargate, EKS, EC2) with a light shaft.
-- **About** has its first text (EN, DE): 3D/CGI and render pipelines, the DataScientest diploma, Sorted and this site as proof, AWS SAA in progress, a personality line. The 3D/CGI story moved out of the hero (owner's decision).
-- **Sorted page:** sideways screenshot gallery with a "Demo data" badge, a metric strip, a cost comparison card (owner's estimates from `case-studies/Sorted-architecture.md`), "Problems I hit" as an incident log, and the architecture diagram with GitHub/Cloudflare logos.
-- **How the owner works on design:** screenshots of betterstack.com with one-line requests; render every change in light and dark (and a phone width) before reporting. Rejected along the way: a hero screenshot slideshow, a frosted-glass gallery frame, full-size image links.
-- **Branch hygiene lesson:** pushing stale local branches created a conflicting PR (#26, closed). Before pushing old branches, check whether their content is already on `main`; rebase real work first.
+- **Costs from the AWS bill (#30).** The cost card shows dev and prod as billed (Cost Explorer, usage before credits, Oct 13 to Nov 4, projected to 730 h, split per environment by resource; `vdd-` charges left out) next to the doc estimates: dev before ~$105, **dev billed ~$38**, prod billed ~$96, prod at go-live ~$150. Credits currently pay the whole bill. Today's prod is still the pre-launch setup (Fargate Spot, one NAT gateway, single-AZ RDS); the page's decisions describe the go-live setup.
+- **Release path diagram (#31):** second React Flow diagram (`sorted-release`, compact canvas), v1.0.0 in nodes and text.
+- **Tech stack (#31):** `TechStack.astro`, a layered stack with a rail (Edge, Cloud, IaC, CI/CD, Observability; the workload below a dashed break).
+- **Availability and scaling (#33):** `ScalingPath.astro`, three stages: running today, three Terraform settings away (Multi-AZ), designed but not built (scale out). The summary says "Multi-AZ is three settings away".
+- **Monitoring (#32, recovered in #36):** CloudWatch and Grafana section with `DashboardMap.astro`, the prod dashboard's 14 panels by layer, no values on purpose. Two fixes for the owner in Grafana: the RDS free storage panel uses unit `bits` (should be bytes); the CPU credits panel is tagged `prometheus` but queries CloudWatch.
+- **Production diagram (#37):** VPC with public subnets (ALB) and private subnets (task, RDS, standby); regional services outside the VPC. Phone canvas 68rem.
+- **Look (#34, #35/#36):** lit-from-above buttons with a mild accent glow; DM Sans 500 headings (stand-in for the commercial AeonikPro of the owner's type reference), Inter body at 15–16px (`--text-body`) with `ss01`, `cv10`, no `calt`/`liga`. Hero ratios re-measured (12.3cqi, 0.674em EN, 0.63em DE).
+- **Lesson:** stacked PRs (#32 on #31, #35 on #34) were merged into dead base branches and never reached `main`; recovered in #36. Rule in CLAUDE.md: branch from `main`, target `main`.
+- **Local only, never commit:** `case-studies/Sorted-architecture.md` and `.claude/` (skills `copywriting`, `frontend-design`); both are in `.git/info/exclude`. The Grafana placeholder PNG is deleted.
 
 ## Next (in this order)
 
-1. **Fix the Tailwind typography backticks** around inline code in prose (`.prose code::before, .prose code::after { content: none }` in `site/src/styles/global.css`); the owner asked for it to ride along with the next content PR.
-2. **Sorted German version** (`de/sorted.mdx`), including German texts for the gallery cards, the `costs` block and the problem log. Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
-3. **Tests for the new pieces:** gallery prev/next and edge fades, the random hero variant (exactly one visible), reduced motion.
-4. **Infrastructure screenshot for Sorted:** retake the Grafana prod dashboard (fix the Uptime panel that shows "No data"); a good candidate for the gallery. Never caption it as customer traffic.
-5. **RainAlert case study** (EN, then DE), DevOps-first like Sorted; reuse `costs` and `ProblemLog` where the notes support them. The puddle image is AI-generated; say so in the caption.
-6. Rest of Phase 4: Skills groups, Work with me, How this site is built; About still lacks languages; About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
-7. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagram in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
-8. **Owner:** add `e2e` to the required checks on `main`.
-9. Header CV link comes with Phase 5; footer links to How-this-site-is-built, Impressum and Datenschutz when those pages exist.
-10. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
-11. **Live check** of the geo redirect through a German VPN.
-12. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget (diagram-page JS budget proposed at 140 KB gzipped); the home page now ships the hero diagram SVGs and a small script (no React).
+1. **Fix the Tailwind typography backticks** around inline code in prose (`.prose code::before, .prose code::after { content: none }` in `site/src/styles/global.css`); several new sections use inline code, so this is now more visible.
+2. **Sorted German version** (`de/sorted.mdx`): German texts for the gallery, the `costs` block, the problem log, `ScalingPath`, `TechStack`, `DashboardMap` and the release diagram captions (diagram text alternatives already exist in DE). Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
+3. **Tests for the new pieces:** gallery prev/next and edge fades, the random hero variant (exactly one visible), reduced motion; light coverage for `TechStack`, `ScalingPath`, `DashboardMap` (render, no axe violations already covered by the page sweep).
+4. **RainAlert case study** (EN, then DE), DevOps-first like Sorted; reuse `costs`, `ProblemLog`, `TechStack` where the notes support them. The puddle image is AI-generated; say so in the caption.
+5. Rest of Phase 4: Skills groups, Work with me, How this site is built; About still lacks languages; About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
+6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
+7. **Owner:** add `e2e` to the required checks on `main`; fix the two Grafana panels noted above.
+8. Header CV link comes with Phase 5; footer links to How-this-site-is-built, Impressum and Datenschutz when those pages exist.
+9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
+10. **Live check** of the geo redirect through a German VPN.
+11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget (diagram-page JS budget proposed at 140 KB gzipped; the Sorted page now loads two diagrams, which share one React Flow bundle).
+12. **Refresh the billed costs** when November is complete (same method; footnote dates change).
 
 ## Key rotation
 
@@ -38,8 +40,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 - **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
 - The Sorted page states costs as estimates and says failover and backup restores are designed but not drilled. Update only when the owner confirms a drill happened. The owner approved publishing that the deploy role is an administrator (2026-11-04).
-- Untracked local files: `.claude/` (the installed `copywriting` skill from `coreyhaines31/marketingskills`, MIT; decide whether to commit or git-ignore it), `case-studies/Sorted-architecture.md` (source for the diagram and the cost card), the Grafana placeholder screenshot and a stray `architecture.md:Zone.Identifier` (delete it).
-- The preview server (`astro preview`, port 4321) may still be running: `pnpm --filter @vdd/site exec astro preview stop`.
+- Local-only files: `.claude/` and `case-studies/Sorted-architecture.md` stay out of git (listed in `.git/info/exclude`, owner's decision 2026-11-06).
+- A preview server may still be running on port 4329 (`astro preview`): `cd site && npx astro preview stop`.
 - Old local branches whose PRs are merged can be deleted (`git branch --merged origin/main`); `feat/sorted-diagram` has one local commit that duplicates #27 and can go too.
 - e2e runs rebuild `site/dist` with `SHOW_DRAFTS=1`; rebuild without it before using `astro preview` to judge the production page.
 - Node 20 deprecation warning in the deploy run (`configure-aws-credentials@v5`, `pnpm/action-setup@v4`); bump the actions when newer majors exist.
