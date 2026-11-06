@@ -1,19 +1,19 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-// The e2e build includes the draft "example" case study (SHOW_DRAFTS=1 in playwright.config.ts).
+// Runs against the production build (no drafts): Sorted is the case study in both languages.
 const studies = [
   {
-    path: '/projects/example/',
+    path: '/projects/sorted/',
     lang: 'en',
-    title: 'Example case study',
+    title: 'Sorted: the AWS platform behind a live multi-tenant SaaS',
     problem: 'The problem',
     cta: 'Get in touch',
   },
   {
-    path: '/de/projects/example/',
+    path: '/de/projects/sorted/',
     lang: 'de',
-    title: 'Beispiel-Fallstudie',
+    title: 'Sorted: die AWS-Plattform hinter einem live betriebenen Multi-Tenant-SaaS',
     problem: 'Das Problem',
     cta: 'Kontakt aufnehmen',
   },
@@ -68,23 +68,26 @@ for (const s of studies) {
 
 test('the home page card opens the case study, in both languages', async ({ page }) => {
   for (const [home, href, title] of [
-    ['/', '/projects/example/', 'Example case study'],
-    ['/de/', '/de/projects/example/', 'Beispiel-Fallstudie'],
+    ['/', '/projects/sorted/', 'Sorted'],
+    ['/de/', '/de/projects/sorted/', 'Sorted'],
   ]) {
     await page.goto(home);
-    const card = page.locator('#work').getByRole('link', { name: title });
+    const card = page
+      .locator('#work')
+      .getByRole('link', { name: new RegExp(title) })
+      .first();
     await expect(card).toHaveAttribute('href', href);
     await card.click();
     await expect(page).toHaveURL(href);
-    await expect(page.locator('h1')).toHaveText(title);
+    await expect(page.locator('h1')).toContainText(title);
   }
 });
 
 test('language switch and hreflang point at the translation', async ({ page }) => {
-  await page.goto('/projects/example/');
+  await page.goto('/projects/sorted/');
   await expect(page.getByRole('link', { name: /Deutsch/ })).toHaveAttribute(
     'href',
-    '/de/projects/example/',
+    '/de/projects/sorted/',
   );
   const hreflangs = await page.$$eval('link[rel="alternate"][hreflang]', (links) =>
     links.map(
@@ -92,8 +95,8 @@ test('language switch and hreflang point at the translation', async ({ page }) =
     ),
   );
   expect(hreflangs).toEqual([
-    'en /projects/example/',
-    'de /de/projects/example/',
-    'x-default /projects/example/',
+    'en /projects/sorted/',
+    'de /de/projects/sorted/',
+    'x-default /projects/sorted/',
   ]);
 });
