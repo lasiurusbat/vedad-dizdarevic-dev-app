@@ -1,0 +1,135 @@
+---
+/*
+ * "Limitations and what I would do next" as a two-column table: the gap (with an optional line
+ * of context) and the next step. Wide screens show a real table under a small header row; phones
+ * stack each row, and the next step gets its column name as a small label (from data-label, via
+ * CSS content), so the pairing stays clear without the header row.
+ *
+ * Quiet on purpose: hairline rows and no card, so it does not read like the problem log above.
+ */
+import { getLocale, useTranslations } from '../i18n';
+
+interface Item {
+  gap: string;
+  /** One line of context under the gap. */
+  detail?: string;
+  next: string;
+}
+
+interface Props {
+  label: string;
+  items: Item[];
+}
+
+const { label, items } = Astro.props;
+const t = useTranslations(getLocale(Astro.currentLocale));
+---
+
+<table class="not-prose limits my-6">
+  <caption class="sr-only">{label}</caption>
+  <thead>
+    <tr>
+      <th scope="col">{t.limitGap}</th>
+      <th scope="col">{t.limitNext}</th>
+    </tr>
+  </thead>
+  <tbody>
+    {items.map((item) => (
+      <tr>
+        <td>
+          <span class="gap">{item.gap}</span>
+          {item.detail && <span class="detail">{item.detail}</span>}
+        </td>
+        <td class="next" data-label={t.limitNext}>
+          {item.next}
+        </td>
+      </tr>
+    ))}
+  </tbody>
+</table>
+
+<style>
+  .limits {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--text-sm);
+    line-height: 1.55;
+  }
+
+  th {
+    padding: 0 0 0.625rem;
+    color: var(--muted);
+    font-weight: 400;
+    text-align: left;
+  }
+
+  td {
+    padding: 0.875rem 0;
+    border-top: 1px solid var(--border);
+    vertical-align: top;
+  }
+
+  .gap {
+    display: block;
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  .detail {
+    display: block;
+    margin-top: 0.125rem;
+    color: var(--muted);
+  }
+
+  .next {
+    color: var(--fg);
+  }
+
+  /* Wide: two columns, the gap a little narrower than the next step. */
+  @media (min-width: 40rem) {
+    th:first-child,
+    td:first-child {
+      width: 46%;
+      padding-right: 2rem;
+    }
+  }
+
+  /* Phones: one block per row; the header row is replaced by the label on the next step. */
+  @media (max-width: 39.99rem) {
+    thead {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      overflow: hidden;
+      clip-path: inset(50%);
+      white-space: nowrap;
+    }
+
+    tr,
+    td {
+      display: block;
+    }
+
+    tr {
+      padding: 0.875rem 0;
+      border-top: 1px solid var(--border);
+    }
+
+    td {
+      padding: 0;
+      border: 0;
+    }
+
+    .next {
+      margin-top: 0.625rem;
+      padding-left: 0.875rem;
+      border-left: 1px solid var(--border-strong);
+    }
+
+    .next::before {
+      content: attr(data-label);
+      display: block;
+      color: var(--muted);
+    }
+  }
+</style>
