@@ -1,14 +1,6 @@
-import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 
-for (const scheme of ['light', 'dark'] as const) {
-  test(`Sorted case study has no axe violations (${scheme})`, async ({ browser }) => {
-    const page = await (await browser.newContext({ colorScheme: scheme })).newPage();
-    await page.goto('/projects/sorted/');
-    const results = await new AxeBuilder({ page }).analyze();
-    expect(results.violations.map((v) => `${v.id}: ${v.nodes.length} node(s)`)).toEqual([]);
-  });
-}
+// axe in both themes: case-studies.spec.ts (EN and DE).
 
 test('Sorted case study: private repo noted, screenshots served from /_astro/ with alt text', async ({
   page,

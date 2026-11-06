@@ -12,9 +12,8 @@ export default defineConfig({
   use: { baseURL: `http://127.0.0.1:${port}`, ...devices['Desktop Chrome'] },
   projects: [{ name: 'chromium', use: { browserName: 'chromium' } }],
   webServer: {
-    // Build the site, then serve site/dist.
-    // SHOW_DRAFTS=1 includes the draft example case study, so its pages and card get tested.
-    command: `SHOW_DRAFTS=1 pnpm --filter @vdd/site build && node serve.mjs`,
+    // Build the site exactly as production does (no drafts), then serve site/dist.
+    command: `pnpm --filter @vdd/site build && node serve.mjs`,
     cwd: '.',
     url: `http://127.0.0.1:${port}/`,
     reuseExistingServer: !process.env.CI,
