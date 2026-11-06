@@ -33,7 +33,7 @@ const svc = (
 });
 
 export const nodes: DiagramNode[] = [
-  svc('tag', COL[0]!, ROW.app, 'git tag v0.9.8', 'delivery', 'app repo', githubMark),
+  svc('tag', COL[0]!, ROW.app, 'git tag v1.0.0', 'delivery', 'app repo', githubMark),
   svc(
     'checks',
     COL[1]!,
@@ -44,7 +44,7 @@ export const nodes: DiagramNode[] = [
     githubMark,
   ),
   svc('build', COL[2]!, ROW.app, 'Build images', 'delivery', 'arm64, dev + prod', githubMark),
-  svc('pr', COL[0]!, ROW.infra, 'image_tag = v0.9.8', 'delivery', 'infra repo PR', githubMark),
+  svc('pr', COL[0]!, ROW.infra, 'image_tag = v1.0.0', 'delivery', 'infra repo PR', githubMark),
   svc('validate', COL[1]!, ROW.infra, 'Validate', 'delivery', 'fmt, validate, tf test', githubMark),
   svc('plan', COL[2]!, ROW.infra, 'terraform plan', 'security', 'in the run summary', githubMark),
   {
