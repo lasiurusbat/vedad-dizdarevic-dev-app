@@ -74,6 +74,22 @@
   border-radius: var(--radius-md);
   background: transparent;
 }
+/* VPC and subnets nest inside the Region box: thinner lines, and the subnets get a faint fill so
+   private and public read as zones of the network. Private is a step stronger than public. */
+.react-flow__node-group.vdd-group-vpc {
+  border: 1.5px solid var(--border-strong);
+}
+.react-flow__node-group.vdd-group-public,
+.react-flow__node-group.vdd-group-private {
+  border: 1px dashed var(--border-strong);
+  border-radius: var(--radius-sm);
+}
+.react-flow__node-group.vdd-group-public {
+  background: color-mix(in srgb, var(--accent) 4%, transparent);
+}
+.react-flow__node-group.vdd-group-private {
+  background: color-mix(in srgb, var(--accent) 9%, transparent);
+}
 .vdd-edge-dashed .react-flow__edge-path {
   stroke-dasharray: 6 4;
 }
