@@ -188,7 +188,7 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 ### Tasks
 
 - [x] **Design tokens** in `@theme` (`styles/global.css`): brand palette, font families, fluid type scale and spacing with `clamp()`, radii, focus ring
-- [x] **Semantic colour tokens** (`bg`, `fg`, `muted`, `accent`, `border`) whose values switch with `light-dark()` (device setting, or the header light/dark switch added 2026-11-05), so components use `bg-bg text-fg` rather than `dark:` on every element
+- [x] **Semantic colour tokens** (`bg`, `fg`, `muted`, `accent`, `border`) whose values switch with `light-dark()` (dark by default since 2026-11-06, whatever the device setting; light through the header switch added 2026-11-05), so components use `bg-bg text-fg` rather than `dark:` on every element
 - [x] `@tailwindcss/typography` added via `@plugin`; prose styles mapped to the semantic tokens for case study MDX
 - [x] Check colour contrast for both themes (WCAG AA minimum, AAA for body text where possible)
 - [x] **Fonts:** pick at most two families, self-host via Fontsource, subset to Latin + Latin Extended (German characters), `font-display: swap`, preload the body font

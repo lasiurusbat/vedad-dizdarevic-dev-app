@@ -1,8 +1,8 @@
 ---
 /*
- * Light/dark switch at the right end of the header. Until it is used, the site follows the
+ * Light/dark switch at the right end of the header. The site is dark by default, whatever the
  * device setting; a click stores the opposite of the active theme in localStorage and sets
- * data-theme on <html> (public/theme.js re-applies it before paint on every page).
+ * data-theme on <html> (public/theme.js re-applies a saved light before paint on every page).
  *
  * The icon and the accessible name both follow the active theme through the .only-light /
  * .only-dark classes (a moon and "Switch to dark theme" in light, a sun and "Switch to light
@@ -59,14 +59,13 @@ const t = useTranslations(getLocale(Astro.currentLocale));
 </style>
 
 <script>
-  const dark = window.matchMedia('(prefers-color-scheme: dark)');
-
   for (const button of document.querySelectorAll<HTMLButtonElement>('[data-theme-toggle]')) {
     button.addEventListener('click', () => {
       const root = document.documentElement;
-      const active = root.dataset.theme ?? (dark.matches ? 'dark' : 'light');
+      const active = root.dataset.theme === 'light' ? 'light' : 'dark';
       const next = active === 'dark' ? 'light' : 'dark';
-      root.dataset.theme = next;
+      if (next === 'light') root.dataset.theme = 'light';
+      else delete root.dataset.theme;
       try {
         localStorage.setItem('theme', next);
       } catch {
@@ -75,7 +74,6 @@ const t = useTranslations(getLocale(Astro.currentLocale));
       const color = next === 'dark' ? '#0f101a' : '#ffffff';
       for (const meta of document.querySelectorAll('meta[name="theme-color"]')) {
         meta.setAttribute('content', color);
-        meta.removeAttribute('media');
       }
     });
   }
