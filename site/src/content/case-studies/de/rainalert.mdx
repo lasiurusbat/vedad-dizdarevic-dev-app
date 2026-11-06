@@ -43,7 +43,7 @@ import londonPuddle from '../../../assets/case-studies/rainalert/london-puddle.p
 
 ## Architektur
 
-Zwei Pfade laufen hindurch: Releases und Anfragen. Die Schaltflächen über dem Diagramm zeichnen jeden davon nach und blenden den Rest ab. Es gibt keine Datenbank und keine serverseitige Session; die App ist zustandslos.
+Zwei Pfade laufen durch Rain Alert: Releases und Anfragen. Die Schaltflächen über dem Diagramm zeichnen jeden davon nach und blenden den Rest ab. Es gibt keine Datenbank und keine serverseitige Session; die App ist zustandslos.
 
 <ArchitectureDiagram
   locale="de"
@@ -59,21 +59,29 @@ Zwei Pfade laufen hindurch: Releases und Anfragen. Die Schaltflächen über dem 
   price="Chrome läuft im schlanken Image nicht, deshalb laufen die Browser-Tests auf dem Runner, bevor irgendetwas hochgeladen wird."
 />
 
+Jede Prüfung läuft gegen das Image, das ausgeliefert wird.
+
 - **Zwei Stufen.** Die erste Stufe baut Wheels; die Laufzeitstufe installiert daraus mit `--no-index`, sodass das Image keinen Compiler und keine Systempakete enthält.
 - **Ohne Root.** Die App läuft als Systembenutzer ohne Login-Shell und braucht keinen beschreibbaren Pfad.
-- **Selbstbeschreibend.** Version und Commit sind Build-Argumente und stehen in den OCI-Labels, in der Umgebung und im Footer jeder Seite. Image, Registry und laufende Website nennen denselben Build.
+- **Selbstbeschreibend.** Version und Commit sind Build-Argumente und stehen in den OCI-Labels, in der Umgebung und im Footer jeder Seite. Image, Registry und laufende Website nennen denselben Build, und der Smoke-Test liest die Version aus diesem Footer.
 - **Ein Health-Check, der Upstreams ignoriert.** Er ruft die Startseite ab, die keinen externen Dienst anfragt, sodass ein Ausfall einer Wetter-API einen gesunden Container nie als ungesund markiert.
-- **Auf die Last abgestimmt.** gunicorn läuft mit einem Worker und vier Threads: Die App wartet auf zwei APIs, und ein Prozess hält seinen Geocoding-Cache warm.
 - **Dasselbe Image lokal.** Docker Compose baut die App und einen Testdienst aus einem gemeinsamen Anker, mit `pull_policy: build`, sodass ein Testlauf nie ein veraltetes lokales Image nutzt.
 
 ## Ein Release ist ein Git-Tag
 
 <TradeOff
   gained="Ein Release ist ein einziger Befehl, und nur geprüfter Code auf main kann zum Release werden."
-  price="Ein erneuter Lauf baut den Commit, auf den der Tag zeigt, nicht den später nachgeschobenen Fix. Ein veröffentlichter Tag wird nie verschoben; ein Fehler bedeutet eine neue Version."
+  price="Ein erneut gestartetes Release baut den getaggten Commit, nicht den danach nachgeschobenen Fix. Ein veröffentlichter Tag wird nie verschoben, deshalb kostet ein Fehler eine neue Versionsnummer."
 />
 
-Ein GitHub-Actions-Workflow verhält sich auf zwei Arten. Ein Pull Request oder ein Push auf `main` baut das Image, führt die Offline-Tests darin und die Browser-Tests auf dem Runner aus und hört dann auf. Ein Tag durchläuft dieselben Prüfungen, kontrolliert danach das Tag-Format und dass der Tag auf `main` liegt, lädt das getestete Image unter diesem Tag nach Docker Hub hoch und übergibt an den Deploy-Job.
+Ein GitHub-Actions-Workflow verhält sich auf zwei Arten. Ein Pull Request oder ein Push auf `main` baut das Image, führt die Offline-Tests darin und die Browser-Tests auf dem Runner aus und hört dann auf. Ein Tag geht weiter:
+
+1. Derselbe Build und dieselben Tests.
+2. Der Tag muss gültig sein und auf `main` liegen.
+3. Das getestete Image wird unter diesem Tag nach Docker Hub hochgeladen.
+4. Der Deploy-Job übernimmt.
+
+Vier Regeln sichern das ab:
 
 - **Ein Gate, das nicht leer bestehen kann.** Eine übersprungene Testsuite würde trotzdem Erfolg melden, deshalb lässt ein fehlender Browser den Lauf scheitern.
 - **Ein Image-Tag pro Release.** Semantische Tags, nie `latest`, nie ein erneut hochgeladener Tag.
@@ -87,7 +95,7 @@ Ein GitHub-Actions-Workflow verhält sich auf zwei Arten. Ein Pull Request oder 
   price="Eine langsame DNS-Änderung oder ein langsamer Image-Wechsel lässt den Release-Lauf scheitern, obwohl das Deployment selbst geklappt hat. Das Runbook erklärt, wie dieser Fehler zu lesen ist."
 />
 
-Der Render-Dienst basiert auf einem Image: Render holt es von Docker Hub und führt das Dockerfile nie aus. Zwei Einstellungen, die nebensächlich wirken, tragen das Design:
+Der Render-Dienst basiert auf einem Image: Render holt es von Docker Hub und führt das Dockerfile nie aus. Zwei Render-Einstellungen machen das möglich:
 
 - **Auto-Deploy ist aus.** Wäre es an, würde jedes hochgeladene Image den gespeicherten Rückfall-Tag neu ausrollen, und genau so kommt eine alte Version still zurück.
 - **Ein Deployment ist ein Hook-Aufruf mit dem exakten Image-Tag.** Eine neue Image-URL in den Render-Einstellungen zu speichern, rollt nichts aus, und der alte Container läuft ohne jedes Anzeichen weiter.
@@ -102,23 +110,23 @@ Nach dem Hook fragt der Smoke-Test die Live-Domain bis zu drei Minuten lang ab (
 />
 
 - **Secrets nur bei Tag-Läufen.** Das Workflow-Token darf nur lesen, und der Deploy-Job läuft in einer Umgebung `production`, in der verpflichtende Reviewer eine Einstellung entfernt sind.
-- **Sicherheits-Header auf jeder Antwort.** `default-src 'none'`, alles andere `'self'`, kein `unsafe-inline`, dazu `X-Frame-Options`, `nosniff`, eine Referrer- und eine Permissions-Policy. HSTS wird nur über HTTPS gesendet und ohne `includeSubDomains`, sodass ein Fehler die anderen Nutzungen der Domain nicht sperren kann. Tests sichern das alles ab.
+- **Sicherheits-Header auf jeder Antwort.** Eine Content Security Policy mit `default-src 'none'`, alles andere `'self'` und kein `unsafe-inline`, dazu `X-Frame-Options`, `nosniff`, eine Referrer- und eine Permissions-Policy. Ein Test schlägt fehl, wenn sich ein Header ändert.
+- **HSTS mit Bedacht.** Es wird nur über HTTPS gesendet und ohne `includeSubDomains`, sodass ein Fehler die anderen Nutzungen der Domain nicht sperren kann.
 - **Keine Anfragen an Dritte.** Die Schriften werden selbst gehostet.
-- **Der API-Schlüssel landet nie in einem Log.** Er steht in einem Query-String, deshalb protokolliert der Code nur Statuscodes und Exception-Klassen; ein Test sichert das ab.
-- **Eine kleine Angriffsfläche.** Ein Container ohne Root, ohne Systempakete und ohne Datenbank.
+- **Der API-Schlüssel landet nie in einem Log.** Er steht in einem Query-String, deshalb protokolliert der Code nur Statuscodes und Exception-Klassen. Ein Test schlägt fehl, wenn ein Schlüssel im Log landet.
 
 ## Kostenlose Tarife, die gut ausfallen
 
 <TradeOff
   gained="Hosting und CI kosten nichts, bei jedem Dienst."
-  price="Ratenlimits, die die App nicht anheben kann: Am 29. Oktober schlug jede Live-Vorhersage fehl, weil die kostenlose Vorhersage-API nach IP begrenzt und die ausgehende IP von Render geteilt ist."
+  price="Ratenlimits, die ich nicht anheben kann. Am 29. Oktober schlug jede Live-Vorhersage fehl: Die kostenlose Vorhersage-API begrenzt nach IP, und die ausgehende IP von Render ist geteilt."
 />
 
 Die Antwort auf diesen Vorfall kam in Schichten:
 
 1. **Sichtbar machen.** Der Fehlergrund wird jetzt protokolliert, sodass der nächste Fall aus den Logs diagnostiziert wird statt geraten.
 2. **Weniger anfragen.** Ein serverseitiger Cache hält eine gute Vorhersage zehn Minuten lang; Fehler werden nie gecacht. Crawler bekommen eine Crawl-Verzögerung.
-3. **Eine zweite Quelle.** Wenn Open-Meteo ablehnt, antwortet OpenWeather, übersetzt in das Format von Open-Meteo, sodass oberhalb des Clients nichts erfährt, wer geantwortet hat. Es läuft in einem selbst gesetzten Tagesbudget von 900 Aufrufen, weil dieser Anbieter über den kostenlosen Tarif hinaus abrechnet, und es lässt unbekannte Werte unbekannt.
+3. **Eine zweite Quelle.** Wenn Open-Meteo ablehnt, antwortet OpenWeather, übersetzt in das Format von Open-Meteo, sodass oberhalb des Clients nichts erfährt, wer geantwortet hat. Es hat ein eigenes Tagesbudget von 900 Aufrufen, weil dieser Anbieter über den kostenlosen Tarif hinaus abrechnet. Werte, die es nicht liefern kann, bleiben leer.
 4. **Ehrlich herunterfahren.** Ein kaputter Upstream liefert `503` und eine fehlende Stadt `404`, nie eine `200`, die „nicht gefunden“ sagt.
 
 Ein Uptime-Check ruft die Startseite ab. Sie fragt keine externe API an, deshalb belegt er DNS, Zertifikat und Version, und er hält die kostenlose Instanz wach.
@@ -171,7 +179,9 @@ Das erste Release brauchte fünf Anläufe, und jeder Fehler war ein fehlendes St
   caption="Das Vorhersage-Panel, auf dem Server für jeden Tag gerendert, sodass es auch ohne JavaScript funktioniert."
 />
 
-Die Plattform betreibt eine kleine, zustandslose Flask-App. Man gibt eine Stadt ein und sieht die Regenwahrscheinlichkeit für sieben Tage, mit einem Stundenstreifen, einer Skala in drei Stufen, Browser-Benachrichtigungen und einem Kalenderexport der Regentage. Einstellungen bleiben im Browser, es gibt also keine Konten und keine personenbezogenen Daten auf dem Server. Die App lässt sich installieren; ihr Service Worker cacht die Oberfläche, aber nie die Vorhersage. Die Wetterdaten kommen von Open-Meteo unter einer nicht kommerziellen Lizenz, deshalb bleibt die App kostenlos, mit Spenden als einziger Einnahme.
+Die Plattform betreibt eine kleine Flask-App. Man gibt eine Stadt ein und sieht die Regenwahrscheinlichkeit für die nächsten sieben Tage und stündlich für heute. Sie kann im Browser benachrichtigen und die Regentage in den Kalender exportieren, und sie lässt sich als Web-App installieren, deren Service Worker die Oberfläche cacht, nie die Vorhersage.
+
+Einstellungen bleiben im Browser, es gibt also keine Konten und keine personenbezogenen Daten auf dem Server. Die Wetterdaten kommen von Open-Meteo unter einer nicht kommerziellen Lizenz, deshalb bleibt die App kostenlos, mit Spenden als einziger Einnahme.
 
 <ScreenshotGallery
   label="Screenshots von Rain Alert"
@@ -186,7 +196,7 @@ Die Plattform betreibt eine kleine, zustandslose Flask-App. Man gibt eine Stadt 
       light: londonPuddle,
       alt: 'Eine Illustration einer regnerischen Londoner Straße, die sich in einer Pfütze spiegelt, als Artwork von Rain Alert.',
       title: 'Das Artwork',
-      text: 'KI-generierte Illustration, kein Foto.',
+      text: 'KI-generierte Illustration.',
     },
   ]}
 />
