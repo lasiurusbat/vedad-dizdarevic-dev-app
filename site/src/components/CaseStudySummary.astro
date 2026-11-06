@@ -1,7 +1,6 @@
 ---
 import { type Locale, useTranslations } from '../i18n';
 import type { CaseStudy } from '../lib/caseStudies';
-import CostComparison from './CostComparison.astro';
 
 interface Props {
   locale: Locale;
@@ -10,41 +9,81 @@ interface Props {
 
 const { locale, data } = Astro.props;
 const t = useTranslations(locale);
-const repoLinks = data.repoUrl ? [{ label: t.caseRepo, url: data.repoUrl }] : [];
 // Live links (the running product) become badges; the domain shows where the link goes.
 const liveLinks = data.liveLinks.map((l) => ({ ...l, host: new URL(l.url).hostname }));
-const links = [...liveLinks, ...repoLinks];
+// The source cell closes the fact row: the repository path as a link, or a plain note if private.
+const source = data.repoUrl
+  ? { value: data.repoUrl.replace(/^https?:\/\/(www\.)?github\.com\//, ''), url: data.repoUrl }
+  : data.repoPrivate
+    ? { value: t.casePrivateRepo }
+    : undefined;
+const cells: { label: string; value: string; url?: string }[] = [
+  ...data.facts,
+  ...(source ? [{ label: t.caseRepo, ...source }] : []),
+];
 ---
 
-<!-- The structured part of a case study; the MDX body follows it. Headings start at h2. -->
-<!-- Links sit first, next to the title, so they do not break the flow between outcome and write-up. -->
-{(links.length > 0 || data.repoPrivate) && (
-  <ul class="case-links not-prose text-sm" role="list">
-    {liveLinks.map((l) => (
-      <li>
-        {/* A status chip that is also the link: the dot says the product is live. */}
-        <a href={l.url} target="_blank" rel="noopener noreferrer" class="live-badge">
-          <span class="live-dot" aria-hidden="true"></span>
-          <span class="live-label">{l.label}</span>
-          <span class="live-host">
+<!--
+  The structured part of a case study, before the MDX body. Order: the fact sheet (what, who, when,
+  where; the status line carries the live link), then the outcome stats and their honesty note, so the evidence comes
+  before the reasoning; then the problem and the decisions. Headings start at h2.
+-->
+{(liveLinks.length > 0 || cells.length > 0) && (
+  <div class="facts not-prose">
+    {liveLinks.length > 0 && (
+      <p class="status">
+        <span class="sr-only">{t.caseStatus}:</span>
+        <span class="live-dot" aria-hidden="true"></span>
+        <span class="status-text">{data.status ?? t.caseLive}</span>
+        {liveLinks.map((l) => (
+          <a href={l.url} target="_blank" rel="noopener noreferrer" class="status-link">
             {l.host}
             <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
               <path d="M4 2.5h5.5V8 M9.5 2.5 3 9" />
             </svg>
-          </span>
-          <span class="sr-only">{t.opensNewTab}</span>
-        </a>
-      </li>
-    ))}
-    {repoLinks.map((l) => (
-      <li>
-        <a href={l.url} rel="noopener noreferrer" class="underline">
-          {l.label}
-        </a>
-      </li>
-    ))}
-    {data.repoPrivate && <li class="text-muted">{t.casePrivateRepo}</li>}
-  </ul>
+            <span class="sr-only">{t.opensNewTab}</span>
+          </a>
+        ))}
+      </p>
+    )}
+    {cells.length > 0 && (
+      <dl class="fact-row">
+        {cells.map((c) => (
+          <div class="fact">
+            <dt class="text-muted">{c.label}</dt>
+            <dd>
+              {c.url ? (
+                <a href={c.url} rel="noopener noreferrer" class="underline">
+                  {c.value}
+                </a>
+              ) : (
+                c.value
+              )}
+            </dd>
+          </div>
+        ))}
+      </dl>
+    )}
+  </div>
+)}
+
+{data.outcomes.length > 0 && (
+  <section aria-labelledby="case-outcome" class="not-prose outcome">
+    {/* The stats speak for themselves under the hero; the heading is for screen readers. */}
+    <h2 id="case-outcome" class="sr-only">
+      {t.caseOutcome}
+    </h2>
+    {/* One panel of large stats separated by hairlines; the value reads first, the label explains. */}
+    <dl class="stats card border-border rounded-lg border">
+      {data.outcomes.map((o) => (
+        <div class="stat">
+          <dt class="text-muted text-sm">{o.label}</dt>
+          <dd class="font-display">{o.value}</dd>
+        </div>
+      ))}
+    </dl>
+    {data.outcomesNote && <p class="text-muted max-w-measure mt-3 text-sm">{data.outcomesNote}</p>}
+  </section>
 )}
 
 <h2>{t.caseProblem}</h2>
@@ -63,73 +102,94 @@ const links = [...liveLinks, ...repoLinks];
   ))}
 </ol>
 
-{data.outcomes.length > 0 && (
-  <>
-    <h2>{t.caseOutcome}</h2>
-    {/* One panel of large stats separated by hairlines; the value reads first, the label explains. */}
-    <dl class="not-prose stats card border-border my-6 rounded-lg border">
-      {data.outcomes.map((o) => (
-        <div class="stat">
-          <dt class="text-muted text-sm">{o.label}</dt>
-          <dd class="font-display">{o.value}</dd>
-        </div>
-      ))}
-    </dl>
-    {data.costs && <CostComparison costs={data.costs} />}
-  </>
-)}
-
 <style>
-  .case-links {
+  /*
+   * Fact sheet: a status line (live dot, status, the product's domain as the link), then one row
+   * of short facts, label above value. Small text on hairlines and no card, so it stays quieter
+   * than the stats panel below it: this answers "what is it", the stats "what came of it".
+   * Two columns on phones, one line from tablet width up.
+   */
+  .facts {
+    --live: light-dark(#2f7d55, #6cc795);
+
+    margin-bottom: 2rem;
+    font-size: var(--text-sm);
+  }
+
+  .status {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem 1.5rem;
-    margin-bottom: 2rem;
+    column-gap: 0.75rem;
+    min-height: 2.75rem;
+    padding-bottom: 0.5rem;
   }
 
-  /*
-   * Live badge: a pill (set apart from the 10px action buttons: it goes to the product, it is not
-   * a call to contact) on the secondary buttons' lit-from-above surface. The status dot is the one
-   * extra colour, a muted green that means "online". The domain is the second segment so the
-   * reader knows where the link leads; the arrow marks that it leaves this site. It opens in a new
-   * tab (announced to screen readers), so the case study stays open.
-   */
-  .live-badge {
-    --badge-top: light-dark(#ffffff, #1b1d2a);
-    --badge-bottom: light-dark(#f3f4f8, #12131d);
-    --badge-edge: light-dark(#cfd3de, #2b3042);
-    --badge-shine: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.07));
-    --badge-halo: light-dark(rgb(56 100 116 / 0.12), rgb(166 181 190 / 0.14));
-    --live: light-dark(#2f7d55, #6cc795);
+  .status-text {
+    margin-left: 0.125rem;
+    color: var(--fg);
+    font-weight: 500;
+  }
 
+  /* The domain sits at the end of the line, muted until hovered; the arrow says it leaves. */
+  .status-link {
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0 0.5rem 0 1rem;
-    border: 1px solid var(--badge-edge);
-    border-radius: 999px;
-    background: linear-gradient(to bottom, var(--badge-top), var(--badge-bottom));
-    box-shadow:
-      inset 0 1px 0 0 var(--badge-shine),
-      0 0 14px 0 var(--badge-halo);
-    color: var(--fg);
-    font-weight: 500;
-    text-decoration: none;
+    gap: 0.375rem;
+    margin-left: auto;
+    color: var(--muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 0.25em;
     transition:
-      border-color 150ms ease,
-      box-shadow 150ms ease;
+      color 150ms ease,
+      text-decoration-color 150ms ease;
   }
 
-  .live-badge:hover {
-    --badge-edge: light-dark(#83909a, #4f8597);
-    --badge-halo: light-dark(rgb(56 100 116 / 0.22), rgb(143 180 195 / 0.3));
+  .status-link:hover {
+    color: var(--fg);
+    text-decoration-color: currentColor;
   }
 
-  .live-badge:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+  .status-link svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fact-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    padding: 0.875rem 0;
+    border-block: 1px solid var(--border);
+  }
+
+  /* From tablet width the facts share one line, each as wide as its value, spread edge to edge
+     so the row ends where the stats panel below ends. */
+  @media (min-width: 48rem) {
+    .fact-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .fact dd {
+      white-space: nowrap;
+    }
+  }
+
+  .fact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .fact dd {
+    color: var(--fg);
   }
 
   .live-dot {
@@ -170,40 +230,10 @@ const links = [...liveLinks, ...repoLinks];
     }
   }
 
-  /* The domain segment: a hairline before it, muted until hovered. */
-  .live-host {
-    display: inline-flex;
-    min-height: 1.875rem;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0 0.75rem 0 0.625rem;
-    border-left: 1px solid var(--badge-edge);
-    color: var(--muted);
-    font-weight: 400;
-    transition: color 150ms ease;
+  .outcome {
+    margin-bottom: 2.5rem;
   }
 
-  .live-badge:hover .live-host {
-    color: var(--fg);
-  }
-
-  .live-host svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .case-links a:not(.live-badge) {
-    display: inline-flex;
-    min-height: 2.75rem;
-    align-items: center;
-  }
-  .case-links li {
-    display: flex;
-    align-items: center;
-  }
   /* Two columns on phones, four on wide screens; hairlines between cells, no boxes. */
   .stats {
     display: grid;

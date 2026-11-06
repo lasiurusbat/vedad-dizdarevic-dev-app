@@ -20,6 +20,14 @@ decisions:
   - decision: 'Kostenhebel pro Umgebung: Spot, Abschaltung außerhalb der Arbeitszeit und kein NAT in Dev; on demand plus Savings Plan in Prod'
     why: 'Die Fixkosten bleiben niedrig, ohne das Design aufzugeben. Dev verträgt ein bis drei Minuten Ausfall, wenn Spot-Kapazität zurückgeholt wird; Prod nicht.'
 illustration: 'inbox'
+status: 'Live und kommerziell verfügbar'
+facts:
+  - label: 'Rolle'
+    value: 'Alleiniger Engineer'
+  - label: 'Gebaut'
+    value: '17.9.–31.10.2026'
+  - label: 'Region'
+    value: 'AWS eu-central-1'
 outcomes:
   - label: 'Langlebige AWS-Schlüssel in CI/CD'
     value: '0'
@@ -29,6 +37,7 @@ outcomes:
     value: '−64 %'
   - label: 'Wochen bis live, allein gebaut'
     value: '6'
+outcomesNote: 'Diese Seite beschreibt die Produktionskonfiguration, wie sie in Terraform definiert ist. Die laufenden Kosten sind aus meiner AWS-Rechnung hochgerechnet, die Multi-AZ-Zahlen sind Schätzungen aus der Dokumentation im Repository, und der Failover ist entworfen, aber nicht geprobt.'
 costs:
   title: 'Monatliche Kosten, geschätzt'
   highlight: '−64 % in Dev'
@@ -71,6 +80,7 @@ import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
+import CostComparison from '../../../components/CostComparison.astro';
 import ScalingPath from '../../../components/ScalingPath.astro';
 import DashboardMap from '../../../components/DashboardMap.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
@@ -79,10 +89,6 @@ import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
 import ticketDark from '../../../assets/case-studies/sorted/ticket-dark.png';
 import dashboardLight from '../../../assets/case-studies/sorted/dashboard-light.png';
 import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.png';
-
-## Umfang
-
-Sorted ist live unter [sorted.onl](https://sorted.onl), mit Selbstregistrierung, Abrechnung über Stripe und individuellen Tarifen für Support-Teams. Ich verantworte die Plattform von Anfang bis Ende: die Infrastruktur, die Pipelines und den Betrieb, dazu die Anwendung, die darauf läuft. Gebaut habe ich sie vom 17. September bis 31. Oktober 2026. Diese Seite beschreibt die Produktionskonfiguration, wie sie in Terraform definiert ist. Die laufenden Kosten sind aus meiner AWS-Rechnung hochgerechnet, die Multi-AZ-Zahlen sind Schätzungen aus der Dokumentation im Repository, und der Failover ist entworfen, aber nicht geprobt.
 
 ## Architektur
 
@@ -136,6 +142,8 @@ Hochverfügbarkeit in Produktion sind drei Terraform-Flags, ohne Migration. Dar�
     },
   ]}
 />
+
+<CostComparison costs={props.costs} />
 
 ## Compute, Netzwerk und Daten
 
