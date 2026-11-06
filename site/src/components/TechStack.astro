@@ -1,0 +1,181 @@
+---
+/*
+ * The tech stack drawn as a stack: one row per layer, from the edge visitors reach first down to
+ * the workload the platform runs. Each row names the layer, says in plain words what it does, and
+ * lists its tools as chips. A rail on the left joins the platform layers into one stack; the
+ * workload sits below a dashed break, quieter, because the case study is about the platform.
+ *
+ * Semantics: a description list (layer = term, role and tools = details); the tools are a list.
+ */
+interface Layer {
+  name: string;
+  /** What the layer does, in plain words. */
+  role: string;
+  tools: string[];
+  /** The application the platform runs: set apart below the platform layers. */
+  workload?: boolean;
+}
+
+interface Props {
+  /** Accessible name for the list. */
+  label: string;
+  layers: Layer[];
+}
+
+const { label, layers } = Astro.props;
+const platform = layers.filter((l) => !l.workload);
+const workload = layers.filter((l) => l.workload);
+---
+
+<div class="not-prose stack my-6" role="group" aria-label={label}>
+  <dl class="layers">
+    {platform.map((l) => (
+      <div class="layer">
+        <dt class="name">
+          <span class="node" aria-hidden="true" />
+          {l.name}
+        </dt>
+        <dd class="role">{l.role}</dd>
+        <dd class="tools">
+          <ul role="list">
+            {l.tools.map((t) => (
+              <li>{t}</li>
+            ))}
+          </ul>
+        </dd>
+      </div>
+    ))}
+  </dl>
+  {workload.length > 0 && (
+    <dl class="layers is-workload">
+      {workload.map((l) => (
+        <div class="layer">
+          <dt class="name">{l.name}</dt>
+          <dd class="role">{l.role}</dd>
+          <dd class="tools">
+            <ul role="list">
+              {l.tools.map((t) => (
+                <li>{t}</li>
+              ))}
+            </ul>
+          </dd>
+        </div>
+      ))}
+    </dl>
+  )}
+</div>
+
+<style>
+  .layers {
+    position: relative;
+    display: grid;
+  }
+
+  .layer {
+    position: relative;
+    display: grid;
+    gap: 0.25rem 1.5rem;
+    padding: 1rem 0 1rem 1.75rem;
+  }
+
+  .layer + .layer {
+    border-top: 1px solid var(--border);
+  }
+
+  /* The rail: one segment per layer, from its node down to the next layer's node, so the line
+     starts at the first node and stops at the last. */
+  .layers:not(.is-workload) .layer:not(:last-child)::before {
+    content: '';
+    position: absolute;
+    top: 1.7rem;
+    bottom: -1.7rem;
+    left: 0.3125rem;
+    width: 1px;
+    background: var(--border-strong);
+  }
+
+  .name {
+    position: relative;
+    font-family: var(--font-display);
+    font-size: var(--text-base);
+    font-weight: 500;
+    color: var(--fg);
+  }
+
+  /* A node on the rail for each layer. */
+  .node {
+    position: absolute;
+    top: 0.45em;
+    left: -1.75rem;
+    width: 0.6875rem;
+    height: 0.6875rem;
+    border: 2px solid var(--accent);
+    border-radius: 9999px;
+    background: var(--bg);
+  }
+
+  .role {
+    color: var(--muted);
+    font-size: var(--text-sm);
+  }
+
+  .tools ul {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.375rem;
+    margin-top: 0.5rem;
+  }
+
+  .tools li {
+    padding: 0.125rem 0.625rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.375rem;
+    background: var(--surface);
+    color: var(--fg);
+    font-size: var(--text-sm);
+    line-height: 1.6;
+  }
+
+  /* The workload: below a dashed break, no rail, quieter chips. */
+  .is-workload {
+    margin-top: 0.5rem;
+    border-top: 1px dashed var(--border-strong);
+  }
+
+  .is-workload .name,
+  .is-workload .tools li {
+    color: var(--muted);
+  }
+
+  .is-workload .tools li {
+    border-color: var(--border);
+    background: transparent;
+  }
+
+  /* Wide screens: name and role on the left, tools on the right. */
+  @media (min-width: 48rem) {
+    .layer {
+      grid-template-columns: 15.5rem minmax(0, 1fr);
+      grid-template-areas:
+        'name tools'
+        'role tools';
+      align-items: start;
+    }
+
+    .name {
+      grid-area: name;
+    }
+
+    .role {
+      grid-area: role;
+    }
+
+    .tools {
+      grid-area: tools;
+    }
+
+    .tools ul {
+      margin-top: 0;
+    }
+  }
+</style>

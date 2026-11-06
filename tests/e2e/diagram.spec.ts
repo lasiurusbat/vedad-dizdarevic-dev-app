@@ -14,7 +14,7 @@ const PAGE = '/projects/example/';
 /** The diagram mounts when it scrolls into view, so bring it there first. */
 async function openDiagram(page: Page, path = PAGE) {
   await page.goto(path);
-  await page.locator('.diagram-mount').scrollIntoViewIfNeeded();
+  await page.locator('.diagram-mount').first().scrollIntoViewIfNeeded();
   const diagram = page.getByRole('group', { name: /architecture/i });
   await expect(diagram.locator('.react-flow__node-service').first()).toBeVisible();
   return diagram;
@@ -61,6 +61,15 @@ test('the Sorted case study shows the diagram under the production CSP', async (
   await expect(diagram.locator('.react-flow__node-service')).toHaveCount(15);
   expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
   await expect(page.getByRole('heading', { name: 'Architecture' })).toBeVisible();
+});
+
+test('the Sorted case study shows the release path under the production CSP', async ({ page }) => {
+  await page.goto('/projects/sorted/');
+  await page.locator('[data-diagram="sorted-release"]').scrollIntoViewIfNeeded();
+  const diagram = page.getByRole('group', { name: /release/i });
+  await expect(diagram.locator('.react-flow__node-service')).toHaveCount(8);
+  await expect(diagram.locator('.react-flow__edge')).toHaveCount(7);
+  expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
 });
 
 test('text alternative lists the flow', async ({ page }) => {

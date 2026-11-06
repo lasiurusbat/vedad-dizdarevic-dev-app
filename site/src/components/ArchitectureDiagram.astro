@@ -1,21 +1,25 @@
 ---
 import { type Locale, useTranslations } from '../i18n';
 import { sortedProduction } from '../diagrams/sorted-production';
+import { sortedRelease } from '../diagrams/sorted-release';
 
 interface Props {
   locale: Locale;
-  id: 'sorted-production';
+  id: 'sorted-production' | 'sorted-release';
   /** Accessible name and caption. */
   title: string;
+  /** A wide, flat diagram (two rows): a shorter canvas, so the fitted view has no empty bands. */
+  compact?: boolean;
 }
 
-const { locale, id, title } = Astro.props;
+const { locale, id, title, compact = false } = Astro.props;
 const t = useTranslations(locale);
-const description = sortedProduction.description;
+const description = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease }[id]
+  .description;
 const steps = locale === 'de' && description.de.length > 0 ? description.de : description.en;
 ---
 
-<figure class="not-prose diagram my-8">
+<figure class:list={['not-prose diagram my-8', compact && 'compact']}>
   {/* Focusable so keyboard users can scroll it sideways on a narrow screen. */}
   <div
     class="border-border overflow-x-auto rounded-lg border"
@@ -67,6 +71,23 @@ const steps = locale === 'de' && description.de.length > 0 ? description.de : de
     .diagram-mount {
       min-width: 62rem;
       height: 40rem;
+    }
+  }
+</style>
+
+<style>
+  /* Compact: the release path is about 3.5 times wider than tall. */
+  .compact .diagram-mount {
+    height: clamp(18rem, 32vw, 24rem);
+  }
+  @media (min-width: 64rem) {
+    .compact .diagram-mount {
+      height: 26rem;
+    }
+  }
+  @media (max-width: 39.99rem) {
+    .compact .diagram-mount {
+      height: 20rem;
     }
   }
 </style>

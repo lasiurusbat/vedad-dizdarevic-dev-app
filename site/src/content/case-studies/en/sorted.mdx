@@ -70,6 +70,7 @@ draft: false
 import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
+import TechStack from '../../../components/TechStack.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
 import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
 import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
@@ -100,7 +101,53 @@ The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx a
 - **Delivery.** A release is a git tag that runs the full check suite and pushes immutable images. Deploying is a reviewed infrastructure change; the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate`, and 22 offline `terraform test` runs with mocked providers that assert the security properties without an AWS account.
 - **Operations.** Structured JSON logs, Grafana Cloud reading CloudWatch through a read-only role with an External ID, alerts tied to a symptom-first runbook.
 
+## How a release gets there
 
+Two repositories, two roles, no stored keys. The application repository turns a git tag into an immutable image; the infrastructure repository decides which image runs, through a reviewed Terraform change.
+
+<ArchitectureDiagram
+  locale="en"
+  id="sorted-release"
+  compact
+  title="How a Sorted release gets to AWS: a git tag builds an immutable image in ECR, and a reviewed Terraform change deploys it to ECS."
+/>
+
+## Tech stack
+
+Ordered from the edge visitors reach first down to the application the platform runs.
+
+<TechStack
+  label="Sorted tech stack by layer"
+  layers={[
+    { name: 'Edge', role: 'What visitors reach first', tools: ['Cloudflare DNS', 'Proxy', 'TLS'] },
+    {
+      name: 'Cloud',
+      role: 'AWS eu-central-1, where everything runs',
+      tools: ['ECS on Fargate (ARM64)', 'ALB', 'RDS PostgreSQL', 'SES', 'SNS', 'S3', 'KMS', 'GuardDuty', 'ECR', 'Secrets Manager', 'EventBridge'],
+    },
+    {
+      name: 'Infrastructure as code',
+      role: 'One module builds dev and prod',
+      tools: ['Terraform', 'AWS, Cloudflare and random providers', 'terraform test, mocked providers'],
+    },
+    {
+      name: 'CI/CD',
+      role: 'From a git tag to a running task',
+      tools: ['GitHub Actions', 'GitHub OIDC, no stored keys', 'Docker multi-stage builds'],
+    },
+    {
+      name: 'Observability',
+      role: 'Read in place, nothing copied',
+      tools: ['CloudWatch logs and metrics', 'Grafana Cloud, read-only role'],
+    },
+    {
+      name: 'Workload',
+      role: 'The application the platform runs',
+      workload: true,
+      tools: ['TypeScript', 'Bun', 'Express 5', 'React 19', 'Prisma 7', 'PostgreSQL row-level security', 'pg-boss', 'Vercel AI SDK'],
+    },
+  ]}
+/>
 
 ## Problems I hit
 
