@@ -20,6 +20,14 @@ decisions:
   - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
     why: 'Fixed cost stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
 illustration: 'inbox'
+status: 'Live and commercially available'
+facts:
+  - label: 'Role'
+    value: 'Sole engineer'
+  - label: 'Built'
+    value: 'Sep 17 – Oct 31, 2026'
+  - label: 'Region'
+    value: 'AWS eu-central-1'
 outcomes:
   - label: 'Long-lived AWS keys in CI/CD'
     value: '0'
@@ -29,6 +37,7 @@ outcomes:
     value: '−64%'
   - label: 'Weeks to live, built solo'
     value: '6'
+outcomesNote: 'This page describes the production configuration as defined in Terraform. Running costs are projected from my AWS bill, the Multi-AZ figures are estimates from the docs in the repository, and failover is designed but not drilled.'
 costs:
   title: 'Monthly cost, estimated'
   highlight: '−64% in dev'
@@ -71,6 +80,7 @@ import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
+import CostComparison from '../../../components/CostComparison.astro';
 import ScalingPath from '../../../components/ScalingPath.astro';
 import DashboardMap from '../../../components/DashboardMap.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
@@ -79,10 +89,6 @@ import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
 import ticketDark from '../../../assets/case-studies/sorted/ticket-dark.png';
 import dashboardLight from '../../../assets/case-studies/sorted/dashboard-light.png';
 import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.png';
-
-## Scope
-
-Sorted is live at [sorted.onl](https://sorted.onl), with self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it from September 17 to October 31, 2026. This page describes the production configuration as defined in Terraform. The running costs are projected from my AWS bill, the Multi-AZ figures are estimates from the docs in the repository, and failover has been designed but not drilled.
 
 ## Architecture
 
@@ -136,6 +142,8 @@ High availability in production is three Terraform flags, with no migration. Pas
     },
   ]}
 />
+
+<CostComparison costs={props.costs} />
 
 ## Compute, network and data
 
