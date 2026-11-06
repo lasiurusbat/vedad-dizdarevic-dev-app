@@ -84,10 +84,7 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 
 ## Architecture
 
-Two paths run through the platform:
-
-- **Requests:** browser → Cloudflare → ALB with an ACM certificate → nginx and the Bun server in one Fargate task → RDS PostgreSQL in private subnets.
-- **Mail:** customer email → SES receipt rule → S3 (own KMS key) and SNS → signed webhook on the ALB → saved ticket → `pg-boss` job for AI classification → agent queue or automatic reply through SES. Delivery events come back through SNS.
+Three paths run through the platform: requests, mail and releases. The buttons above the diagram trace each one and dim the rest.
 
 <ArchitectureDiagram
   locale="en"

@@ -36,6 +36,19 @@ export interface DiagramDefinition {
   /** Node to centre on when the diagram is wider than the screen (phones scroll it sideways).
    * Without it the visitor first sees the left edge, which may not be the main path. */
   focusNode?: string;
+  /** Paths a visitor can trace with the buttons above the diagram: the path's nodes and edges
+   * stay lit, the rest dims. Each has a one-sentence summary shown while it is selected. */
+  paths?: DiagramPath[];
   /** Ordered text alternative: what the diagram says, for screen readers and no-JS visitors. */
   description: { en: string[]; de: string[] };
+}
+
+export interface DiagramPath {
+  id: string;
+  label: { en: string; de: string };
+  summary: { en: string; de: string };
+  nodes: string[];
+  edges: string[];
+  /** Node to centre on when the diagram scrolls sideways (phones). */
+  focus?: string;
 }

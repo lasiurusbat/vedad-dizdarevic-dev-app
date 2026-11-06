@@ -84,10 +84,7 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 
 ## Architektur
 
-Zwei Pfade laufen durch die Plattform:
-
-- **Anfragen:** Browser → Cloudflare → ALB mit ACM-Zertifikat → nginx und der Bun-Server in einem Fargate-Task → RDS PostgreSQL in privaten Subnetzen.
-- **Mail:** Kunden-E-Mail → SES-Empfangsregel → S3 (eigener KMS-Schlüssel) und SNS → signierter Webhook am ALB → gespeichertes Ticket → `pg-boss`-Job für die KI-Klassifizierung → Warteschlange der Agents oder automatische Antwort über SES. Zustellereignisse kommen über SNS zurück.
+Drei Pfade laufen durch die Plattform: Anfragen, Mail und Releases. Die Schaltflächen über dem Diagramm zeichnen jeden davon nach und blenden den Rest ab.
 
 <ArchitectureDiagram
   locale="de"
