@@ -1,6 +1,6 @@
 ---
 title: 'Sorted: a multi-tenant SaaS platform on AWS, in Terraform'
-summary: 'The AWS platform behind a live multi-tenant support-ticket SaaS. One Terraform module builds dev and prod, CI/CD uses no long-lived keys, and inbound mail is encrypted and malware-scanned. Built and run solo in six weeks.'
+summary: 'The AWS platform behind a live multi-tenant support-ticket SaaS. One Terraform module builds dev and prod, Multi-AZ is three settings away, CI/CD uses no long-lived keys, and inbound mail is malware-scanned. Built and run solo in six weeks.'
 problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and "the AI cannot do harm" had to be enforced by code and infrastructure, for a commercial product with one person to run it.'
 stack:
   [
@@ -71,6 +71,7 @@ import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
+import ScalingPath from '../../../components/ScalingPath.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
 import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
 import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
@@ -91,6 +92,48 @@ The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx a
   id="sorted-production"
   title="Sorted production architecture on AWS: the request path, the mail path with attachment scanning, and the release path."
 />
+
+## Availability and scaling
+
+The platform is built to grow without a rebuild. Every environment already spans two availability zones, and the step to a highly available production is three settings in Terraform, not a migration. Beyond that, the application is designed to run as several tasks, so it scales out behind the same load balancer.
+
+<ScalingPath
+  label="Sorted availability and scaling, in three stages"
+  stages={[
+    {
+      title: 'Self-healing, two-zone network',
+      status: 'Running today',
+      current: true,
+      points: [
+        'Each VPC spans two availability zones, with public subnets for the load balancer and private subnets for the task and the database.',
+        'ECS replaces a failed task on its own. Health checks and a grace period cover migrations and start-up.',
+        'Deploys are rolling (minimum 100 %, maximum 200 %), so the old task serves until the new one is healthy. The circuit breaker rolls a bad release back automatically.',
+        'Database migrations are expand, then contract, so two releases can share one database during a deploy.',
+      ],
+    },
+    {
+      title: 'Multi-AZ production',
+      status: 'Three settings away',
+      points: [
+        '`db_multi_az` adds a synchronous RDS standby in the second zone with automatic failover.',
+        '`nat_gateway_per_az` gives each zone its own NAT gateway and route table, so a task restarted in the surviving zone keeps its outbound access.',
+        '`use_fargate_spot = false` moves the task to on-demand Fargate, with a Savings Plan on top.',
+        'After a zone outage the database fails over and ECS restarts the task in the other zone: a short interruption by design.',
+      ],
+    },
+    {
+      title: 'Scale out',
+      status: 'Designed, not yet built',
+      points: [
+        'Several tasks can run side by side: live chat events cross over Postgres `LISTEN/NOTIFY` and the job queue (pg-boss) is shared in the database.',
+        'A `SERVER_ROLE` switch already splits the API and the background worker, so each can become its own service and scale on its own.',
+        'Next: two or more tasks, a target-tracking autoscaling policy, and a load test to find the real limit.',
+      ],
+    },
+  ]}
+/>
+
+Failover and scale-out have been designed but not drilled under real load; that is listed under Limitations.
 
 ## Infrastructure highlights
 
