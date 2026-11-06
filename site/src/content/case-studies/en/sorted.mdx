@@ -96,7 +96,27 @@ The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx a
 - **Delivery.** A release is a git tag that runs the full check suite and pushes immutable images. Deploying is a reviewed infrastructure change; the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate`, and 22 offline `terraform test` runs with mocked providers that assert the security properties without an AWS account.
 - **Operations.** Structured JSON logs, Grafana Cloud reading CloudWatch through a read-only role with an External ID, alerts tied to a symptom-first runbook.
 
+## How a release gets there
 
+Two repositories, two roles, no stored keys. The application repository turns a git tag into an immutable image; the infrastructure repository decides which image runs, through a reviewed Terraform change.
+
+<ArchitectureDiagram
+  locale="en"
+  id="sorted-release"
+  compact
+  title="How a Sorted release gets to AWS: a git tag builds an immutable image in ECR, and a reviewed Terraform change deploys it to ECS."
+/>
+
+## Tech stack
+
+| Layer | Tools |
+| --- | --- |
+| Cloud | AWS eu-central-1: ECS on Fargate (ARM64), RDS PostgreSQL, ALB, SES, SNS, S3, KMS, GuardDuty, ECR, Secrets Manager, EventBridge, CloudWatch |
+| Infrastructure as code | Terraform with the AWS, Cloudflare and random providers; one module for dev and prod; terraform test with mocked providers |
+| CI/CD | GitHub Actions, GitHub OIDC (no stored AWS keys), Docker multi-stage builds |
+| Edge | Cloudflare: DNS, proxy, TLS |
+| Observability | CloudWatch logs and metrics, Grafana Cloud through a read-only role |
+| Workload | TypeScript, Bun, Express 5, React 19, Prisma 7, PostgreSQL with row-level security, pg-boss, Vercel AI SDK |
 
 ## Problems I hit
 
