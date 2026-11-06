@@ -26,7 +26,8 @@ const cells: { label: string; value: string; url?: string }[] = [
 <!--
   The structured part of a case study, before the MDX body. Order: the fact sheet (what, who, when,
   where; the status line carries the live link), then the outcome stats and their honesty note, so the evidence comes
-  before the reasoning; then the problem and the decisions. Headings start at h2.
+  before the reasoning; then the problem. The decisions follow in the MDX body, each as its own
+  section with a TradeOff note. Headings start at h2.
 -->
 {(liveLinks.length > 0 || cells.length > 0) && (
   <div class="facts not-prose">
@@ -88,19 +89,6 @@ const cells: { label: string; value: string; url?: string }[] = [
 
 <h2>{t.caseProblem}</h2>
 <p>{data.problem}</p>
-
-<h2>{t.caseDecisions}</h2>
-<ol>
-  {data.decisions.map((d) => (
-    <li>
-      <strong>{d.decision}</strong>
-      <br />
-      <span class="text-muted">
-        {t.caseWhy}: {d.why}
-      </span>
-    </li>
-  ))}
-</ol>
 
 <style>
   /*

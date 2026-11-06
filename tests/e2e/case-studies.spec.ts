@@ -41,8 +41,8 @@ for (const s of studies) {
       await expect(page.locator('html')).toHaveAttribute('lang', s.lang);
       await expect(page.locator('h1')).toHaveText(s.title);
       await expect(page.getByRole('heading', { level: 2, name: s.problem })).toBeVisible();
-      // problem, decisions, outcome, then the MDX write-up: at least four h2 sections
-      // (the links sit above them as a plain list, without a heading)
+      // outcome (screen-reader heading), problem, then the MDX sections with at least one
+      // decision: at least four h2 sections
       expect(await page.locator('main h2').count()).toBeGreaterThanOrEqual(4);
       // every case study ends with a link to the contact section
       const cta = page.getByRole('link', { name: s.cta });
