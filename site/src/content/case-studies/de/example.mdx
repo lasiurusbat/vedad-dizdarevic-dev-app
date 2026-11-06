@@ -3,11 +3,6 @@ title: 'Beispiel-Fallstudie'
 summary: 'Ein Platzhalter, der das Format zeigt: Problem, Stack, Entscheidungen mit Abwägungen, Ergebnis und Links.'
 problem: 'Ein bis zwei Sätze zum Problem oder Ziel. Dieser Eintrag ist ein Entwurf zum Testen des Layouts und sagt nichts über echte Projekte aus.'
 stack: ['Stack-Eintrag', 'Weiterer Eintrag', 'Dritter Eintrag']
-decisions:
-  - decision: 'Eine getroffene Entscheidung'
-    why: 'Die Abwägung dahinter: Kosten, Sicherheit oder Zuverlässigkeit.'
-  - decision: 'Eine zweite Entscheidung'
-    why: 'Worauf verzichtet wurde und was dafür gewonnen wurde.'
 outcomes:
   - label: 'Beispielmetrik'
     value: '42'
@@ -21,9 +16,17 @@ order: 999
 draft: true
 ---
 
+import TradeOff from '../../../components/TradeOff.astro';
+
 ## Die Ausarbeitung
 
 Dies ist der freie Teil einer Fallstudie, geschrieben in MDX. Er kann längere Überlegungen, ein Diagramm (Komponente `Diagram`) und Screenshots enthalten.
+
+## Eine Entscheidung
+
+<TradeOff gained="Was die Entscheidung gebracht hat." price="Was sie im Gegenzug gekostet hat." />
+
+Jede Entscheidung bekommt einen eigenen Abschnitt, neben ihren Belegen.
 
 ### Ein Unterabschnitt
 

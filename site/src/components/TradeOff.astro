@@ -1,0 +1,71 @@
+---
+/*
+ * A decision's trade-off, set as a margin note: what the decision gained and what it costs.
+ * Placed in MDX right after the section heading that names the decision, so the reasoning sits
+ * next to its evidence instead of in a separate list.
+ *
+ * Wide screens (80rem and up, where the page leaves room beside the 70ch text column) float it
+ * into the empty right column; its margin box is zero wide, so the text column keeps its full
+ * measure. Wide figures and the next heading clear it (global.css), so it never runs into a
+ * diagram. Narrower screens show it under the heading, before the section text.
+ */
+import { getLocale, useTranslations } from '../i18n';
+
+interface Props {
+  gained: string;
+  price: string;
+}
+
+const { gained, price } = Astro.props;
+const t = useTranslations(getLocale(Astro.currentLocale));
+---
+
+<div class="tradeoff not-prose" role="note" aria-label={t.tradeOff}>
+  <dl>
+    <div>
+      <dt>{t.tradeGained}</dt>
+      <dd>{gained}</dd>
+    </div>
+    <div>
+      <dt>{t.tradePrice}</dt>
+      <dd>{price}</dd>
+    </div>
+  </dl>
+</div>
+
+<style>
+  .tradeoff {
+    --note-width: 17rem;
+    --note-gap: 3rem;
+
+    margin: 0 0 1.75rem;
+    padding-left: 1rem;
+    border-left: 1px solid var(--border-strong);
+    font-size: var(--text-sm);
+    line-height: 1.5;
+  }
+
+  dl {
+    display: grid;
+    gap: 0.75rem;
+  }
+
+  dt {
+    color: var(--fg);
+    font-weight: 500;
+  }
+
+  dd {
+    margin-top: 0.125rem;
+    color: var(--muted);
+  }
+
+  @media (min-width: 80rem) {
+    .tradeoff {
+      float: right;
+      clear: right;
+      width: var(--note-width);
+      margin: 0.25rem calc(-1 * (var(--note-width) + var(--note-gap))) 1rem 0;
+    }
+  }
+</style>
