@@ -1,6 +1,6 @@
 ---
-title: 'Rain Alert: eine Release-Pipeline, in der ein Git-Tag das ganze Release ist'
-summary: 'Eine live betriebene Regenvorhersage-App, die ich allein auf kostenlosen Tarifen betreibe. Ein Git-Tag ist das ganze Release: Das Image wird einmal gebaut, im Container getestet, ausgerollt und auf der Live-Domain geprüft.'
+title: 'Rain Alert: vom Git-Tag zum geprüften Release, auf kostenlosen Tarifen'
+summary: 'Eine Regenvorhersage-App, die ich allein auf kostenlosen, ratenbegrenzten Diensten betreibe. Ein Tag-Push baut das Image einmal, testet es im Container, liefert genau dieses aus und bestätigt die neue Version auf rainalert.live.'
 problem: 'Das Produkt ist klein: Stadt eingeben, Regenwahrscheinlichkeit für sieben Tage sehen. Die technische Aufgabe ist, es zuverlässig und günstig in Produktion zu betreiben, als einzelne Person, auf Diensten, die kostenlos, geteilt und ratenbegrenzt sind. Release und Rollback mussten ohne Zeremonie gehen, und ein Fehler musste schwer zu machen sein.'
 stack: ['Docker', 'GitHub Actions', 'Docker Hub', 'Render', 'Python und Flask']
 status: 'Live und kostenlos nutzbar'
