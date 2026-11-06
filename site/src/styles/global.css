@@ -85,14 +85,17 @@
 
 @theme {
   --font-sans: 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
-  /* Headings: Inter Tight, the closest free match to Helvetica Now Display. */
-  --font-display: 'Inter Tight Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
+  /* Headings: DM Sans at 500, a free geometric grotesk (the reference type, AeonikPro, is
+     commercial). Medium, never bold: the calm, editorial voice. */
+  --font-display: 'DM Sans Variable', 'Inter Variable', ui-sans-serif, system-ui, sans-serif;
   --font-mono: 'JetBrains Mono Variable', ui-monospace, 'SFMono-Regular', Menlo, monospace;
 
   /* Fluid type scale: 360px viewport up to 1280px. Replaces Tailwind's fixed sizes. */
   --text-xs: clamp(0.75rem, 0.73rem + 0.1vw, 0.8125rem);
   --text-sm: clamp(0.875rem, 0.85rem + 0.12vw, 0.9375rem);
   --text-base: clamp(1rem, 0.96rem + 0.2vw, 1.125rem);
+  /* Running text: one step below base. */
+  --text-body: clamp(0.9375rem, 0.91rem + 0.1vw, 1rem);
   --text-lg: clamp(1.125rem, 1.07rem + 0.27vw, 1.3125rem);
   --text-xl: clamp(1.25rem, 1.15rem + 0.5vw, 1.5625rem);
   --text-2xl: clamp(1.5rem, 1.3rem + 1vw, 2.0625rem);
@@ -129,10 +132,18 @@
     }
   }
 
+  /* Body one step below --text-base: 15px on phones up to 16px on wide screens. Inter with
+     the single-storey a and open digits (ss01), the flat-top G (cv10), and no contextual
+     alternates or ligatures, so text reads even and technical. */
   body {
-    font-size: var(--text-base);
-    line-height: 1.65;
+    font-size: var(--text-body);
+    line-height: 1.6;
     letter-spacing: -0.01em;
+    font-feature-settings:
+      'calt' 0,
+      'cv10',
+      'liga' 0,
+      'ss01';
     overflow-wrap: break-word;
   }
 
@@ -265,7 +276,7 @@
   --tw-prose-th-borders: var(--border-strong);
   --tw-prose-td-borders: var(--border);
   max-width: var(--container-measure);
-  font-size: var(--text-base);
+  font-size: var(--text-body);
 }
 
 .prose :where(h1, h2, h3, h4):not(:where([class~='not-prose'], [class~='not-prose'] *)) {
