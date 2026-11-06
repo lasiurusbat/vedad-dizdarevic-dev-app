@@ -38,7 +38,7 @@ The German Sorted version (#43) merged before PRs 2–3, so each restructure PR 
 ## Next (in this order)
 
 1. ~~Sorted page restructure~~ done (#40, #46, #48, #49, #50).
-2. **Sorted German version** (after PRs 2–3) (`de/sorted.mdx`): German texts for the gallery, the `costs` block, the problem log, `ScalingPath`, `TechStack`, `DashboardMap` and the release diagram captions (diagram text alternatives already exist in DE). Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
+2. ~~Sorted German version~~ done (#43). The draft `example` entries are deleted and the e2e tests run on Sorted, against the production build without drafts (#52).
 3. **Tests for the new pieces:** gallery prev/next and edge fades, the random hero variant (exactly one visible), reduced motion; light coverage for `TechStack`, `ScalingPath`, `DashboardMap` (render, no axe violations already covered by the page sweep).
 4. **RainAlert case study** (EN, then DE), DevOps-first like Sorted; reuse `costs`, `ProblemLog`, `TechStack` where the notes support them. The puddle image is AI-generated; say so in the caption.
 5. Rest of Phase 4: Skills groups, Work with me, How this site is built; About still lacks languages; About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
@@ -73,7 +73,7 @@ The German Sorted version (#43) merged before PRs 2–3, so each restructure PR 
 - AWS: `aws login --profile sorted` (the session expires; `AWS_PROFILE=sorted` for Terraform).
 - Terraform in `infra/main`: needs `terraform.tfvars` (git-ignored) and `CLOUDFLARE_API_TOKEN` exported. Use `terraform plan -out=tfplan` then `terraform apply tfplan`, from `infra/main`.
 - The owner runs commands that touch secrets or the live account, and force-pushes after a rebase. The assistant prepares the exact commands and reviews the output.
-- Site: `pnpm --filter @vdd/site dev` serves http://localhost:4321/; add `SHOW_DRAFTS=1` to see the draft `example` page with the diagram. Worker: `pnpm --filter @vdd/worker test`. e2e: `pnpm --filter @vdd/e2e test`.
+- Site: `pnpm --filter @vdd/site dev` serves http://localhost:4321/; the dev server and `SHOW_DRAFTS=1` include `draft: true` case studies (none exist now). Worker: `pnpm --filter @vdd/worker test`. e2e: `pnpm --filter @vdd/e2e test`.
 - `documentation/`, `case-studies/`, `.claude/` and `CLAUDE.md` are excluded from Prettier.
 
 ## Decisions and gotchas worth remembering

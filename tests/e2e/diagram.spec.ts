@@ -9,7 +9,7 @@ const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 
-const PAGE = '/projects/example/';
+const PAGE = '/projects/sorted/';
 
 /** The diagram mounts when it scrolls into view, so bring it there first. */
 async function openDiagram(page: Page, path = PAGE) {
@@ -45,6 +45,7 @@ test('diagram renders under the production CSP without violations', async ({ pag
   await expect(diagram.locator('.react-flow__node-service')).toHaveCount(15);
   await expect(diagram.locator('.react-flow__edge')).toHaveCount(15);
   expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
+  await expect(page.getByRole('heading', { name: 'Architecture' })).toBeVisible();
 });
 
 for (const scheme of ['light', 'dark'] as const) {
@@ -55,13 +56,6 @@ for (const scheme of ['light', 'dark'] as const) {
     expect(results.violations).toEqual([]);
   });
 }
-
-test('the Sorted case study shows the diagram under the production CSP', async ({ page }) => {
-  const diagram = await openDiagram(page, '/projects/sorted/');
-  await expect(diagram.locator('.react-flow__node-service')).toHaveCount(15);
-  expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
-  await expect(page.getByRole('heading', { name: 'Architecture' })).toBeVisible();
-});
 
 test('the Sorted case study shows the release path under the production CSP', async ({ page }) => {
   await page.goto('/projects/sorted/');
@@ -74,8 +68,8 @@ test('the Sorted case study shows the release path under the production CSP', as
 
 test('text alternative lists the flow', async ({ page }) => {
   await page.goto(PAGE);
-  await page.goto(PAGE);
-  await page.getByText('Text description of the diagram').click();
+  // The production diagram's alternative comes first; the release diagram has its own.
+  await page.getByText('Text description of the diagram').first().click();
   await expect(page.getByRole('listitem').filter({ hasText: 'GuardDuty scans' })).toBeVisible();
 });
 
@@ -99,7 +93,7 @@ test('mobile: page keeps its width, scrolls over the diagram, text stays readabl
   });
   expect(zoom * 13).toBeGreaterThanOrEqual(10);
   const before = await page.evaluate(() => window.scrollY);
-  const d = (await page.locator('.diagram-mount').boundingBox())!;
+  const d = (await page.locator('[data-diagram="sorted-production"]').boundingBox())!;
   await page.mouse.move(d.x + d.width / 2, d.y + d.height / 2);
   await page.mouse.wheel(0, 300);
   await expect.poll(() => page.evaluate(() => window.scrollY)).toBeGreaterThan(before);
