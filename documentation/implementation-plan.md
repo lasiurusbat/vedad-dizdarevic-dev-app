@@ -200,7 +200,7 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 - [x] **i18n:** Astro i18n routing with `defaultLocale: 'en'`, `locales: ['en', 'de']`; `/` English, `/de/` German; UI strings in `src/i18n/{en,de}.ts`; language switch links to the equivalent page; `<html lang>` set per page
 - [x] **Geo-based first language** (DE, AT, CH, LU, LI to `/de/`, everyone else English): in the Worker, no cookie; see tech-stack.md, Cloudflare Worker, item 5
 - [x] Skip-to-content link, semantic landmarks, heading hierarchy
-- [x] Favicon set (SVG + PNG fallback) and `site.webmanifest` _(sources in `site/icons-src/`; PNGs and `favicon.ico` were rendered from them with headless Chromium. Edit the SVG, regenerate, commit.)_
+- [x] Favicon set (SVG + PNG fallback) and `site.webmanifest` _(sources in `site/icons-src/` (`icon.svg` for the ICO, `icon-full-bleed.svg` for the Apple and manifest PNGs, mark in the maskable safe zone); `public/favicon.svg` is its own source. PNGs and `favicon.ico` are rendered with headless Chromium. Edit the SVG, regenerate, commit. Redrawn on 2026-11-06 as the "selection" mark: corner brackets and a V.)_
 
 ### Components to build
 

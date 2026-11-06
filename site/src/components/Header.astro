@@ -34,9 +34,9 @@ const barLink =
   <div class="max-w-page px-gutter mx-auto flex h-14 items-center justify-between gap-2">
     <a
       href={home}
-      class="inline-flex min-h-11 items-center whitespace-nowrap font-display text-[0.9375rem] font-medium no-underline"
+      class="-mx-[0.6rem] inline-flex min-h-11 items-center whitespace-nowrap font-display text-[0.9375rem] font-medium no-underline"
     >
-      {t.siteTitle}
+      <span class="wordmark">{t.siteTitle}</span>
     </a>
 
     <div class="flex items-center gap-1">
@@ -107,3 +107,41 @@ const barLink =
     }
   });
 </script>
+
+<style>
+  /*
+   * Wordmark: the name between two corner brackets, the marquee of a selected object in a diagram
+   * or 3D editor. The brackets sit on the inner span (30px); the link around it stays 44px tall,
+   * so the focus ring (on the link, offset 3px) stays clearly apart from the brackets.
+   */
+  .wordmark {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+    min-height: 30px;
+    padding-inline: 0.6rem;
+  }
+
+  .wordmark::before,
+  .wordmark::after {
+    content: '';
+    position: absolute;
+    width: 0.55rem;
+    height: 0.55rem;
+    border: 0 solid var(--accent);
+  }
+
+  .wordmark::before {
+    top: 0;
+    left: 0;
+    border-top-width: 1.5px;
+    border-left-width: 1.5px;
+  }
+
+  .wordmark::after {
+    right: 0;
+    bottom: 0;
+    border-right-width: 1.5px;
+    border-bottom-width: 1.5px;
+  }
+</style>
