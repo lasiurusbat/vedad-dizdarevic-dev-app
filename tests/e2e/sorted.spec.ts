@@ -54,24 +54,22 @@ test('Sorted: fact sheet, then stats, then the problem; the cost card sits in th
   );
 });
 
-for (const width of [390, 1440]) {
-  test(`Sorted at ${width}px: each decision section has its trade-off note`, async ({ page }) => {
+for (const width of [390, 1100, 1440]) {
+  test(`Sorted at ${width}px: each decision opens with its trade-off ledger`, async ({ page }) => {
     await page.setViewportSize({ width, height: 900 });
     await page.goto('/projects/sorted/');
     const notes = page.getByRole('note', { name: 'Trade-off' });
     await expect(notes).toHaveCount(4);
-    const text = (await page.locator('.prose > p').first().boundingBox())!;
     for (const note of await notes.all()) {
-      await expect(note.getByText('Gained', { exact: true })).toBeVisible();
-      await expect(note.getByText('Price', { exact: true })).toBeVisible();
+      await expect(note.locator('dt').filter({ hasText: 'Gained' })).toBeVisible();
+      await expect(note.locator('dt').filter({ hasText: 'Price' })).toBeVisible();
+      // Directly under the decision's heading, inside the text column.
+      const heading = note.locator('xpath=preceding-sibling::*[1]');
+      await expect(heading).toHaveJSProperty('tagName', 'H2');
+      const h = (await heading.boundingBox())!;
       const box = (await note.boundingBox())!;
-      if (width >= 1280) {
-        // Desktop: in the right column, beside the text, never over it.
-        expect(box.x).toBeGreaterThanOrEqual(text.x + text.width);
-      } else {
-        // Phones: in the text column, under the heading.
-        expect(box.x + box.width).toBeLessThanOrEqual(text.x + text.width + 1);
-      }
+      expect(box.y).toBeGreaterThanOrEqual(h.y + h.height);
+      expect(box.x).toBeGreaterThanOrEqual(h.x - 1);
     }
     const overflow = await page.evaluate(
       () => document.documentElement.scrollWidth - document.documentElement.clientWidth,

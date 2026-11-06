@@ -376,14 +376,3 @@
     left: calc(-1 * var(--plate-cell));
   }
 }
-
-/*
- * TradeOff notes float into the right column from 80rem. Section headings and every component
- * block (they all carry .not-prose; the wide ones break out of the text column) clear them, so a
- * note never runs into a diagram or into the next section.
- */
-@media (min-width: 80rem) {
-  .prose > :is(h2, .not-prose):not(.tradeoff) {
-    clear: right;
-  }
-}
