@@ -62,6 +62,8 @@ const caseStudies = defineCollection({
     liveLinks: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
     /** Id of a diagram in src/diagrams/ (Phase 4 diagram spike). */
     diagram: z.string().optional(),
+    /** Symbolic line-art illustration beside the title on wide screens (CaseIllustration). */
+    illustration: z.enum(['inbox', 'module', 'perimeter']).optional(),
     /** Lower comes first on the home page. */
     order: z.number().default(100),
     /** Drafts are left out of production builds; SHOW_DRAFTS=1 (dev, e2e) includes them. */
