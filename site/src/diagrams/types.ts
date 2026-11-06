@@ -33,6 +33,9 @@ export interface DiagramDefinition {
   /** Zoom buttons in a row instead of a column: wide, flat diagrams have room below the nodes but
    * not beside them. */
   controlsHorizontal?: boolean;
+  /** Node to centre on when the diagram is wider than the screen (phones scroll it sideways).
+   * Without it the visitor first sees the left edge, which may not be the main path. */
+  focusNode?: string;
   /** Ordered text alternative: what the diagram says, for screen readers and no-JS visitors. */
   description: { en: string[]; de: string[] };
 }
