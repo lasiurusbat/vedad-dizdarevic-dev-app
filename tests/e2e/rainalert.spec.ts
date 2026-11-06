@@ -15,7 +15,7 @@ test('Rain Alert: public repo linked, single images in the gallery', async ({ pa
   );
   // No light/dark pairs: one image per card, shown in both themes, through the image pipeline.
   const imgs = page.locator('[data-gallery] img');
-  await expect(imgs).toHaveCount(3);
+  await expect(imgs).toHaveCount(2);
   await expect(
     page.locator('[data-gallery] img.only-dark, [data-gallery] img.only-light'),
   ).toHaveCount(0);
@@ -23,6 +23,11 @@ test('Rain Alert: public repo linked, single images in the gallery', async ({ pa
     expect(await img.getAttribute('src')).toMatch(/^\/_astro\/.+\.webp$/);
     expect((await img.getAttribute('alt'))!.length).toBeGreaterThan(30);
   }
+  // The forecast panel stands on its own inside the text, floated beside it on wide screens.
+  const panel = page.locator('.prose > figure.shot-aside');
+  await expect(panel.locator('img')).toHaveCount(1);
+  expect(await panel.locator('img').getAttribute('src')).toMatch(/^\/_astro\/.+\.webp$/);
+  expect(await panel.evaluate((f) => getComputedStyle(f).float)).toBe('right');
   // The artwork is labelled as AI-generated.
   await expect(page.locator('[data-gallery]')).toContainText('AI-generated illustration');
   await expect(page.getByRole('note', { name: 'Trade-off' })).toHaveCount(5);

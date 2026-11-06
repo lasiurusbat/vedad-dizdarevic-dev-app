@@ -32,6 +32,7 @@ draft: false
 
 import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
 import Limitations from '../../../components/Limitations.astro';
@@ -163,6 +164,13 @@ The first release took five attempts, and every failure was a missing piece of t
 
 ## The workload
 
+<ThemedScreenshot
+  light={appPanel}
+  placement="aside"
+  alt="The Rain Alert forecast panel for Dublin: the city name, a rain warning, the hour-by-hour chart with a marker at 18:00, today’s summary and the seven days with their rain chances."
+  caption="The forecast panel, rendered on the server for every day, so it works without JavaScript."
+/>
+
 The platform runs a small, stateless Flask app. Type a city and it shows the chance of rain for seven days, with an hourly strip, a three-band scale, browser alerts and a calendar export of the wet days. Preferences stay in the browser, so there are no accounts and no personal data on the server. It is an installable web app whose service worker caches the shell and never the forecast. Weather data comes from Open-Meteo under a non-commercial licence, so the app stays free, with donations as the only income.
 
 <ScreenshotGallery
@@ -173,12 +181,6 @@ The platform runs a small, stateless Flask app. Type a city and it shows the cha
       alt: 'Rain Alert in the browser, showing Dublin: a 55% rain warning for the rest of the day, an hourly bar chart of rain chances and a seven-day row, on a background photo of a wet street at dusk. The footer shows version 1.2.4.',
       title: 'Live, with its version in the footer',
       text: 'The footer names the build the smoke test checks for.',
-    },
-    {
-      light: appPanel,
-      alt: 'The Rain Alert forecast panel for Dublin: the city name, a rain warning, the hour-by-hour chart with a marker at 18:00, today’s summary and the seven days with their rain chances.',
-      title: 'The forecast panel',
-      text: 'Rendered on the server for every day, so it works without JavaScript.',
     },
     {
       light: londonPuddle,

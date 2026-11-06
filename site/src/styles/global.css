@@ -361,3 +361,11 @@
     left: calc(-1 * var(--plate-cell));
   }
 }
+
+/*
+ * A narrow screenshot (ThemedScreenshot placement="aside") floats beside the paragraph after it.
+ * Section headings and component blocks clear it, so it never runs into what follows.
+ */
+.prose > :is(h2, .not-prose):not(.shot-aside) {
+  clear: both;
+}
