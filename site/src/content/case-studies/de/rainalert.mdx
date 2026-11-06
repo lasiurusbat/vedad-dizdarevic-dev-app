@@ -1,0 +1,245 @@
+---
+title: 'Rain Alert: eine Release-Pipeline, in der ein Git-Tag das ganze Release ist'
+summary: 'Eine live betriebene Regenvorhersage-App, die ich allein auf kostenlosen Tarifen betreibe. Ein Git-Tag ist das ganze Release: Das Image wird einmal gebaut, im Container getestet, ausgerollt und auf der Live-Domain geprüft.'
+problem: 'Das Produkt ist klein: Stadt eingeben, Regenwahrscheinlichkeit für sieben Tage sehen. Die technische Aufgabe ist, es zuverlässig und günstig in Produktion zu betreiben, als einzelne Person, auf Diensten, die kostenlos, geteilt und ratenbegrenzt sind. Release und Rollback mussten ohne Zeremonie gehen, und ein Fehler musste schwer zu machen sein.'
+stack: ['Docker', 'GitHub Actions', 'Docker Hub', 'Render', 'Python und Flask']
+status: 'Live und kostenlos nutzbar'
+facts:
+  - label: 'Rolle'
+    value: 'Alleinentwickler und Betreiber'
+  - label: 'Erstes Release'
+    value: 'v1.0, 22.10.2026'
+  - label: 'Hosting'
+    value: 'Render über Docker Hub'
+outcomes:
+  - label: 'Getaggte Releases, jedes ein Git-Push'
+    value: '13+'
+  - label: 'Manuelle Schritte nach dem Tag-Push'
+    value: '0'
+  - label: 'Hosting und CI pro Monat, kostenlose Tarife'
+    value: '0 $'
+  - label: 'Build pro Release; das getestete Image wird ausgeliefert'
+    value: '1'
+outcomesNote: 'Zahlen aus dem Repository, Stand 31. Oktober 2026: Workflow, Runbook und Release-Historie. Kostenlose Tarife kommen ohne SLA; die Grenzen, die die App nicht anheben kann, stehen unter Grenzen.'
+illustration: 'umbrella'
+repoUrl: 'https://github.com/lasiurusbat/RainAlert'
+liveLinks:
+  - label: 'Rain Alert besuchen'
+    url: 'https://rainalert.live/'
+order: 20
+draft: false
+---
+
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
+import ThemedScreenshot from '../../../components/ThemedScreenshot.astro';
+import ProblemLog from '../../../components/ProblemLog.astro';
+import TechStack from '../../../components/TechStack.astro';
+import Limitations from '../../../components/Limitations.astro';
+import TradeOff from '../../../components/TradeOff.astro';
+import appOnStreet from '../../../assets/case-studies/rainalert/app-on-street.png';
+import appPanel from '../../../assets/case-studies/rainalert/app-panel.png';
+import londonPuddle from '../../../assets/case-studies/rainalert/london-puddle.png';
+
+## Architektur
+
+Zwei Pfade laufen hindurch: Releases und Anfragen. Die Schaltflächen über dem Diagramm zeichnen jeden davon nach und blenden den Rest ab. Es gibt keine Datenbank und keine serverseitige Session; die App ist zustandslos.
+
+<ArchitectureDiagram
+  locale="de"
+  id="rainalert-release"
+  compact
+  title="Release- und Anfragepfad von Rain Alert: Ein Git-Tag baut, testet und liefert ein Image an Render aus, und Besucher erreichen es über die Domain."
+/>
+
+## Einmal bauen, genau dieses Image ausliefern
+
+<TradeOff
+  gained="Das Image, das die Tests bestanden hat, ist das Image, das läuft. Zwischen CI und Produktion wird nichts neu gebaut."
+  price="Chrome läuft im schlanken Image nicht, deshalb laufen die Browser-Tests auf dem Runner, bevor irgendetwas hochgeladen wird."
+/>
+
+- **Zwei Stufen.** Die erste Stufe baut Wheels; die Laufzeitstufe installiert daraus mit `--no-index`, sodass das Image keinen Compiler und keine Systempakete enthält.
+- **Ohne Root.** Die App läuft als Systembenutzer ohne Login-Shell und braucht keinen beschreibbaren Pfad.
+- **Selbstbeschreibend.** Version und Commit sind Build-Argumente und stehen in den OCI-Labels, in der Umgebung und im Footer jeder Seite. Image, Registry und laufende Website nennen denselben Build.
+- **Ein Health-Check, der Upstreams ignoriert.** Er ruft die Startseite ab, die keinen externen Dienst anfragt, sodass ein Ausfall einer Wetter-API einen gesunden Container nie als ungesund markiert.
+- **Auf die Last abgestimmt.** gunicorn läuft mit einem Worker und vier Threads: Die App wartet auf zwei APIs, und ein Prozess hält seinen Geocoding-Cache warm.
+- **Dasselbe Image lokal.** Docker Compose baut die App und einen Testdienst aus einem gemeinsamen Anker, mit `pull_policy: build`, sodass ein Testlauf nie ein veraltetes lokales Image nutzt.
+
+## Ein Release ist ein Git-Tag
+
+<TradeOff
+  gained="Ein Release ist ein einziger Befehl, und nur geprüfter Code auf main kann zum Release werden."
+  price="Ein erneuter Lauf baut den Commit, auf den der Tag zeigt, nicht den später nachgeschobenen Fix. Ein veröffentlichter Tag wird nie verschoben; ein Fehler bedeutet eine neue Version."
+/>
+
+Ein GitHub-Actions-Workflow verhält sich auf zwei Arten. Ein Pull Request oder ein Push auf `main` baut das Image, führt die Offline-Tests darin und die Browser-Tests auf dem Runner aus und hört dann auf. Ein Tag durchläuft dieselben Prüfungen, kontrolliert danach das Tag-Format und dass der Tag auf `main` liegt, lädt das getestete Image unter diesem Tag nach Docker Hub hoch und übergibt an den Deploy-Job.
+
+- **Ein Gate, das nicht leer bestehen kann.** Eine übersprungene Testsuite würde trotzdem Erfolg melden, deshalb lässt ein fehlender Browser den Lauf scheitern.
+- **Ein Image-Tag pro Release.** Semantische Tags, nie `latest`, nie ein erneut hochgeladener Tag.
+- **Releases werden nie mittendrin abgebrochen.** Neuere Pushes brechen veraltete Läufe ab, außer bei Tags.
+- **Updates laufen durch dasselbe Gate.** Dependabot öffnet wöchentlich gebündelte Pull Requests für Actions, pip und das Basis-Image, und jeder wird nur gemergt, wenn die Pipeline grün ist.
+
+## Das Ergebnis prüfen, nicht die Aktion
+
+<TradeOff
+  gained="Ein Deployment zählt erst, wenn die Live-Domain mit der neuen Version antwortet, nicht wenn ein Hook 200 zurückgibt."
+  price="Eine langsame DNS-Änderung oder ein langsamer Image-Wechsel lässt den Release-Lauf scheitern, obwohl das Deployment selbst geklappt hat. Das Runbook erklärt, wie dieser Fehler zu lesen ist."
+/>
+
+Der Render-Dienst basiert auf einem Image: Render holt es von Docker Hub und führt das Dockerfile nie aus. Zwei Einstellungen, die nebensächlich wirken, tragen das Design:
+
+- **Auto-Deploy ist aus.** Wäre es an, würde jedes hochgeladene Image den gespeicherten Rückfall-Tag neu ausrollen, und genau so kommt eine alte Version still zurück.
+- **Ein Deployment ist ein Hook-Aufruf mit dem exakten Image-Tag.** Eine neue Image-URL in den Render-Einstellungen zu speichern, rollt nichts aus, und der alte Container läuft ohne jedes Anzeichen weiter.
+
+Nach dem Hook fragt der Smoke-Test die Live-Domain bis zu drei Minuten lang ab (12 Versuche im Abstand von 15 Sekunden), bis die Seite `Version X.Y.Z` anzeigt.
+
+## Im Zweifel geschlossen
+
+<TradeOff
+  gained="Pull Requests, auch aus Forks und von Dependabot, können nie ein Image hochladen oder ausrollen."
+  price="Jedes Secret wird von Hand gesetzt, in GitHub und im Render-Dashboard. Fehlende und zu eng berechtigte Secrets haben das erste Release zweimal scheitern lassen."
+/>
+
+- **Secrets nur bei Tag-Läufen.** Das Workflow-Token darf nur lesen, und der Deploy-Job läuft in einer Umgebung `production`, in der verpflichtende Reviewer eine Einstellung entfernt sind.
+- **Sicherheits-Header auf jeder Antwort.** `default-src 'none'`, alles andere `'self'`, kein `unsafe-inline`, dazu `X-Frame-Options`, `nosniff`, eine Referrer- und eine Permissions-Policy. HSTS wird nur über HTTPS gesendet und ohne `includeSubDomains`, sodass ein Fehler die anderen Nutzungen der Domain nicht sperren kann. Tests sichern das alles ab.
+- **Keine Anfragen an Dritte.** Die Schriften werden selbst gehostet.
+- **Der API-Schlüssel landet nie in einem Log.** Er steht in einem Query-String, deshalb protokolliert der Code nur Statuscodes und Exception-Klassen; ein Test sichert das ab.
+- **Eine kleine Angriffsfläche.** Ein Container ohne Root, ohne Systempakete und ohne Datenbank.
+
+## Kostenlose Tarife, die gut ausfallen
+
+<TradeOff
+  gained="Hosting und CI kosten nichts, bei jedem Dienst."
+  price="Ratenlimits, die die App nicht anheben kann: Am 29. Oktober schlug jede Live-Vorhersage fehl, weil die kostenlose Vorhersage-API nach IP begrenzt und die ausgehende IP von Render geteilt ist."
+/>
+
+Die Antwort auf diesen Vorfall kam in Schichten:
+
+1. **Sichtbar machen.** Der Fehlergrund wird jetzt protokolliert, sodass der nächste Fall aus den Logs diagnostiziert wird statt geraten.
+2. **Weniger anfragen.** Ein serverseitiger Cache hält eine gute Vorhersage zehn Minuten lang; Fehler werden nie gecacht. Crawler bekommen eine Crawl-Verzögerung.
+3. **Eine zweite Quelle.** Wenn Open-Meteo ablehnt, antwortet OpenWeather, übersetzt in das Format von Open-Meteo, sodass oberhalb des Clients nichts erfährt, wer geantwortet hat. Es läuft in einem selbst gesetzten Tagesbudget von 900 Aufrufen, weil dieser Anbieter über den kostenlosen Tarif hinaus abrechnet, und es lässt unbekannte Werte unbekannt.
+4. **Ehrlich herunterfahren.** Ein kaputter Upstream liefert `503` und eine fehlende Stadt `404`, nie eine `200`, die „nicht gefunden“ sagt.
+
+Ein Uptime-Check ruft die Startseite ab. Sie fragt keine externe API an, deshalb belegt er DNS, Zertifikat und Version, und er hält die kostenlose Instanz wach.
+
+## Probleme, auf die ich gestoßen bin
+
+Das erste Release brauchte fünf Anläufe, und jeder Fehler war ein fehlendes Stück der Pipeline, kein Fehler in der Anwendung. Jedes Release seitdem war beim ersten Anlauf grün.
+
+<ProblemLog
+  items={[
+    {
+      area: 'Release',
+      problem: 'Der Push nach Docker Hub schlug zweimal fehl',
+      fix: 'Erst fehlten die Registry-Secrets, dann durfte das Token nur lesen; durch ein Token mit Lese- und Schreibrechten ersetzt',
+    },
+    {
+      area: 'Tests',
+      problem: 'Ein Browser-Test ließ das Release scheitern',
+      fix: 'Der Test war unzuverlässig, nicht die App: Er wartet jetzt, bis der Service Worker aktiv ist, und lädt neu, wenn die Seite noch nicht kontrolliert wird',
+    },
+    {
+      area: 'Deployment',
+      problem: 'Das Image war hochgeladen, aber die Deploy-Hook-URL war leer',
+      fix: 'Von Hand ausgerollt, dann den Hook des Dienstes gesetzt, der das Image betreibt, weil Hooks pro Dienst gelten',
+    },
+    {
+      area: 'Container',
+      problem: 'gunicorn stürzte beim Start als Benutzer ohne Root ab',
+      fix: 'Ein Home- und ein Laufzeitverzeichnis für den App-Benutzer angelegt und `XDG_RUNTIME_DIR` gesetzt, ohne auf Root zurückzugehen',
+    },
+    {
+      area: 'Tests',
+      problem: 'Ein lokaler Testlauf meldete OK nach 368 von 513 Tests',
+      fix: 'Compose hatte ein veraltetes Image wiederverwendet; `pull_policy: build` baut das getestete Image jetzt aus dem aktuellen Quellcode',
+    },
+    {
+      area: 'DNS',
+      problem: 'Nach dem Domain-Umzug wirkte die Website ausgefallen',
+      fix: 'Ein lokaler Resolver hielt noch die alte Weiterleitung des Registrars; mit einem öffentlichen Resolver verglichen und den Cache geleert',
+    },
+  ]}
+/>
+
+## Der Workload
+
+<ThemedScreenshot
+  light={appPanel}
+  placement="natural"
+  alt="Das Vorhersage-Panel von Rain Alert für Dublin: der Stadtname, ein Regenhinweis, das Stundendiagramm mit einer Markierung bei 18:00, die Zusammenfassung für heute und die sieben Tage mit ihren Regenwahrscheinlichkeiten."
+  caption="Das Vorhersage-Panel, auf dem Server für jeden Tag gerendert, sodass es auch ohne JavaScript funktioniert."
+/>
+
+Die Plattform betreibt eine kleine, zustandslose Flask-App. Man gibt eine Stadt ein und sieht die Regenwahrscheinlichkeit für sieben Tage, mit einem Stundenstreifen, einer Skala in drei Stufen, Browser-Benachrichtigungen und einem Kalenderexport der Regentage. Einstellungen bleiben im Browser, es gibt also keine Konten und keine personenbezogenen Daten auf dem Server. Die App lässt sich installieren; ihr Service Worker cacht die Oberfläche, aber nie die Vorhersage. Die Wetterdaten kommen von Open-Meteo unter einer nicht kommerziellen Lizenz, deshalb bleibt die App kostenlos, mit Spenden als einziger Einnahme.
+
+<ScreenshotGallery
+  label="Screenshots von Rain Alert"
+  items={[
+    {
+      light: appOnStreet,
+      alt: 'Rain Alert im Browser mit Dublin: ein Regenhinweis von 55 % für den Rest des Tages, ein stündliches Balkendiagramm der Regenwahrscheinlichkeit und eine Reihe mit sieben Tagen, vor einem Hintergrundfoto einer nassen Straße in der Dämmerung. Der Footer zeigt Version 1.2.4.',
+      title: 'Live, mit der Version im Footer',
+      text: 'Der Footer nennt den Build, auf den der Smoke-Test prüft.',
+    },
+    {
+      light: londonPuddle,
+      alt: 'Eine Illustration einer regnerischen Londoner Straße, die sich in einer Pfütze spiegelt, als Artwork von Rain Alert.',
+      title: 'Das Artwork',
+      text: 'KI-generierte Illustration, kein Foto.',
+    },
+  ]}
+/>
+
+## Tech-Stack
+
+<TechStack
+  label="Tech-Stack von Rain Alert nach Schichten"
+  layers={[
+    { name: 'Edge', role: 'Was Besucher zuerst erreichen', tools: ['rainalert.live (CNAME)', 'Verwaltetes TLS', 'Weiterleitung von HTTP auf HTTPS'] },
+    {
+      name: 'Plattform',
+      role: 'Wo das Image läuft, auf kostenlosen Tarifen',
+      tools: ['Render-Webdienst, Image-basiert', 'Docker Hub'],
+    },
+    {
+      name: 'Container',
+      role: 'Ein Image pro Release',
+      tools: ['Docker Multi-Stage-Build', 'Benutzer ohne Root', 'gunicorn, 1 Worker × 4 Threads', 'Docker Compose lokal'],
+    },
+    {
+      name: 'CI/CD',
+      role: 'Vom Git-Tag zum geprüften Release',
+      tools: ['GitHub Actions', 'Buildx mit dem Actions-Cache', 'Deploy-Hook und Smoke-Test', 'Dependabot'],
+    },
+    {
+      name: 'Betrieb',
+      role: 'Upstream-Ausfälle sehen und überstehen',
+      tools: ['Protokollierte Fehlergründe', 'Serverseitiger Cache', 'OpenWeather-Rückfall mit Budget', 'Uptime-Check', 'Runbook'],
+    },
+    {
+      name: 'Workload',
+      role: 'Die Anwendung, die die Pipeline ausliefert',
+      workload: true,
+      tools: ['Python 3.14', 'Flask', 'Nominatim', 'Open-Meteo', 'Service Worker', 'Selenium-Browser-Tests'],
+    },
+  ]}
+/>
+
+## Grenzen und was ich als Nächstes tun würde
+
+<Limitations
+  label="Grenzen des Rain-Alert-Setups und der nächste Schritt für jede"
+  items={[
+    {
+      gap: 'Nirgends ein SLA',
+      detail: 'Die kostenlose Instanz hat 512 MB und bleibt nur wach, weil der Uptime-Check sie abruft. Die kostenlosen Wetter-APIs begrenzen nach IP, und die ausgehende IP von Render ist geteilt.',
+      next: 'Auf eine bezahlte Instanz wechseln oder einen API-Schlüssel bei Open-Meteo anfragen, wenn die Nutzung über die kostenlosen Grenzen wächst.',
+    },
+    {
+      gap: 'Releases brauchen keine Freigabe',
+      detail: 'Jeder Tag auf main geht live, sobald die Tests bestehen.',
+      next: 'Verpflichtende Reviewer für die Umgebung production einrichten; der Deploy-Job läuft bereits darin.',
+    },
+  ]}
+/>

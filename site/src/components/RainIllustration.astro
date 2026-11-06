@@ -14,12 +14,20 @@
  * classes; synchronised motion shares one cycle length. Reduced motion: everything stands still
  * in a meaningful state.
  */
+import { getLocale } from '../i18n';
+
 export type RainVariant = 'umbrella';
 
 interface Props {
   /** The only variant; kept as a prop so the layout can treat both illustrations alike. */
   variant: RainVariant;
 }
+
+// The two words in the art follow the page language (decorative, so not in i18n).
+const words =
+  getLocale(Astro.currentLocale) === 'de'
+    ? { advice: 'Schirm mitnehmen', now: 'jetzt' }
+    : { advice: 'take an umbrella', now: 'now' };
 
 /** A flat-bottomed cloud, 160 x 62 at scale 1. */
 const cloud =
@@ -63,7 +71,7 @@ const rain = Array.from({ length: 22 }, (_, i) => {
         <path class="shaft" d="M260 200 V286 q0 14 -14 14 q-12 0 -12 -12"></path>
       </g>
       <text class="advice" x="260" y="330" text-anchor="middle">
-        take an umbrella
+        {words.advice}
       </text>
       {/* The day, hour by hour: the bars carry the chance, the marker is "now". */}
       <path class="ground" d="M30 410 H492"></path>
@@ -89,7 +97,7 @@ const rain = Array.from({ length: 22 }, (_, i) => {
       <g class="now">
         <path class="now-line" d={`M${hx(0) + 6} 336 V414`}></path>
         <text class="now-label" x={hx(0) + 6} y="350" text-anchor="middle">
-          now
+          {words.now}
         </text>
       </g>
     </svg>
