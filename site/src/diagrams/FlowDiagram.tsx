@@ -13,10 +13,11 @@ import '@xyflow/react/dist/base.css';
 import './flow.css';
 import { GroupLabel, ServiceNode } from './ServiceNode';
 import { sortedProduction } from './sorted-production';
+import { sortedRelease } from './sorted-release';
 import type { DiagramNode } from './types';
 
 const nodeTypes = { service: ServiceNode, group: GroupLabel };
-const diagrams = { 'sorted-production': sortedProduction };
+const diagrams = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease };
 
 export type DiagramId = keyof typeof diagrams;
 
@@ -36,6 +37,7 @@ function useFinePointer() {
 function Diagram({ id, label }: { id: DiagramId; label: string }) {
   const diagram = diagrams[id];
   const fine = useFinePointer();
+  const padding = diagram.padding ?? 0.02;
   // Zoom of the initial fitted view = 100%. Dragging only makes sense once the visitor has zoomed in
   // past it, because until then the whole diagram is already visible.
   const [fitZoom, setFitZoom] = useState<number | null>(null);
@@ -43,7 +45,7 @@ function Diagram({ id, label }: { id: DiagramId; label: string }) {
   const zoomedIn = fitZoom !== null && zoom > fitZoom * 1.02;
   const canPan = fine && zoomedIn;
   const onInit = async (instance: ReactFlowInstance<DiagramNode, Edge>) => {
-    await instance.fitView({ padding: 0.02 });
+    await instance.fitView({ padding });
     setFitZoom(instance.getZoom());
   };
   return (
@@ -54,7 +56,7 @@ function Diagram({ id, label }: { id: DiagramId; label: string }) {
         nodeTypes={nodeTypes}
         connectionMode={ConnectionMode.Loose}
         fitView
-        fitViewOptions={{ padding: 0.02 }}
+        fitViewOptions={{ padding }}
         onInit={onInit}
         minZoom={0.2}
         nodesDraggable={false}
@@ -70,7 +72,10 @@ function Diagram({ id, label }: { id: DiagramId; label: string }) {
         proOptions={{ hideAttribution: true }}
       >
         <Background gap={24} />
-        <Controls showInteractive={false} />
+        <Controls
+          showInteractive={false}
+          orientation={diagram.controlsHorizontal ? 'horizontal' : 'vertical'}
+        />
       </ReactFlow>
     </div>
   );
