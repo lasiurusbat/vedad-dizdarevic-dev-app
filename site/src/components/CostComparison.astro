@@ -133,7 +133,8 @@ const approx = (v: number) => `~${currency}${v}`;
 
   .totals {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Two to four columns: wraps to 2 × 2 on a phone, one row once there is room. */
+    grid-template-columns: repeat(auto-fit, minmax(6.5rem, 1fr));
     gap: 1rem;
     margin-top: 1.25rem;
     padding-bottom: 1.25rem;

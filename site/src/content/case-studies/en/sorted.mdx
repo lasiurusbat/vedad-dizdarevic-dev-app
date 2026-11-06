@@ -31,30 +31,34 @@ outcomes:
     value: '6 wk'
 costs:
   title: 'Monthly cost, estimated'
-  highlight: '−62% in dev'
+  highlight: '−64% in dev'
   itemHeader: 'Line item'
   columns:
     - label: 'Dev, before'
       total: 105
-    - label: 'Dev, now'
-      total: 40
+    - label: 'Dev, billed'
+      total: 38
       emphasis: true
+    - label: 'Prod, billed'
+      total: 96
     - label: 'Prod, at go-live'
       total: 150
   rows:
     - item: 'NAT gateway'
-      values: [38, 0, 75]
+      values: [38, 0, 38, 75]
     - item: 'Load balancer (ALB)'
-      values: [20, 20, 20]
+      values: [20, 20, 20, 20]
     - item: 'Fargate task'
-      values: [20, 2, 20]
+      values: [20, 1, 5, 20]
     - item: 'RDS database'
-      values: [14, 5, 27]
+      values: [14, 7, 17, 27]
     - item: 'Public IPv4'
-      values: [7, 11, 7]
+      values: [7, 8, 11, 7]
     - item: 'Container Insights'
-      values: [5, 0, null]
-  footnote: 'My estimates from the architecture docs, at on-demand eu-central-1 prices for 730 hours a month; not billing data. Totals are the docs’ rounded figures. Dev now runs the task on Fargate Spot about 50 hours a week, stops the database about 65% of the time and has no NAT gateway. Prod assumes a Multi-AZ database and two NAT gateways, before the Savings Plan; Container Insights is not itemised for prod.'
+      values: [5, 0, 0, null]
+    - item: 'KMS keys, secrets, other'
+      values: [null, 3, 6, null]
+  footnote: 'The two “billed” columns are projected to a 730-hour month from my AWS bill for October 13 to November 4, 2026 (Cost Explorer, usage before credits), split per environment by resource; October’s CloudWatch alarm charge of about $7, gone in November, is left out. Today both environments run Fargate Spot and a single-AZ database, prod with one NAT gateway, dev with none, its task stopped off-hours and its database stopped about 70% of the time. The other two columns are my estimates from the architecture docs at on-demand eu-central-1 prices: dev before the cost work, and prod at go-live with a Multi-AZ database, two NAT gateways and on-demand Fargate, before the Savings Plan. Rows are rounded, so they may not add up to the totals.'
 repoPrivate: true
 liveLinks:
   - label: 'Sorted, live'
@@ -75,7 +79,7 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 
 ## Scope
 
-Sorted is a commercial SaaS product, live at [sorted.onl](https://sorted.onl): self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it in six weeks (September 17 to October 31, 2026). This write-up describes the production configuration, defined in Terraform and reviewed. The cost figures are my own estimates from the docs in the repository, not billing data, and failover has been designed but not drilled.
+Sorted is a commercial SaaS product, live at [sorted.onl](https://sorted.onl): self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it in six weeks (September 17 to October 31, 2026). This write-up describes the production configuration, defined in Terraform and reviewed. The running costs are projected from my AWS bill, the go-live figures are estimates from the docs in the repository, and failover has been designed but not drilled.
 
 ## Architecture
 
