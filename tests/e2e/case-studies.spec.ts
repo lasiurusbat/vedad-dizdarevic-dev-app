@@ -3,12 +3,19 @@ import { expect, test } from '@playwright/test';
 
 // The e2e build includes the draft "example" case study (SHOW_DRAFTS=1 in playwright.config.ts).
 const studies = [
-  { path: '/projects/example/', lang: 'en', title: 'Example case study', problem: 'The problem' },
+  {
+    path: '/projects/example/',
+    lang: 'en',
+    title: 'Example case study',
+    problem: 'The problem',
+    cta: 'Get in touch',
+  },
   {
     path: '/de/projects/example/',
     lang: 'de',
     title: 'Beispiel-Fallstudie',
     problem: 'Das Problem',
+    cta: 'Kontakt aufnehmen',
   },
 ];
 
@@ -34,8 +41,13 @@ for (const s of studies) {
       await expect(page.locator('html')).toHaveAttribute('lang', s.lang);
       await expect(page.locator('h1')).toHaveText(s.title);
       await expect(page.getByRole('heading', { level: 2, name: s.problem })).toBeVisible();
-      // problem, decisions, outcome, links, then the MDX write-up: at least five h2 sections
-      expect(await page.locator('main h2').count()).toBeGreaterThanOrEqual(5);
+      // problem, decisions, outcome, then the MDX write-up: at least four h2 sections
+      // (the links sit above them as a plain list, without a heading)
+      expect(await page.locator('main h2').count()).toBeGreaterThanOrEqual(4);
+      // every case study ends with a link to the contact section
+      const cta = page.getByRole('link', { name: s.cta });
+      await expect(cta).toBeVisible();
+      await expect(cta).toHaveAttribute('href', /#contact$/);
       const overflow = await page.evaluate(
         () => document.documentElement.scrollWidth - document.documentElement.clientWidth,
       );
