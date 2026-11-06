@@ -109,16 +109,6 @@
   --radius-md: 0.625rem;
   --radius-lg: 1rem;
 
-  /*
-   * Primary action fill, the only gradient on the site; the same in both themes. White text
-   * on it: 5.0:1 at the lightest stop, 7.5:1 on hover. The rim is a 1px inset top highlight,
-   * used instead of a drop shadow.
-   */
-  --color-fill-from: #3d6878;
-  --color-fill-to: #4a7686;
-  --color-fill-hover: #335a69;
-  --shadow-rim: inset 0 1px 3px 0 rgb(255 255 255 / 0.25);
-
   /* Readable line length for running text. */
   --container-measure: 70ch;
   --container-page: 72rem;

@@ -3,41 +3,89 @@ interface Props {
   href: string;
   variant?: 'primary' | 'secondary';
   /**
-   * `sm` is for the header: the visible pill is 36px, drawn on an inner span, while the link
+   * `sm` is for the header: the visible button is 36px, drawn on an inner span, while the link
    * itself stays 44px tall so the touch target does not shrink.
    */
   size?: 'md' | 'sm';
 }
 
 const { href, variant = 'primary', size = 'md' } = Astro.props;
-
-// Primary: the one gradient on the site (tokens in global.css), white text in both themes.
-const look = {
-  primary: 'bg-linear-353 from-fill-from to-fill-to text-white shadow-rim',
-  secondary: 'border border-border-strong text-fg',
-};
-const hover = {
-  primary: 'hover:from-fill-hover hover:to-fill-from',
-  secondary: 'hover:bg-surface',
-};
-const groupHover = {
-  primary: 'group-hover:from-fill-hover group-hover:to-fill-from',
-  secondary: 'group-hover:bg-surface',
-};
-const pill = 'inline-flex items-center justify-center rounded-md font-medium transition-colors';
+const face = `btn btn-${variant}`;
 ---
 
 {size === 'sm' ? (
-  <a href={href} class="group inline-flex min-h-11 items-center rounded-md no-underline">
-    <span class={`${pill} h-9 px-4 text-sm ${look[variant]} ${groupHover[variant]}`}>
+  <a href={href} class="cta-wrap inline-flex min-h-11 items-center rounded-md no-underline">
+    <span class={`${face} h-9 px-4 text-sm`}>
       <slot />
     </span>
   </a>
 ) : (
-  <a
-    href={href}
-    class={`${pill} min-h-11 px-5 py-2 no-underline ${look[variant]} ${hover[variant]}`}
-  >
+  <a href={href} class={`${face} min-h-11 px-5 py-2 no-underline`}>
     <slot />
   </a>
 )}
+
+<style>
+  /*
+   * Lit-from-above buttons: a fill that is a shade lighter at the top, a 1px edge, an inset top
+   * highlight like a bevel, and (primary only) a soft glow in the accent hue. Same blue-teal hue as
+   * the accent tokens; light-dark() gives each theme its own values, so the header switch works.
+   *
+   * Contrast: white on the dark primary fill is over 10:1, on the light one 5.3:1; secondary text is
+   * --fg on a near-bg fill.
+   */
+  .btn {
+    --btn-top: light-dark(#467787, #22414d);
+    --btn-bottom: light-dark(#376272, #172e37);
+    --btn-edge: light-dark(#2c5260, #4f8597);
+    --btn-shine: light-dark(rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.12));
+    --btn-glow: light-dark(rgb(56 100 116 / 0.18), rgb(143 180 195 / 0.16));
+    --btn-text: #ffffff;
+
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid var(--btn-edge);
+    border-radius: var(--radius-md);
+    background: linear-gradient(to bottom, var(--btn-top), var(--btn-bottom));
+    box-shadow:
+      inset 0 1px 0 0 var(--btn-shine),
+      0 0 0 1px rgb(0 0 0 / 0.04),
+      0 4px 16px -4px var(--btn-glow);
+    color: var(--btn-text);
+    font-weight: 500;
+    letter-spacing: 0.005em;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease,
+      filter 150ms ease;
+  }
+
+  .btn-secondary {
+    --btn-top: light-dark(#ffffff, #1b1d2a);
+    --btn-bottom: light-dark(#f3f4f8, #12131d);
+    --btn-edge: light-dark(#cfd3de, #2b3042);
+    --btn-shine: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.07));
+    --btn-glow: light-dark(rgb(20 22 31 / 0.08), rgb(0 0 0 / 0));
+    --btn-text: var(--fg);
+  }
+
+  /* Hover answers the pointer: the edge brightens and the fill lifts a little. */
+  .btn:hover,
+  .cta-wrap:hover .btn {
+    --btn-edge: light-dark(#21424e, #6a9fb1);
+    filter: brightness(1.08);
+  }
+
+  .btn-secondary:hover,
+  .cta-wrap:hover .btn-secondary {
+    --btn-edge: light-dark(#a9b0bf, #444b60);
+    filter: brightness(1.04);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .btn {
+      transition: none;
+    }
+  }
+</style>
