@@ -71,6 +71,7 @@ import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
+import Limitations from '../../../components/Limitations.astro';
 import TradeOff from '../../../components/TradeOff.astro';
 import CostComparison from '../../../components/CostComparison.astro';
 import ScalingPath from '../../../components/ScalingPath.astro';
@@ -342,11 +343,39 @@ Vier Regeln halten die KI sicher:
 
 ## Grenzen und was ich als Nächstes tun würde
 
-- **Ein Task.** Die Datenbank schwenkt zwischen Zonen um, aber den einzelnen Anwendungs-Task startet ECS in der anderen Zone neu, eine kurze Unterbrechung. Unter Last oder bei einem echten Failover habe ich das nicht getestet, und Autoscaling gibt es noch nicht.
-- **Die Deploy-Rolle ist Administrator.** Eine Permission Boundary und eine aus einem Plan erzeugte, eng gefasste Policy wären der bessere Endzustand.
-- **Alarmregeln liegen in Grafana, nicht in Terraform.** Heute ist nur die IAM-Rolle Code.
-- **Der Terraform-State enthält generierte Secrets im Klartext.** Der Bucket ist privat und verschlüsselt, aber ich würde diese Secrets außerhalb des States erzeugen oder regelmäßig rotieren.
-- **Die Wiederherstellung aus Backups ist dokumentiert, aber nicht geprobt.** Sowohl der RDS-Snapshot als auch die Deep-Archive-Backups brauchen einen regelmäßigen Wiederherstellungstest.
-- **Keine eigenen WAF-Regeln.** Ich würde ratenbasierte Regeln ergänzen und sie zuerst gegen die SES- und Stripe-Webhooks testen, weil eine Challenge auf diesen Pfaden Mail und Abrechnung unbemerkt lahmlegen würde.
+<Limitations
+  label="Grenzen der Sorted-Plattform und der nächste Schritt für jede"
+  items={[
+    {
+      gap: "Ein Anwendungs-Task",
+      detail: "Nach einem Zonenausfall startet ECS ihn in der anderen Zone neu, eine kurze Unterbrechung. Nicht unter Last und nicht bei einem echten Failover getestet.",
+      next: "Zwei oder mehr Tasks mit Target-Tracking-Autoscaling, dann ein Lasttest und eine Failover-Probe.",
+    },
+    {
+      gap: "Die Deploy-Rolle ist Administrator",
+      detail: "Begrenzt durch Vertrauensbedingungen, nicht durch ihre Berechtigungen.",
+      next: "Eine Permission Boundary und eine aus einem Plan erzeugte, eng gefasste Policy.",
+    },
+    {
+      gap: "Alarmregeln liegen in Grafana, nicht in Terraform",
+      detail: "Heute ist nur die IAM-Rolle Code.",
+      next: "Auch die Alarmregeln in Terraform verwalten.",
+    },
+    {
+      gap: "Der Terraform-State enthält generierte Secrets im Klartext",
+      detail: "Der Bucket ist privat und verschlüsselt.",
+      next: "Diese Secrets außerhalb des States erzeugen oder regelmäßig rotieren.",
+    },
+    {
+      gap: "Die Wiederherstellung aus Backups ist dokumentiert, aber nicht geprobt",
+      detail: "Betrifft den RDS-Snapshot und die Deep-Archive-Backups.",
+      next: "Ein regelmäßiger Wiederherstellungstest für beide.",
+    },
+    {
+      gap: "Keine eigenen WAF-Regeln",
+      next: "Ratenbasierte Regeln, zuerst gegen die SES- und Stripe-Webhooks getestet: Eine Challenge auf diesen Pfaden würde Mail und Abrechnung unbemerkt lahmlegen.",
+    },
+  ]}
+/>
 
 Ein formales Sicherheitsaudit behaupte ich nicht. Beim Bauen habe ich mit Review-Durchläufen gearbeitet.

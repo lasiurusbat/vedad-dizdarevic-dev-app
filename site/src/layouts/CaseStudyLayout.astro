@@ -41,15 +41,98 @@ const t = useTranslations(locale);
     <div class="prose mt-10">
       <slot />
     </div>
-    {/* Every case study ends with a way to act on it. */}
-    <aside class="border-border mt-16 flex max-w-measure flex-col items-start gap-4 border-t pt-8">
-      <p class="font-display text-xl">{t.caseCtaText}</p>
-      <CTAButton href={`${localeUrl(locale)}#contact`}>{t.caseCtaButton}</CTAButton>
-    </aside>
   </article>
+  {/*
+    Every case study ends with a way to act on it: a band across the page, outside the article's
+    column, opened by the same faded hairline as the home sections and a soft bloom below it.
+    The contact is the primary action; the way back to the other work is secondary.
+  */}
+  <aside class="closing" aria-labelledby="case-cta-title">
+    <div class="max-w-page px-gutter closing-inner mx-auto">
+      <p id="case-cta-title" class="font-display closing-text">
+        {t.caseCtaText}
+      </p>
+      <div class="closing-actions">
+        <CTAButton href={`${localeUrl(locale)}#contact`}>{t.caseCtaButton}</CTAButton>
+        <CTAButton href={`${localeUrl(locale)}#work`} variant="secondary">
+          {t.caseCtaMore}
+        </CTAButton>
+      </div>
+    </div>
+  </aside>
 </Base>
 
 <style>
+  .closing {
+    position: relative;
+    isolation: isolate;
+    padding-block: clamp(3.5rem, 2.5rem + 4vw, 6rem);
+  }
+
+  .closing::before,
+  .closing::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    pointer-events: none;
+  }
+
+  .closing::before {
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--divider) 15%,
+      var(--divider) 85%,
+      transparent
+    );
+  }
+
+  .closing::after {
+    z-index: -1;
+    height: 100%;
+    background: radial-gradient(ellipse 45% 100% at 50% 0, var(--bloom), transparent 70%);
+  }
+
+  .closing-inner {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1.5rem;
+  }
+
+  .closing-text {
+    max-width: 22ch;
+    font-size: clamp(1.75rem, 1.3rem + 1.8vw, 2.75rem);
+    font-weight: 500;
+    line-height: 1.1;
+    letter-spacing: -0.015em;
+  }
+
+  .closing-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  /* Wide: the question on the left, the actions on the right, on one baseline. The actions
+     never wrap there; the question takes the remaining width (German is longer). */
+  @media (min-width: 64rem) {
+    .closing-inner {
+      flex-direction: row;
+      align-items: flex-end;
+      justify-content: space-between;
+      gap: 2.5rem;
+    }
+
+    .closing-actions {
+      flex: none;
+      flex-wrap: nowrap;
+    }
+  }
+
   /* The illustration fills the empty right side of the header on wide screens only; on phones
      the evidence should come first, so it is left out. */
   .case-head > :global(.illo) {
