@@ -43,7 +43,7 @@ import londonPuddle from '../../../assets/case-studies/rainalert/london-puddle.p
 
 ## Architecture
 
-Two paths run through it: releases and requests. The buttons above the diagram trace each one and dim the rest. There is no database and no server-side session; the app is stateless.
+Two paths run through Rain Alert: releases and requests. The buttons above the diagram trace each one and dim the rest. There is no database and no server-side session; the app is stateless.
 
 <ArchitectureDiagram
   locale="en"
@@ -59,21 +59,29 @@ Two paths run through it: releases and requests. The buttons above the diagram t
   price="Chrome cannot run inside the slim image, so the browser tests run on the runner instead, before anything is pushed."
 />
 
+Every check runs against the image that will ship.
+
 - **Two stages.** The first stage builds wheels; the runtime stage installs from them with `--no-index`, so the image has no compiler and no system packages.
 - **Non-root.** The app runs as a system user with no login shell and needs no writable path.
-- **Self-describing.** Version and commit are build arguments, written into the OCI labels, the environment and every page footer. The image, the registry and the running site all name the same build.
+- **Self-describing.** Version and commit are build arguments, written into the OCI labels, the environment and every page footer. The image, the registry and the running site all name the same build, and the smoke test reads the version from that footer.
 - **A health check that ignores upstreams.** It fetches the home page, which calls no external service, so a weather API outage never marks a healthy container unhealthy.
-- **Tuned for the workload.** gunicorn runs one worker with four threads: the app waits on two APIs, and one process keeps its geocoding cache warm.
 - **Same image locally.** Docker Compose builds the app and a test service from one anchor, with `pull_policy: build`, so a test run never uses a stale local image.
 
 ## A release is a git tag
 
 <TradeOff
   gained="Releasing is one command, and only reviewed code on main can become a release."
-  price="A rerun replays the commit the tag points at, so a later fix never reaches it. A published tag is never moved; a mistake means a new version."
+  price="Re-running a failed release rebuilds the tagged commit, not the fix pushed after it. A published tag is never moved, so a mistake costs a new version number."
 />
 
-One GitHub Actions workflow behaves in two ways. A pull request or a push to `main` builds the image, runs the offline tests inside it and the browser tests on the runner, and stops. A tag runs the same checks, then checks the tag format and that the tag is on `main`, pushes the tested image to Docker Hub under that tag, and hands over to the deploy job.
+One GitHub Actions workflow behaves in two ways. A pull request or a push to `main` builds the image, runs the offline tests inside it and the browser tests on the runner, and stops. A tag goes further:
+
+1. The same build and tests.
+2. The tag must be well-formed and on `main`.
+3. The tested image is pushed to Docker Hub under that tag.
+4. The deploy job takes over.
+
+Four rules keep it safe:
 
 - **A gate that cannot pass empty.** A skipped suite would still report success, so a missing browser fails the run instead.
 - **One image tag per release.** Semantic tags, never `latest`, never a re-pushed tag.
@@ -87,7 +95,7 @@ One GitHub Actions workflow behaves in two ways. A pull request or a push to `ma
   price="A slow DNS change or a slow image swap fails the release run even when the deploy itself worked. The runbook says how to read that failure."
 />
 
-The Render service is image-backed: Render pulls from Docker Hub and never runs the Dockerfile. Two settings that look minor carry the design:
+The Render service is image-backed: Render pulls from Docker Hub and never runs the Dockerfile. Two Render settings make this work:
 
 - **Auto-deploy is off.** Left on, any pushed image would redeploy the stored fallback tag, which is how an old version silently comes back.
 - **A deploy is a hook call with the exact image tag.** Saving a new image URL in Render's settings deploys nothing, and the old container keeps serving with no sign of it.
@@ -102,23 +110,23 @@ After the hook, the smoke test requests the live domain for up to three minutes 
 />
 
 - **Secrets only on tag runs.** The workflow token is read-only, and the deploy job runs in a `production` environment, where required reviewers are one setting away.
-- **Security headers on every response.** `default-src 'none'`, everything else `'self'`, no `unsafe-inline`, plus `X-Frame-Options`, `nosniff`, a referrer and a permissions policy. HSTS is sent only over HTTPS and without `includeSubDomains`, so a mistake cannot lock the domain's other uses. Tests hold all of it.
+- **Security headers on every response.** A Content Security Policy of `default-src 'none'` with everything else `'self'` and no `unsafe-inline`, plus `X-Frame-Options`, `nosniff`, a referrer and a permissions policy. A test fails if a header changes.
+- **HSTS with care.** It is sent only over HTTPS and without `includeSubDomains`, so a mistake cannot lock the domain's other uses.
 - **No third-party requests.** Fonts are self-hosted.
-- **The API key never reaches a log.** It travels in a query string, so the code logs only status codes and exception classes; a test holds this.
-- **A small attack surface.** A non-root container with no system packages and no database.
+- **The API key never reaches a log.** It travels in a query string, so the code logs only status codes and exception classes. A test fails if a key is logged.
 
 ## Free tiers that fail well
 
 <TradeOff
   gained="Hosting and CI cost nothing, on every service."
-  price="Rate limits the app cannot raise: on October 29 every live forecast failed, because the free forecast API limits by IP and Render's egress IP is shared."
+  price="Rate limits I cannot raise. On October 29 every live forecast failed: the free forecast API limits by IP, and Render's outgoing IP is shared."
 />
 
 The response to that incident came in layers:
 
 1. **Make it visible.** The failure reason is now logged, so the next occurrence is diagnosed from logs, not guessed.
 2. **Call less.** A server-side cache keeps a good forecast for ten minutes; failures are never cached. Crawlers get a crawl delay.
-3. **Add a second source.** When Open-Meteo refuses, OpenWeather answers, translated into Open-Meteo's shape so nothing above the client knows which one replied. It runs within a self-imposed daily budget of 900 calls, because that provider bills past its free tier, and it leaves unknown values unknown.
+3. **Add a second source.** When Open-Meteo refuses, OpenWeather answers, translated into Open-Meteo's shape so nothing above the client knows which one replied. It has its own daily budget of 900 calls, because that provider bills past its free tier. Values it cannot provide stay empty.
 4. **Degrade honestly.** A broken upstream returns `503` and a missing city `404`, never a `200` that says "not found".
 
 An uptime check pings the home page. It calls no upstream API, so it proves DNS, the certificate and the version, and it keeps the free instance from sleeping.
@@ -171,7 +179,9 @@ The first release took five attempts, and every failure was a missing piece of t
   caption="The forecast panel, rendered on the server for every day, so it works without JavaScript."
 />
 
-The platform runs a small, stateless Flask app. Type a city and it shows the chance of rain for seven days, with an hourly strip, a three-band scale, browser alerts and a calendar export of the wet days. Preferences stay in the browser, so there are no accounts and no personal data on the server. It is an installable web app whose service worker caches the shell and never the forecast. Weather data comes from Open-Meteo under a non-commercial licence, so the app stays free, with donations as the only income.
+The platform runs a small Flask app. Type a city and it shows the chance of rain for the next seven days and hour by hour for today. It can alert you in the browser and export the wet days to your calendar, and it installs as a web app whose service worker caches the shell, never the forecast.
+
+Preferences stay in the browser, so there are no accounts and no personal data on the server. Weather data comes from Open-Meteo under a non-commercial licence, so the app stays free, with donations as the only income.
 
 <ScreenshotGallery
   label="Rain Alert screenshots"
@@ -186,7 +196,7 @@ The platform runs a small, stateless Flask app. Type a city and it shows the cha
       light: londonPuddle,
       alt: 'An illustration of a rainy London street reflected in a puddle, used as Rain Alert’s artwork.',
       title: 'The artwork',
-      text: 'AI-generated illustration, not a photo.',
+      text: 'AI-generated illustration.',
     },
   ]}
 />
