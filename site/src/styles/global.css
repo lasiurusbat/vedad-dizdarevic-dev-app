@@ -38,7 +38,7 @@
   --shaft-core: light-dark(rgb(56 100 116 / 0.08), rgb(205 222 230 / 0.18));
   /* Section divider line and the light bloom below it. */
   --divider: light-dark(rgb(20 22 31 / 0.1), rgb(255 255 255 / 0.09));
-  --bloom: light-dark(rgb(56 100 116 / 0.0375), rgb(205 222 230 / 0.055));
+  --bloom: light-dark(rgb(56 100 116 / 0.054), rgb(205 222 230 / 0.055));
   /* Bigger bloom at the top of every page, spilling down from under the header. */
   --bloom-top: light-dark(rgb(56 100 116 / 0.044), rgb(205 222 230 / 0.075));
 }
