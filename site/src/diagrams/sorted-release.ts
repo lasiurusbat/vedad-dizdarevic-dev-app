@@ -112,7 +112,7 @@ export const sortedRelease: DiagramDefinition = {
   controlsHorizontal: true,
   description: {
     en: [
-      'A release starts as a git tag, for example v0.9.8, in the application repository.',
+      'A release starts as a git tag, for example v1.0.0, in the application repository.',
       'GitHub Actions runs the full checks first: type checks, lint, unit tests and the end-to-end suite in six shards. A tag that fails is never released.',
       'Only then does it build arm64 images for dev and prod and push them to ECR through an OIDC role that can push images and nothing else. ECR tags are immutable, so a version always means the same image.',
       'Deploying is a pull request in the infrastructure repository that sets image_tag to the new version. CI runs terraform fmt, validate and the offline Terraform tests.',
@@ -120,7 +120,7 @@ export const sortedRelease: DiagramDefinition = {
       'ECS rolls out the new task definition with the deployment circuit breaker and automatic rollback; the tasks pull the image from ECR when they start. Rolling back means setting the previous tag.',
     ],
     de: [
-      'Ein Release beginnt als Git-Tag, zum Beispiel v0.9.8, im Anwendungs-Repository.',
+      'Ein Release beginnt als Git-Tag, zum Beispiel v1.0.0, im Anwendungs-Repository.',
       'GitHub Actions führt zuerst alle Prüfungen aus: Typprüfung, Lint, Unit-Tests und die End-to-End-Suite in sechs Shards. Ein Tag, der durchfällt, wird nie veröffentlicht.',
       'Erst dann baut es arm64-Images für Dev und Prod und lädt sie über eine OIDC-Rolle, die nur Images hochladen darf, in ECR hoch. ECR-Tags sind unveränderlich, eine Version bedeutet also immer dasselbe Image.',
       'Das Deployment ist ein Pull Request im Infrastruktur-Repository, der image_tag auf die neue Version setzt. Die CI führt terraform fmt, validate und die Offline-Terraform-Tests aus.',
