@@ -2,10 +2,11 @@
 import { type Locale, useTranslations } from '../i18n';
 import { sortedProduction } from '../diagrams/sorted-production';
 import { sortedRelease } from '../diagrams/sorted-release';
+import { rainalertRelease } from '../diagrams/rainalert-release';
 
 interface Props {
   locale: Locale;
-  id: 'sorted-production' | 'sorted-release';
+  id: 'sorted-production' | 'sorted-release' | 'rainalert-release';
   /** Accessible name and caption. */
   title: string;
   /** A wide, flat diagram (two rows): a shorter canvas, so the fitted view has no empty bands. */
@@ -14,9 +15,16 @@ interface Props {
 
 const { locale, id, title, compact = false } = Astro.props;
 const t = useTranslations(locale);
-const description = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease }[id]
-  .description;
-const definition = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease }[id];
+const description = {
+  'sorted-production': sortedProduction,
+  'sorted-release': sortedRelease,
+  'rainalert-release': rainalertRelease,
+}[id].description;
+const definition = {
+  'sorted-production': sortedProduction,
+  'sorted-release': sortedRelease,
+  'rainalert-release': rainalertRelease,
+}[id];
 const steps = locale === 'de' && description.de.length > 0 ? description.de : description.en;
 // Path buttons: hidden until the diagram mounts (FlowDiagram wires them), so no-JS visitors see
 // none. "Everything" (no data-path value) clears the selection.

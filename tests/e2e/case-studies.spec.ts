@@ -18,6 +18,13 @@ const studies = [
     problem: 'Das Problem',
     cta: 'Kontakt aufnehmen',
   },
+  {
+    path: '/projects/rainalert/',
+    lang: 'en',
+    title: 'Rain Alert: a release pipeline where a git tag is the whole release',
+    problem: 'The problem',
+    cta: 'Get in touch',
+  },
 ];
 
 for (const scheme of ['light', 'dark'] as const) {
