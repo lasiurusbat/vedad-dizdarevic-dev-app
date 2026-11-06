@@ -1,0 +1,331 @@
+---
+title: 'Sorted: die AWS-Plattform hinter einem live betriebenen Multi-Tenant-SaaS'
+summary: 'Ein kommerzielles Support-Ticket-SaaS, live, dessen AWS-Plattform ich allein gebaut habe und betreibe. Ein Terraform-Modul baut Dev und Prod, Multi-AZ ist drei Flags entfernt, CI/CD kommt ohne Schlüssel aus, Anhänge werden gescannt.'
+problem: 'Wer mit Kunden per E-Mail spricht, landet bei einem geteilten Postfach, das niemand durchsuchen, zuweisen oder auswerten kann. Sorted macht daraus ein Ticketsystem mit KI-Triage, und damit werden Ticketinhalte zu personenbezogenen Daten. Mandantentrennung, Verschlüsselung und eine KI, die Erstattungs- und Zahlungstickets nie sieht und nichts eigenständig versenden kann, mussten durch Code und Infrastruktur erzwungen werden, für ein kommerzielles Produkt, das eine einzige Person betreibt.'
+stack:
+  [
+    'AWS (ECS Fargate, RDS, ALB, SES, SNS, S3, GuardDuty)',
+    'Terraform',
+    'GitHub Actions + OIDC',
+    'Cloudflare',
+    'Grafana Cloud',
+  ]
+decisions:
+  - decision: 'Ein Terraform-Modul baut jede Umgebung; Dev und Prod sind getrennte Roots, die nur Flags setzen'
+    why: 'Umgebungen können nicht auseinanderdriften, und die Produktionstopologie (Multi-AZ-Datenbank, ein NAT-Gateway pro Zone, Fargate on demand) ist drei Flags entfernt statt eines Neubaus. Der Preis ist ein Modul mit rund 3.000 Zeilen, das generisch bleiben muss.'
+  - decision: 'Deployment ohne Schlüssel: GitHub OIDC, unveränderliche ECR-Tags, ein geprüfter Image-Tag als Deployment, Rollback als einzeilige Änderung'
+    why: 'Nirgends gibt es langlebige AWS-Schlüssel, und eine Version bedeutet immer dieselben Bytes. Die Deploy-Rolle ist Administrator, weil terraform apply IAM, Netzwerke und Datenbanken anlegt; begrenzt wird sie stattdessen über Vertrauen, gebunden an unveränderliche Repository-IDs und eine GitHub-Umgebung. Eine Permission Boundary wäre besser, und ich führe sie als Lücke auf.'
+  - decision: 'Perimeter durch Konstruktion: Der ALB lässt nur Cloudflare-Adressbereiche zu, Security Groups verweisen aufeinander, und ungescannte Anhänge sind nicht lesbar'
+    why: 'Ein Fehler in der Anwendung kann weder die Datenbank freilegen noch eine ungescannte Datei ausliefern, weil die Bucket-Policy jedes Objekt ablehnt, das GuardDuty nicht mit NO_THREATS_FOUND markiert hat. Der Preis ist die manuelle Pflege der Cloudflare-IP-Liste, dokumentiert im Runbook.'
+  - decision: 'Kostenhebel pro Umgebung: Spot, Abschaltung außerhalb der Arbeitszeit und kein NAT in Dev; on demand plus Savings Plan in Prod'
+    why: 'Die Fixkosten bleiben niedrig, ohne das Design aufzugeben. Dev verträgt ein bis drei Minuten Ausfall, wenn Spot-Kapazität zurückgeholt wird; Prod nicht.'
+illustration: 'inbox'
+outcomes:
+  - label: 'Langlebige AWS-Schlüssel in CI/CD'
+    value: '0'
+  - label: 'Offline-Terraform-Tests'
+    value: '22'
+  - label: 'Dev-Kosten, abgerechnet vs. vorher'
+    value: '−64 %'
+  - label: 'Wochen bis live, allein gebaut'
+    value: '6'
+costs:
+  title: 'Monatliche Kosten, geschätzt'
+  highlight: '−64 % in Dev'
+  itemHeader: 'Posten'
+  columns:
+    - label: 'Dev, vorher'
+      total: 105
+    - label: 'Dev, Ist'
+      total: 38
+      emphasis: true
+    - label: 'Prod, Ist'
+      total: 96
+    - label: 'Prod, Multi-AZ'
+      total: 150
+  rows:
+    - item: 'NAT-Gateway'
+      values: [38, 0, 38, 75]
+    - item: 'Load Balancer (ALB)'
+      values: [20, 20, 20, 20]
+    - item: 'Fargate-Task'
+      values: [20, 1, 5, 20]
+    - item: 'RDS-Datenbank'
+      values: [14, 7, 17, 27]
+    - item: 'Öffentliche IPv4'
+      values: [7, 8, 11, 7]
+    - item: 'Container Insights'
+      values: [5, 0, 0, null]
+    - item: 'KMS-Schlüssel, Secrets, Sonstiges'
+      values: [null, 3, 6, null]
+  footnote: 'Die beiden „Ist“-Spalten sind aus meiner AWS-Rechnung vom 13. Oktober bis 4. November 2026 (Cost Explorer, Nutzung vor Gutschriften) auf einen Monat mit 730 Stunden hochgerechnet und nach Ressourcen auf die Umgebungen aufgeteilt. Die CloudWatch-Alarmgebühr vom Oktober, rund 7 $, im November entfallen, ist nicht enthalten. Heute laufen beide Umgebungen mit Fargate Spot und einer Single-AZ-Datenbank. Prod hat ein NAT-Gateway, Dev keines; Dev stoppt seinen Task außerhalb der Arbeitszeit und hält die Datenbank etwa 70 % der Zeit angehalten. Die anderen beiden Spalten sind meine Schätzungen aus der Architekturdokumentation zu On-Demand-Preisen in eu-central-1: „Dev, vorher“ ist Dev vor der Kostenoptimierung, und „Prod, Multi-AZ“ ergänzt eine Multi-AZ-Datenbank, zwei NAT-Gateways und Fargate on demand, vor dem Savings Plan. Die Zeilen sind gerundet und ergeben daher nicht unbedingt die Summen.'
+repoPrivate: true
+liveLinks:
+  - label: 'Sorted besuchen'
+    url: 'https://sorted.onl'
+order: 10
+draft: false
+---
+
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
+import ProblemLog from '../../../components/ProblemLog.astro';
+import TechStack from '../../../components/TechStack.astro';
+import ScalingPath from '../../../components/ScalingPath.astro';
+import DashboardMap from '../../../components/DashboardMap.astro';
+import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
+import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
+import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
+import ticketDark from '../../../assets/case-studies/sorted/ticket-dark.png';
+import dashboardLight from '../../../assets/case-studies/sorted/dashboard-light.png';
+import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.png';
+
+## Umfang
+
+Sorted ist live unter [sorted.onl](https://sorted.onl), mit Selbstregistrierung, Abrechnung über Stripe und individuellen Tarifen für Support-Teams. Ich verantworte die Plattform von Anfang bis Ende: die Infrastruktur, die Pipelines und den Betrieb, dazu die Anwendung, die darauf läuft. Gebaut habe ich sie vom 17. September bis 31. Oktober 2026. Diese Seite beschreibt die Produktionskonfiguration, wie sie in Terraform definiert ist. Die laufenden Kosten sind aus meiner AWS-Rechnung hochgerechnet, die Multi-AZ-Zahlen sind Schätzungen aus der Dokumentation im Repository, und der Failover ist entworfen, aber nicht geprobt.
+
+## Architektur
+
+Zwei Pfade laufen durch die Plattform:
+
+- **Anfragen:** Browser → Cloudflare → ALB mit ACM-Zertifikat → nginx und der Bun-Server in einem Fargate-Task → RDS PostgreSQL in privaten Subnetzen.
+- **Mail:** Kunden-E-Mail → SES-Empfangsregel → S3 (eigener KMS-Schlüssel) und SNS → signierter Webhook am ALB → gespeichertes Ticket → `pg-boss`-Job für die KI-Klassifizierung → Warteschlange der Agents oder automatische Antwort über SES. Zustellereignisse kommen über SNS zurück.
+
+<ArchitectureDiagram
+  locale="de"
+  id="sorted-production"
+  title="Produktionsarchitektur von Sorted auf AWS: der Anfragepfad, der Mailpfad mit Anhang-Scan und der Release-Pfad."
+/>
+
+## Verfügbarkeit und Skalierung
+
+Hochverfügbarkeit in Produktion sind drei Terraform-Flags, ohne Migration. Darüber hinaus ist die Anwendung darauf ausgelegt, als mehrere Tasks hinter demselben Load Balancer zu laufen.
+
+<ScalingPath
+  label="Verfügbarkeit und Skalierung von Sorted, in drei Stufen"
+  stages={[
+    {
+      title: 'Selbstheilend, Netzwerk über zwei Zonen',
+      status: 'Läuft heute',
+      current: true,
+      points: [
+        'Jede VPC erstreckt sich über zwei Availability Zones, mit öffentlichen Subnetzen für den Load Balancer und privaten Subnetzen für den Task und die Datenbank.',
+        'ECS ersetzt einen ausgefallenen Task selbstständig. Health Checks und eine Karenzzeit decken Migrationen und den Start ab.',
+        'Deployments sind rollierend (Minimum 100 %, Maximum 200 %), sodass der alte Task bedient, bis der neue gesund ist. Der Circuit Breaker rollt ein fehlerhaftes Release automatisch zurück.',
+        'Datenbankmigrationen folgen dem Muster Expand, dann Contract, sodass zwei Releases während eines Deployments dieselbe Datenbank nutzen können.',
+      ],
+    },
+    {
+      title: 'Multi-AZ in Produktion',
+      status: 'Drei Flags entfernt',
+      points: [
+        '`db_multi_az` ergänzt einen synchronen RDS-Standby in der zweiten Zone mit automatischem Failover.',
+        '`nat_gateway_per_az` gibt jeder Zone ein eigenes NAT-Gateway und eine eigene Routing-Tabelle, sodass ein in der verbleibenden Zone neu gestarteter Task seinen ausgehenden Zugang behält.',
+        '`use_fargate_spot = false` verlegt den Task auf Fargate on demand, mit einem Savings Plan obendrauf.',
+        'Nach dem Ausfall einer Zone schwenkt die Datenbank um und ECS startet den Task in der anderen Zone neu: eine kurze Unterbrechung, so entworfen.',
+      ],
+    },
+    {
+      title: 'Horizontal skalieren',
+      status: 'Entworfen, noch nicht gebaut',
+      points: [
+        'Mehrere Tasks können nebeneinander laufen: Live-Chat-Ereignisse gehen über Postgres `LISTEN/NOTIFY`, und die Job-Warteschlange (`pg-boss`) liegt gemeinsam in der Datenbank.',
+        'Ein `SERVER_ROLE`-Schalter trennt bereits API und Hintergrund-Worker, sodass beide zu eigenen Services werden und unabhängig skalieren können.',
+        'Als Nächstes: zwei oder mehr Tasks, eine Target-Tracking-Autoscaling-Policy und ein Lasttest, um die echte Grenze zu finden.',
+      ],
+    },
+  ]}
+/>
+
+## Compute, Netzwerk und Daten
+
+- **Compute.** Ein Fargate-Task mit zwei Containern, nginx und dem Bun-Server, auf ARM64 für rund 20 % geringere Kosten.
+- **Netzwerk.** Security Groups verweisen aufeinander, nicht auf CIDRs. RDS nimmt Verbindungen nur vom Task an. Es gibt kein SSH und keinen Bastion-Host; ECS Exec ist der Notfallzugang.
+- **Daten.** Privates RDS mit Verschlüsselung, eine stufenweise Einführung von Datenbank-TLS (`off`, `verify`, `require`) und Secrets, die aus Secrets Manager injiziert werden. Backups der Dokumentation und der Abonnentenlisten gehen direkt nach S3 Glacier Deep Archive, in einen versionierten Bucket mit eigenem KMS-Schlüssel.
+- **Mail und Anhänge.** SES, SNS und S3 bilden die eingehende Pipeline. Webhooks vertrauen nur SNS-Signaturen, der Eingangs-Bucket hat einen eigenen KMS-Schlüssel, und GuardDuty Malware Protection scannt jeden Anhang.
+
+## Release-Pfad
+
+Zwei Repositories, zwei Rollen, keine gespeicherten Schlüssel. Im Anwendungs-Repository startet ein Git-Tag die vollständige Prüfsuite und schiebt ein unveränderliches Image nach ECR. Das Infrastruktur-Repository entscheidet, welches Image läuft: Ein Deployment ist eine geprüfte Terraform-Änderung, und der Workflow schreibt den Plan in die Zusammenfassung des Laufs und wendet genau diesen gespeicherten Plan an. Die Infrastruktur-CI führt `terraform fmt`, `validate` und 22 Offline-Läufe von `terraform test` mit gemockten Providern aus, die die Sicherheitseigenschaften ohne AWS-Konto prüfen.
+
+<ArchitectureDiagram
+  locale="de"
+  id="sorted-release"
+  compact
+  title="Wie ein Sorted-Release zu AWS gelangt: Ein Git-Tag baut ein unveränderliches Image in ECR, und eine geprüfte Terraform-Änderung bringt es nach ECS."
+/>
+
+## Tech-Stack
+
+<TechStack
+  label="Tech-Stack von Sorted nach Schichten"
+  layers={[
+    { name: 'Edge', role: 'Was Besucher zuerst erreichen', tools: ['Cloudflare DNS', 'Proxy', 'TLS'] },
+    {
+      name: 'Cloud',
+      role: 'AWS eu-central-1, wo alles läuft',
+      tools: ['ECS auf Fargate (ARM64)', 'ALB', 'RDS PostgreSQL', 'SES', 'SNS', 'S3', 'KMS', 'GuardDuty', 'ECR', 'Secrets Manager', 'EventBridge'],
+    },
+    {
+      name: 'Infrastructure as Code',
+      role: 'Ein Modul baut Dev und Prod',
+      tools: ['Terraform', 'AWS-, Cloudflare- und random-Provider', 'terraform test, gemockte Provider'],
+    },
+    {
+      name: 'CI/CD',
+      role: 'Vom Git-Tag zum laufenden Task',
+      tools: ['GitHub Actions', 'GitHub OIDC, keine gespeicherten Schlüssel', 'Docker Multi-Stage-Builds'],
+    },
+    {
+      name: 'Observability',
+      role: 'Vor Ort gelesen, nichts kopiert',
+      tools: ['CloudWatch Logs und Metriken', 'Grafana Cloud, Rolle mit Lesezugriff'],
+    },
+    {
+      name: 'Workload',
+      role: 'Die Anwendung, die die Plattform betreibt',
+      workload: true,
+      tools: ['TypeScript', 'Bun', 'Express 5', 'React 19', 'Prisma 7', 'PostgreSQL Row-Level Security', 'pg-boss', 'Vercel AI SDK'],
+    },
+  ]}
+/>
+
+## Monitoring
+
+CloudWatch hält die Daten; Grafana Cloud liest sie vor Ort, es wird also nichts verschickt oder kopiert. Terraform legt eine IAM-Rolle mit Lesezugriff an, die das AWS-Konto von Grafana nur mit der External ID des Stacks übernehmen kann (Schutz vor dem Confused-Deputy-Problem), beschränkt auf CloudWatch-Metriken und die Log-Gruppe der jeweiligen Umgebung.
+
+- **Logs.** Die Container schreiben nach `/ecs/sorted-<env>` in CloudWatch Logs, 30 Tage in Prod und 7 in Dev. Der Server schreibt strukturiertes JSON mit einer Request-ID, sodass eine einzige Logs-Insights-Abfrage die `X-Request-Id` eines Nutzers durch das System verfolgt.
+- **Metriken.** Die AWS-Namespaces für ALB, ECS, RDS und SES, dazu Container Insights in Prod für die Zahl der laufenden Tasks.
+- **Erreichbarkeit.** Synthetische Checks prüfen die Website und `/api/health`, das auch die Datenbank prüft.
+- **Spot-Transparenz.** Eine EventBridge-Regel schreibt jeden Task-Stopp durch `SpotInterruption` in eine eigene Log-Gruppe, sodass sich jeder Neustart erklären lässt.
+- **Alarme und Runbook.** Regeln auf denselben Signalen wie das Dashboard, jede einem Abschnitt eines symptomorientierten Runbooks zugeordnet: die ersten fünf Minuten, Rollback und die Fehlerbilder, die mir tatsächlich begegnet sind.
+
+<DashboardMap
+  title="Grafana-Monitoring-Setup von Sorted"
+  meta="Produktions-Dashboard in Grafana Cloud, liest CloudWatch und synthetische Checks. Aktualisiert alle 5 Minuten."
+  groups={[
+    {
+      name: 'Verfügbarkeit',
+      panels: [
+        { title: 'Uptime', viz: 'stat', source: 'Synthetische Checks, `probe_success` gemittelt pro Check' },
+        { title: 'Gesunde Targets', viz: 'stat', source: 'ALB `HealthyHostCount`, Minimum, 1 Min.' },
+        { title: 'Laufende Tasks', viz: 'stat', source: 'Container Insights `RunningTaskCount`, Minimum, 1 Min.' },
+      ],
+    },
+    {
+      name: 'Load Balancer',
+      panels: [
+        { title: '5xx-Fehler', viz: 'timeseries', source: 'ALB `HTTPCode_Target_5XX_Count`, Summe, 5 Min.' },
+        { title: 'Anfragen', viz: 'bars', source: 'ALB `RequestCount`, Summe, 5 Min.' },
+        { title: 'Antwortzeit', viz: 'bars', source: 'ALB `TargetResponseTime`, Mittelwert, 5 Min.' },
+      ],
+    },
+    {
+      name: 'Compute',
+      panels: [
+        { title: 'ECS-CPU', viz: 'bars', source: 'ECS `CPUUtilization`, Mittelwert, 5 Min., gelb ab 70 %' },
+        { title: 'ECS-Speicher', viz: 'bars', source: 'ECS `MemoryUtilization`, Mittelwert, 5 Min., gelb ab 70 %' },
+      ],
+    },
+    {
+      name: 'Datenbank',
+      panels: [
+        { title: 'RDS-CPU', viz: 'bars', source: 'RDS `CPUUtilization`, Mittelwert, 5 Min.' },
+        { title: 'RDS-CPU-Credits', viz: 'timeseries', source: 'RDS `CPUCreditBalance`, Minimum, 5 Min., Burstable-Instanz' },
+        { title: 'Freier RDS-Speicher', viz: 'gauge', source: 'RDS `FreeStorageSpace` von 20 GiB, rot unter 2 GiB' },
+        { title: 'RDS-Verbindungen', viz: 'bars', source: 'RDS `DatabaseConnections`, Maximum, 5 Min.' },
+      ],
+    },
+    {
+      name: 'Mail und Alarme',
+      panels: [
+        { title: 'SES-Bounce-Rate', viz: 'timeseries', source: 'SES `Reputation.BounceRate`, Maximum, 5 Min.' },
+        { title: 'SES-Beschwerderate', viz: 'timeseries', source: 'SES `Reputation.ComplaintRate`, Maximum, 5 Min.' },
+        { title: 'Aktive Alarme', viz: 'alerts', source: 'Grafana-Alarmregeln im Prod-Ordner von Sorted' },
+      ],
+    },
+  ]}
+  footnote="Die Panels des Produktions-Dashboards, nach Schichten gruppiert, mit der Metrik hinter jedem einzelnen. Werte zeige ich hier bewusst nicht. Das Dashboard und seine Alarmregeln liegen in Grafana, nicht in Terraform (siehe Grenzen)."
+/>
+
+## Der Workload
+
+Die Plattform existiert, um diese Anwendung zu betreiben. Jedes Team bekommt eine Sorted-Adresse oder leitet seine bestehende weiter. Eine eingehende E-Mail wird zum Ticket. Die KI klassifiziert und fasst es zusammen und beantwortet nicht-transaktionale Fragen aus der Wissensdatenbank des Teams. Agents weisen zu, antworten und führen zusammen, alles aus einer Warteschlange, mit Vorlagen und Audit-Log. Teams haben drei Rollen, die Oberfläche gibt es in 22 Sprachen, und es gibt eine Super-Admin-Konsole.
+
+Vier Regeln halten die KI sicher:
+
+1. **Erstattungs- und Zahlungstickets gehen nie an die KI.**
+2. **Der Webhook ruft nie die KI auf.** Er speichert die Nachricht und antwortet mit 200, sodass Latenz oder Ausfall der KI keine Kunden-E-Mail verlieren kann.
+3. **Leitplanken liegen im Code.** Das Modell liefert Kategorie, Priorität, Konfidenz und einen Entwurf. Ob etwas versendet wird, entscheidet der Anwendungscode.
+4. **Jeder KI-Fehler endet mit einem offenen Ticket für einen Menschen.** Ein Durchlauf alle fünf Minuten öffnet alles, was ein Absturz liegen gelassen hat.
+
+<ScreenshotGallery
+  label="Screenshots von Sorted, Demodaten"
+  badge="Demodaten"
+  items={[
+    {
+      light: ticketsLight,
+      dark: ticketsDark,
+      alt: 'Die Ticket-Warteschlange eines Demo-Teams, Harbor Lane Goods: eine Tabelle mit Kunden-E-Mails mit Betreff, Status, Kategorie, zuständiger Person und letzter Aktivität, dazu Zähler für Tickets, die eine Antwort brauchen.',
+      title: 'Die Ticket-Warteschlange',
+      text: 'Kunden-E-Mails als Tickets, mit Status, Kategorie, zuständiger Person und Zählern für alles, was eine Antwort braucht.',
+    },
+    {
+      light: ticketLight,
+      dark: ticketDark,
+      alt: 'Ein einzelnes Ticket: die Kundennachricht, eine als solche gekennzeichnete KI-Antwort aus der Wissensdatenbank, ein Antworteditor und eine Zeitleiste, die den bisherigen Verlauf zusammenfasst.',
+      title: 'Ein aus der Wissensdatenbank gelöstes Ticket',
+      text: 'KI-geschriebene Antworten sind gekennzeichnet.',
+    },
+    {
+      light: dashboardLight,
+      dark: dashboardDark,
+      alt: 'Das Team-Dashboard: wartende Tickets, eingegangene Tickets, der Anteil, den die KI gegenüber den Agents gelöst hat, Median der ersten Antwortzeit und der Lösungszeit sowie ein Diagramm mit Tickets pro Tag.',
+      title: 'Das Dashboard',
+      text: 'Einschließlich der Aufteilung zwischen Tickets, die die KI gelöst hat, und solchen, die Agents gelöst haben.',
+    },
+  ]}
+/>
+
+## Probleme, auf die ich gestoßen bin
+
+<ProblemLog
+  items={[
+    {
+      area: 'Netzwerk',
+      problem: 'Jeder Besucher sah aus wie eine einzige IP, sodass sich alle die Rate Limits teilten',
+      fix: 'Den ALB auf die Adressbereiche von Cloudflare beschränkt und dann `CF-Connecting-IP` vertraut, weil nichts anderes den ALB erreichen kann',
+    },
+    {
+      area: 'Datenbank',
+      problem: 'Prisma verband sich trotz `sslmode=verify-full` ohne TLS',
+      fix: 'Die Migrations-URL auf die eigenen TLS-Parameter von Prisma und eine fest hinterlegte CA umgestellt, weil `prisma migrate deploy` libpq-Parameter ignoriert',
+    },
+    {
+      area: 'Messaging',
+      problem: 'SES-Webhooks ließen sich beim ersten Apply nicht abonnieren',
+      fix: 'Das Abonnement hinter einem Flag in einen zweiten Apply verschoben und die Reihenfolge dokumentiert, weil SNS die laufende Anwendung zur Bestätigung braucht',
+    },
+    {
+      area: 'Deployment',
+      problem: 'Ein rotiertes Secret wurde nicht wirksam',
+      fix: 'Ein neues Deployment erzwungen, weil ein laufender ECS-Task die Werte behält, mit denen er gestartet ist. Jede Secret-Änderung endet jetzt mit einem',
+    },
+    {
+      area: 'Sicherheit',
+      problem: 'Das GitHub-OIDC-Vertrauen hing an Namen',
+      fix: 'Das Vertrauen auf unveränderliche Owner- und Repository-IDs umgestellt, weil ein neu angelegtes Repository mit demselben Namen die Rolle erben könnte',
+    },
+  ]}
+/>
+
+## Grenzen und was ich als Nächstes tun würde
+
+- **Ein Task.** Die Datenbank schwenkt zwischen Zonen um, aber den einzelnen Anwendungs-Task startet ECS in der anderen Zone neu, eine kurze Unterbrechung. Unter Last oder bei einem echten Failover habe ich das nicht getestet, und Autoscaling gibt es noch nicht.
+- **Die Deploy-Rolle ist Administrator.** Das ist eine bewusste Abwägung mit engen Vertrauensbedingungen. Eine Permission Boundary und eine aus einem Plan erzeugte, eng gefasste Policy wären der bessere Endzustand.
+- **Alarmregeln liegen in Grafana, nicht in Terraform.** Heute ist nur die IAM-Rolle Code.
+- **Der Terraform-State enthält generierte Secrets im Klartext.** Der Bucket ist privat und verschlüsselt, aber ich würde diese Secrets außerhalb des States erzeugen oder regelmäßig rotieren.
+- **Die Wiederherstellung aus Backups ist dokumentiert, aber nicht geprobt.** Sowohl der RDS-Snapshot als auch die Deep-Archive-Backups brauchen einen regelmäßigen Wiederherstellungstest.
+- **Keine eigenen WAF-Regeln.** Ich würde ratenbasierte Regeln ergänzen und sie zuerst gegen die SES- und Stripe-Webhooks testen, weil eine Challenge auf diesen Pfaden Mail und Abrechnung unbemerkt lahmlegen würde.
+
+Ein formales Sicherheitsaudit behaupte ich nicht. Beim Bauen habe ich mit Review-Durchläufen gearbeitet.

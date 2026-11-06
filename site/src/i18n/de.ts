@@ -57,6 +57,7 @@ export const de: Messages = {
   caseCtaButton: 'Kontakt aufnehmen',
   casePrivateRepo: 'Quellcode: privates Repository',
   caseRepo: 'Quellcode',
+  opensNewTab: '(öffnet in einem neuen Tab)',
   caseWhy: 'Warum',
   costTotal: 'Summe',
   problemArea: 'Bereich',

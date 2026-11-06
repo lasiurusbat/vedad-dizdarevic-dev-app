@@ -54,6 +54,7 @@ export const en = {
   caseCtaButton: 'Get in touch',
   casePrivateRepo: 'Source code: private repository',
   caseRepo: 'Source code',
+  opensNewTab: '(opens in a new tab)',
   caseWhy: 'Why',
   costTotal: 'Total',
   problemArea: 'Area',
