@@ -15,10 +15,15 @@ import './flow.css';
 import { GroupLabel, ServiceNode } from './ServiceNode';
 import { sortedProduction } from './sorted-production';
 import { sortedRelease } from './sorted-release';
+import { rainalertRelease } from './rainalert-release';
 import type { DiagramDefinition, DiagramNode } from './types';
 
 const nodeTypes = { service: ServiceNode, group: GroupLabel };
-const diagrams = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease };
+const diagrams = {
+  'sorted-production': sortedProduction,
+  'sorted-release': sortedRelease,
+  'rainalert-release': rainalertRelease,
+};
 
 export type DiagramId = keyof typeof diagrams;
 
