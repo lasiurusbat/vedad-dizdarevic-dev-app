@@ -46,6 +46,8 @@ export const de: Messages = {
   galleryPrev: 'Vorheriger Screenshot',
   galleryNext: 'Nächster Screenshot',
   diagramSimplified: 'Vereinfachtes Diagramm.',
+  diagramPaths: 'Einen Pfad verfolgen',
+  diagramPathAll: 'Alles',
   diagramTextAlternative: 'Textbeschreibung des Diagramms',
   diagramNeedsJs:
     'Das Diagramm benötigt JavaScript. Dieselben Informationen stehen in der Textbeschreibung darüber.',

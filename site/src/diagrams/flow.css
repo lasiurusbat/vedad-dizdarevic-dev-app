@@ -139,3 +139,44 @@
 .vdd-flow[data-pan='true'] .react-flow__pane.dragging {
   cursor: grabbing;
 }
+
+/*
+ * Path tracing (the buttons above the diagram): the chosen path's nodes and edges are lit in the
+ * accent, everything else steps back. Classes only (vdd-on / vdd-dim on React Flow's node and
+ * edge wrappers), so the CSP stays strict. The lit edges carry a slow dash that runs in the
+ * direction of the arrow; with reduced motion they stay still.
+ */
+.react-flow__node,
+.react-flow__edge {
+  transition: opacity 200ms ease;
+}
+.react-flow__node.vdd-dim {
+  opacity: 0.25;
+}
+.react-flow__edge.vdd-dim {
+  opacity: 0.15;
+}
+.react-flow__node.vdd-on .vdd-node {
+  border-color: color-mix(in srgb, var(--accent) 70%, var(--border-strong));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--accent) 35%, transparent),
+    0 0 18px color-mix(in srgb, var(--accent) 30%, transparent);
+}
+.react-flow__edge.vdd-on .react-flow__edge-path {
+  stroke: var(--accent);
+  stroke-width: 2;
+}
+.react-flow__edge.vdd-on .react-flow__edge-text {
+  fill: var(--fg);
+}
+@media (prefers-reduced-motion: no-preference) {
+  .react-flow__edge.vdd-on .react-flow__edge-path {
+    stroke-dasharray: 8 6;
+    animation: vdd-trace 900ms linear infinite;
+  }
+}
+@keyframes vdd-trace {
+  to {
+    stroke-dashoffset: -14;
+  }
+}

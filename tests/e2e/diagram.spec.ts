@@ -160,3 +160,41 @@ test('screenshots for review', async ({ page }) => {
   await page.waitForTimeout(500);
   await diagram.screenshot({ path: 'screenshots/diagram-mobile.png' });
 });
+
+test('path buttons trace one path and dim the rest, under the production CSP', async ({ page }) => {
+  // Hidden until the diagram mounts, so a visitor without JavaScript never sees dead buttons.
+  await page.goto('/projects/sorted/');
+  const bar = page.getByRole('group', { name: 'Trace a path' });
+  await expect(bar).toBeHidden();
+  const diagram = await openDiagram(page, '/projects/sorted/');
+  await expect(bar).toBeVisible();
+  await expect(bar.getByRole('button')).toHaveCount(4);
+  await expect(bar.getByRole('button', { name: 'Everything' })).toHaveAttribute(
+    'aria-pressed',
+    'true',
+  );
+
+  await bar.getByRole('button', { name: 'Mail' }).click();
+  await expect(bar.getByRole('button', { name: 'Mail' })).toHaveAttribute('aria-pressed', 'true');
+  await expect(bar.getByRole('button', { name: 'Everything' })).toHaveAttribute(
+    'aria-pressed',
+    'false',
+  );
+  await expect(diagram.locator('.react-flow__node-service.vdd-on')).toHaveCount(8);
+  await expect(diagram.locator('.react-flow__node-service.vdd-dim')).toHaveCount(7);
+  await expect(diagram.locator('.react-flow__edge.vdd-on')).toHaveCount(8);
+  await expect(page.locator('[data-path-status]')).toContainText('SES receipt rule');
+
+  await bar.getByRole('button', { name: 'Releases' }).click();
+  await expect(diagram.locator('.react-flow__node-service.vdd-on')).toHaveCount(4);
+
+  await bar.getByRole('button', { name: 'Everything' }).click();
+  await expect(diagram.locator('.vdd-on, .vdd-dim')).toHaveCount(0);
+  await expect(page.locator('[data-path-status]')).toBeEmpty();
+
+  // Only the production diagram has paths; the release diagram has no buttons.
+  await expect(page.locator('[data-paths]')).toHaveCount(1);
+  expect(await page.evaluate(() => (window as unknown as { __csp: string[] }).__csp)).toEqual([]);
+  const results = await new AxeBuilder({ page }).include('figure').analyze();
+  expect(results.violations).toEqual([]);
+});
