@@ -1,5 +1,6 @@
 ---
 import { type Locale, localeUrl, useTranslations } from '../i18n';
+import CaseIllustration, { type IllustrationVariant } from '../components/CaseIllustration.astro';
 import CTAButton from '../components/CTAButton.astro';
 import Base from './Base.astro';
 
@@ -9,9 +10,11 @@ interface Props {
   summary: string;
   /** Where translations of this case study live; see Base. */
   alternates?: Partial<Record<Locale, string>>;
+  /** Symbolic art beside the title on wide screens; none when unset. */
+  illustration?: IllustrationVariant;
 }
 
-const { locale, title, summary, alternates } = Astro.props;
+const { locale, title, summary, alternates, illustration } = Astro.props;
 const t = useTranslations(locale);
 ---
 
@@ -28,9 +31,12 @@ const t = useTranslations(locale);
     >
       ← {t.backToWork}
     </a>
-    <header class="mt-4 max-w-measure">
-      <h1 class="text-4xl">{title}</h1>
-      <p class="text-muted mt-4 text-xl">{summary}</p>
+    <header class:list={['mt-4', illustration ? 'case-head' : 'max-w-measure']}>
+      <div class="max-w-measure">
+        <h1 class="text-4xl">{title}</h1>
+        <p class="text-muted mt-4 text-xl">{summary}</p>
+      </div>
+      {illustration && <CaseIllustration variant={illustration} />}
     </header>
     <div class="prose mt-10">
       <slot />
@@ -42,3 +48,34 @@ const t = useTranslations(locale);
     </aside>
   </article>
 </Base>
+
+<style>
+  /* The illustration fills the empty right side of the header on wide screens only; on phones
+     the evidence should come first, so it is left out. */
+  .case-head > :global(.illo) {
+    display: none;
+  }
+
+  @media (min-width: 64rem) {
+    .case-head {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) minmax(0, 27rem);
+      align-items: center;
+      gap: 2.5rem;
+    }
+
+    /* 20% larger than the first version (its column plus 5rem of right margin, about 32rem):
+       about 38rem, reaching 2rem into the gap and the rest into the right margin. Capped at the
+       space actually left beside the page (gutter plus the area outside --container-page, minus
+       1rem for a scrollbar), so it never causes sideways scrolling on narrower desktops. */
+    .case-head > :global(.illo) {
+      --room: max(
+        var(--spacing-gutter),
+        (100vw - var(--container-page)) / 2 + var(--spacing-gutter)
+      );
+      display: block;
+      width: min((100% + 5rem) * 1.2, 100% + 2rem + var(--room) - 1rem);
+      margin: -5rem 0 -4rem -2rem;
+    }
+  }
+</style>

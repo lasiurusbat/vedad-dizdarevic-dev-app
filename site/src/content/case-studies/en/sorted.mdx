@@ -19,6 +19,7 @@ decisions:
     why: 'A bug in the app cannot expose the database or serve an unscanned file, because the bucket policy denies any object not tagged NO_THREATS_FOUND by GuardDuty. The cost is manual upkeep of the Cloudflare IP list, documented in the runbook.'
   - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
     why: 'Fixed cost stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
+illustration: 'inbox'
 outcomes:
   - label: 'Long-lived AWS keys in CI/CD'
     value: '0'
