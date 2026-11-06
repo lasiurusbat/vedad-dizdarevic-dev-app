@@ -71,6 +71,7 @@ import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
+import Limitations from '../../../components/Limitations.astro';
 import TradeOff from '../../../components/TradeOff.astro';
 import CostComparison from '../../../components/CostComparison.astro';
 import ScalingPath from '../../../components/ScalingPath.astro';
@@ -342,11 +343,39 @@ Four rules keep the AI safe:
 
 ## Limitations and what I would do next
 
-- **One task.** The database fails over across zones, but the single app task is restarted by ECS in the other zone, a short interruption. I have not tested it under load or a real failover, and there is no autoscaling yet.
-- **The deploy role is an administrator.** A permission boundary and a scoped policy generated from a plan would be a better end state.
-- **Alert rules live in Grafana, not in Terraform.** Only the IAM role is code today.
-- **Terraform state holds generated secrets in plain text.** The bucket is private and encrypted, but I would create those secrets outside state or rotate them on a schedule.
-- **Backup restore is documented but not drilled.** Both the RDS snapshot and the Deep Archive backups need a scheduled restore test.
-- **No WAF rules of my own.** I would add rate-based rules and test them against the SES and Stripe webhooks first, because a challenge on those paths would silently break mail and billing.
+<Limitations
+  label="Limitations of the Sorted platform and the next step for each"
+  items={[
+    {
+      gap: "One app task",
+      detail: "After a zone outage ECS restarts it in the other zone, a short interruption. Not tested under load or in a real failover.",
+      next: "Two or more tasks with target-tracking autoscaling, then a load test and a failover drill.",
+    },
+    {
+      gap: "The deploy role is an administrator",
+      detail: "Limited by trust conditions, not by its permissions.",
+      next: "A permission boundary and a scoped policy generated from a plan.",
+    },
+    {
+      gap: "Alert rules live in Grafana, not in Terraform",
+      detail: "Only the IAM role is code today.",
+      next: "Manage the alert rules in Terraform as well.",
+    },
+    {
+      gap: "Terraform state holds generated secrets in plain text",
+      detail: "The bucket is private and encrypted.",
+      next: "Create those secrets outside state, or rotate them on a schedule.",
+    },
+    {
+      gap: "Backup restore is documented but not drilled",
+      detail: "Covers the RDS snapshot and the Deep Archive backups.",
+      next: "A scheduled restore test for both.",
+    },
+    {
+      gap: "No WAF rules of my own",
+      next: "Rate-based rules, tested against the SES and Stripe webhooks first: a challenge on those paths would silently break mail and billing.",
+    },
+  ]}
+/>
 
 I do not claim a formal security audit. I used review passes while building.
