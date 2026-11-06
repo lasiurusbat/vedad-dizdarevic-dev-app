@@ -18,8 +18,10 @@ import type { ImageMetadata } from 'astro';
 import { getLocale, useTranslations } from '../i18n';
 
 interface Item {
+  /** The screenshot; with `dark`, the light-UI version of a pair. */
   light: ImageMetadata;
-  dark: ImageMetadata;
+  /** The dark-UI version. Without it the single image shows in both themes (RainAlert). */
+  dark?: ImageMetadata;
   /** Describes what the screenshot shows. Required, never "screenshot". */
   alt: string;
   title: string;
@@ -49,7 +51,11 @@ async function variants(src: ImageMetadata) {
 }
 
 const cards = await Promise.all(
-  items.map(async (i) => ({ ...i, l: await variants(i.light), d: await variants(i.dark) })),
+  items.map(async (i) => ({
+    ...i,
+    l: await variants(i.light),
+    d: i.dark ? await variants(i.dark) : undefined,
+  })),
 );
 ---
 
@@ -76,7 +82,7 @@ const cards = await Promise.all(
           <div class="shot">
             <div class="pic">
               <img
-                class="only-light"
+                class:list={[c.d && 'only-light']}
                 src={c.l.src}
                 srcset={c.l.srcset}
                 sizes={sizes}
@@ -86,17 +92,19 @@ const cards = await Promise.all(
                 loading="lazy"
                 decoding="async"
               />
-              <img
-                class="only-dark"
-                src={c.d.src}
-                srcset={c.d.srcset}
-                sizes={sizes}
-                alt={c.alt}
-                width={c.dark.width}
-                height={c.dark.height}
-                loading="lazy"
-                decoding="async"
-              />
+              {c.d && c.dark && (
+                <img
+                  class="only-dark"
+                  src={c.d.src}
+                  srcset={c.d.srcset}
+                  sizes={sizes}
+                  alt={c.alt}
+                  width={c.dark.width}
+                  height={c.dark.height}
+                  loading="lazy"
+                  decoding="async"
+                />
+              )}
             </div>
           </div>
           <div class="body">

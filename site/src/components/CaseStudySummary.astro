@@ -11,9 +11,9 @@ const { locale, data } = Astro.props;
 const t = useTranslations(locale);
 // Live links (the running product) become badges; the domain shows where the link goes.
 const liveLinks = data.liveLinks.map((l) => ({ ...l, host: new URL(l.url).hostname }));
-// The source cell closes the fact row: the repository path as a link, or a plain note if private.
+// The source cell closes the fact row: the repository name as a link, or a plain note if private.
 const source = data.repoUrl
-  ? { value: data.repoUrl.replace(/^https?:\/\/(www\.)?github\.com\//, ''), url: data.repoUrl }
+  ? { value: data.repoUrl.replace(/\/+$/, '').split('/').pop() ?? data.repoUrl, url: data.repoUrl }
   : data.repoPrivate
     ? { value: t.casePrivateRepo }
     : undefined;
@@ -165,8 +165,10 @@ const cells: { label: string; value: string; url?: string }[] = [
       gap: 2rem;
     }
 
-    .fact dd {
-      white-space: nowrap;
+    /* Cells shrink and wrap only when the row would not fit (long repository names). */
+    .fact {
+      min-width: 0;
+      flex: 0 1 auto;
     }
   }
 
