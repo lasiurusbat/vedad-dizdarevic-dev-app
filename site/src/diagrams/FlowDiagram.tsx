@@ -8,7 +8,7 @@ import {
   type Edge,
   type ReactFlowInstance,
 } from '@xyflow/react';
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import '@xyflow/react/dist/base.css';
 import './flow.css';
 import { GroupLabel, ServiceNode } from './ServiceNode';
@@ -34,6 +34,21 @@ function useFinePointer() {
   return fine;
 }
 
+/**
+ * On a narrow screen the diagram keeps a readable width and its figure scrolls sideways. Start that
+ * scroll centred on the focus node, so the first thing visible is the main path, not the left edge.
+ */
+function centreOnFocus(el: HTMLElement | null, nodeId: string | undefined) {
+  const scroller = el?.closest<HTMLElement>('.overflow-x-auto');
+  if (!el || !scroller || !nodeId || scroller.scrollWidth <= scroller.clientWidth) return;
+  const node = el.querySelector<HTMLElement>(`.react-flow__node[data-id="${nodeId}"]`);
+  if (!node) return;
+  const box = node.getBoundingClientRect();
+  const frame = scroller.getBoundingClientRect();
+  const centre = box.left + box.width / 2 - frame.left + scroller.scrollLeft;
+  scroller.scrollLeft = centre - scroller.clientWidth / 2;
+}
+
 function Diagram({ id, label }: { id: DiagramId; label: string }) {
   const diagram = diagrams[id];
   const fine = useFinePointer();
@@ -44,12 +59,14 @@ function Diagram({ id, label }: { id: DiagramId; label: string }) {
   const zoom = useStore((state) => state.transform[2]);
   const zoomedIn = fitZoom !== null && zoom > fitZoom * 1.02;
   const canPan = fine && zoomedIn;
+  const wrapper = useRef<HTMLDivElement>(null);
   const onInit = async (instance: ReactFlowInstance<DiagramNode, Edge>) => {
     await instance.fitView({ padding });
     setFitZoom(instance.getZoom());
+    centreOnFocus(wrapper.current, diagram.focusNode);
   };
   return (
-    <div className="vdd-flow" data-pan={canPan} role="group" aria-label={label}>
+    <div ref={wrapper} className="vdd-flow" data-pan={canPan} role="group" aria-label={label}>
       <ReactFlow
         nodes={diagram.nodes}
         edges={diagram.edges}

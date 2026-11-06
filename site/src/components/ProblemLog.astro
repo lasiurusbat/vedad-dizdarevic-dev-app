@@ -1,6 +1,6 @@
 ---
 /*
- * "Problems I hit" as an incident log: numbered rows, each with an area tag, what broke and the
+ * "Problems I hit" as an incident log: rows, each with an area tag, what broke and the
  * fix. One bordered panel with hairline rows, like a console log or changelog. Wide screens show
  * three columns under a small header row; phones stack each entry with the fix set off by a thin
  * rule. Text in `backticks` renders as inline code chips.
@@ -42,10 +42,9 @@ const parts = (s: string) =>
     <span>{t.problemFix}</span>
   </div>
   <ol role="list">
-    {items.map((it, i) => (
+    {items.map((it) => (
       <li class="entry">
         <div class="meta">
-          <span class="index">{String(i + 1).padStart(2, '0')}</span>
           <span class="tag">
             <span class="sr-only">{t.problemArea}: </span>
             {it.area}
@@ -90,13 +89,6 @@ const parts = (s: string) =>
     display: flex;
     align-items: center;
     gap: 0.75rem;
-  }
-
-  .index {
-    color: var(--muted);
-    font-family: var(--font-mono);
-    font-size: var(--text-xs);
-    font-variant-numeric: tabular-nums;
   }
 
   .tag {
