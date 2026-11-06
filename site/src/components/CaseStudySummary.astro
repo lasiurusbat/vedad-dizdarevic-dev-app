@@ -10,17 +10,33 @@ interface Props {
 
 const { locale, data } = Astro.props;
 const t = useTranslations(locale);
-const links = [
-  ...(data.repoUrl ? [{ label: t.caseRepo, url: data.repoUrl }] : []),
-  ...data.liveLinks,
-];
+const repoLinks = data.repoUrl ? [{ label: t.caseRepo, url: data.repoUrl }] : [];
+// Live links (the running product) become badges; the domain shows where the link goes.
+const liveLinks = data.liveLinks.map((l) => ({ ...l, host: new URL(l.url).hostname }));
+const links = [...liveLinks, ...repoLinks];
 ---
 
 <!-- The structured part of a case study; the MDX body follows it. Headings start at h2. -->
 <!-- Links sit first, next to the title, so they do not break the flow between outcome and write-up. -->
 {(links.length > 0 || data.repoPrivate) && (
   <ul class="case-links not-prose text-sm" role="list">
-    {links.map((l) => (
+    {liveLinks.map((l) => (
+      <li>
+        {/* A status chip that is also the link: the dot says the product is live. */}
+        <a href={l.url} target="_blank" rel="noopener noreferrer" class="live-badge">
+          <span class="live-dot" aria-hidden="true"></span>
+          <span class="live-label">{l.label}</span>
+          <span class="live-host">
+            {l.host}
+            <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
+              <path d="M4 2.5h5.5V8 M9.5 2.5 3 9" />
+            </svg>
+          </span>
+          <span class="sr-only">{t.opensNewTab}</span>
+        </a>
+      </li>
+    ))}
+    {repoLinks.map((l) => (
       <li>
         <a href={l.url} rel="noopener noreferrer" class="underline">
           {l.label}
@@ -67,10 +83,119 @@ const links = [
   .case-links {
     display: flex;
     flex-wrap: wrap;
-    gap: 0.25rem 1.5rem;
+    align-items: center;
+    gap: 0.75rem 1.5rem;
     margin-bottom: 2rem;
   }
-  .case-links a {
+
+  /*
+   * Live badge: a pill (set apart from the 10px action buttons: it goes to the product, it is not
+   * a call to contact) on the secondary buttons' lit-from-above surface. The status dot is the one
+   * extra colour, a muted green that means "online". The domain is the second segment so the
+   * reader knows where the link leads; the arrow marks that it leaves this site. It opens in a new
+   * tab (announced to screen readers), so the case study stays open.
+   */
+  .live-badge {
+    --badge-top: light-dark(#ffffff, #1b1d2a);
+    --badge-bottom: light-dark(#f3f4f8, #12131d);
+    --badge-edge: light-dark(#cfd3de, #2b3042);
+    --badge-shine: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.07));
+    --badge-halo: light-dark(rgb(56 100 116 / 0.12), rgb(166 181 190 / 0.14));
+    --live: light-dark(#2f7d55, #6cc795);
+
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.625rem;
+    padding: 0 0.5rem 0 1rem;
+    border: 1px solid var(--badge-edge);
+    border-radius: 999px;
+    background: linear-gradient(to bottom, var(--badge-top), var(--badge-bottom));
+    box-shadow:
+      inset 0 1px 0 0 var(--badge-shine),
+      0 0 14px 0 var(--badge-halo);
+    color: var(--fg);
+    font-weight: 500;
+    text-decoration: none;
+    transition:
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+
+  .live-badge:hover {
+    --badge-edge: light-dark(#83909a, #4f8597);
+    --badge-halo: light-dark(rgb(56 100 116 / 0.22), rgb(143 180 195 / 0.3));
+  }
+
+  .live-badge:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
+  }
+
+  .live-dot {
+    position: relative;
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: none;
+    border-radius: 50%;
+    background: var(--live);
+    box-shadow: 0 0 6px var(--live);
+  }
+
+  /* One slow ripple every few seconds: alive, not busy. */
+  .live-dot::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: 50%;
+    border: 1px solid var(--live);
+    opacity: 0;
+  }
+
+  @media (prefers-reduced-motion: no-preference) {
+    .live-dot::after {
+      animation: ripple 3.2s ease-out infinite;
+    }
+  }
+
+  @keyframes ripple {
+    0% {
+      opacity: 0.8;
+      transform: scale(1);
+    }
+    45%,
+    100% {
+      opacity: 0;
+      transform: scale(3);
+    }
+  }
+
+  /* The domain segment: a hairline before it, muted until hovered. */
+  .live-host {
+    display: inline-flex;
+    min-height: 1.875rem;
+    align-items: center;
+    gap: 0.375rem;
+    padding: 0 0.75rem 0 0.625rem;
+    border-left: 1px solid var(--badge-edge);
+    color: var(--muted);
+    font-weight: 400;
+    transition: color 150ms ease;
+  }
+
+  .live-badge:hover .live-host {
+    color: var(--fg);
+  }
+
+  .live-host svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .case-links a:not(.live-badge) {
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
