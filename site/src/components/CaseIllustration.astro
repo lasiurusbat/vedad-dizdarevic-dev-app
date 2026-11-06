@@ -1,0 +1,687 @@
+---
+/*
+ * Symbolic header illustration for a case study: line art in the site tokens, beside the title on
+ * wide screens. Decorative (aria-hidden); the page text carries every fact it hints at.
+ *
+ * Variants (Sorted):
+ *   inbox     - scattered mail passes one gate in the perimeter and leaves as sorted ticket lanes
+ *   module    - one Terraform module with three flags stamps out identical dev and prod
+ *   perimeter - nested boundaries (edge, VPC, private) with one gate each around the data
+ *
+ * CSP: inline SVG only, no style attributes; geometry is SVG attributes, colours and motion live
+ * in this component's bundled stylesheet. Packets use pathLength=100 and a 4/120 dash, like the
+ * home hero, so one dash runs along a path and disappears; hop classes stagger them.
+ *
+ * The inbox variant is event-driven instead: a small bundled script sends one email at a random
+ * moment (every 4-9s, only while the art is on screen and the tab is visible). When it reaches
+ * the gate (animationend), the gate flashes once and one random ticket lane receives it. Without
+ * JavaScript, or with reduced motion, the art stays still.
+ */
+export type IllustrationVariant = 'inbox' | 'module' | 'perimeter';
+
+interface Props {
+  variant: IllustrationVariant;
+}
+
+const { variant } = Astro.props;
+
+/* inbox: envelopes on the left (x, y, rotation), each wired to the gate. */
+const envelopes = [
+  { x: 34, y: 70, r: -14 },
+  { x: 112, y: 46, r: 9 },
+  { x: 70, y: 142, r: 6 },
+  { x: 150, y: 120, r: -8 },
+  { x: 28, y: 222, r: 12 },
+  { x: 120, y: 206, r: -4 },
+  { x: 62, y: 300, r: -10 },
+  { x: 146, y: 290, r: 7 },
+  { x: 96, y: 372, r: 4 },
+];
+const gate = { x: 248, y: 220 };
+const lanes = [
+  { y: 112, label: 'triage', state: 'open' },
+  { y: 176, label: 'assigned', state: 'open' },
+  { y: 240, label: 'human only', state: 'locked' },
+  { y: 304, label: 'resolved', state: 'done' },
+];
+
+/* module: three flags; dev keeps them off, prod has them on. */
+const flags = ['multi_az', 'nat_per_az', 'on_demand'];
+---
+
+<div class="illo" aria-hidden="true">
+  <div class="plane">
+    {variant === 'inbox' && (
+      <svg viewBox="0 0 520 440" focusable="false" data-mail-flow>
+        {/* Perimeter: one wall with a single opening. */}
+        <path
+          class="wall"
+          d={`M${gate.x} 24 V${gate.y - 26} M${gate.x} ${gate.y + 26} V416`}
+        ></path>
+        <rect class="gate" x={gate.x - 9} y={gate.y - 26} width="18" height="52" rx="9"></rect>
+        {/* Flashes briefly when an email reaches the gate (set by the script). */}
+        <rect
+          class="gate-flash"
+          x={gate.x - 9}
+          y={gate.y - 26}
+          width="18"
+          height="52"
+          rx="9"
+        ></rect>
+        <text class="label" x={gate.x} y="16" text-anchor="middle">
+          perimeter
+        </text>
+
+        {envelopes.map((e) => (
+          <path
+            class="wire"
+            d={`M${e.x + 13} ${e.y + 9} C${e.x + 90} ${e.y + 9}, ${gate.x - 70} ${gate.y}, ${gate.x - 9} ${gate.y}`}
+            pathLength="100"
+          ></path>
+        ))}
+        {envelopes.map((e) => (
+          <path
+            class="pkt"
+            data-in
+            d={`M${e.x + 13} ${e.y + 9} C${e.x + 90} ${e.y + 9}, ${gate.x - 70} ${gate.y}, ${gate.x - 9} ${gate.y}`}
+            pathLength="100"
+          ></path>
+        ))}
+        {envelopes.map((e) => (
+          <g transform={`translate(${e.x} ${e.y}) rotate(${e.r} 13 9)`}>
+            <rect class="env" width="26" height="18" rx="2"></rect>
+            <path class="env-flap" d="M1 2 L13 10 L25 2"></path>
+          </g>
+        ))}
+
+        {lanes.map((l) => (
+          <>
+            <path
+              class="wire"
+              d={`M${gate.x + 9} ${gate.y} C${gate.x + 50} ${gate.y}, ${gate.x + 40} ${l.y}, 316 ${l.y}`}
+              pathLength="100"
+            ></path>
+            <path
+              class="pkt"
+              data-out
+              d={`M${gate.x + 9} ${gate.y} C${gate.x + 50} ${gate.y}, ${gate.x + 40} ${l.y}, 316 ${l.y}`}
+              pathLength="100"
+            ></path>
+            <g transform={`translate(316 ${l.y - 20})`}>
+              <rect class:list={['ticket', l.state]} width="180" height="40" rx="8"></rect>
+              <circle class:list={['dot', l.state]} cx="18" cy="20" r="4"></circle>
+              <rect class="line" x="32" y="13" width="72" height="5" rx="2.5"></rect>
+              <rect class="line faint" x="32" y="23" width="46" height="4" rx="2"></rect>
+              <text class="label" x="168" y="24" text-anchor="end">
+                {l.label}
+              </text>
+            </g>
+          </>
+        ))}
+      </svg>
+    )}
+
+    {variant === 'module' && (
+      <svg viewBox="0 0 520 440" focusable="false">
+        {/* The module: a stack of plates with three switches. */}
+        <g transform="translate(24 128)">
+          <path class="plate" d="M0 40 L70 6 L140 40 L70 74 Z"></path>
+          <path class="plate mid" d="M0 62 L70 28 L140 62 L70 96 Z"></path>
+          <path class="plate top" d="M0 84 L70 50 L140 84 L70 118 Z"></path>
+          <text class="title" x="70" y="146" text-anchor="middle">
+            one module
+          </text>
+          {flags.map((f, i) => (
+            <g transform={`translate(4 ${166 + i * 24})`}>
+              <rect class="switch" width="26" height="14" rx="7"></rect>
+              <circle class="knob" cx="7" cy="7" r="4.5"></circle>
+              <text class="label mono" x="36" y="11">
+                {f}
+              </text>
+            </g>
+          ))}
+        </g>
+
+        {/* dev and prod: the same shapes; prod has the flags on and a standby in a second zone. */}
+        {[
+          { y: 30, name: 'dev', on: false },
+          { y: 236, name: 'prod', on: true },
+        ].map((env, k) => (
+          <>
+            <path
+              class="wire"
+              d={`M164 ${k === 0 ? 206 : 222} C214 ${k === 0 ? 206 : 222}, 214 ${env.y + 87}, 262 ${env.y + 87}`}
+              pathLength="100"
+            ></path>
+            <path
+              class:list={['pkt', `hop-${k}`]}
+              d={`M164 ${k === 0 ? 206 : 222} C214 ${k === 0 ? 206 : 222}, 214 ${env.y + 87}, 262 ${env.y + 87}`}
+              pathLength="100"
+            ></path>
+            <g transform={`translate(262 ${env.y})`}>
+              <rect
+                class:list={['env-box', env.on && 'on']}
+                width="234"
+                height="174"
+                rx="10"
+              ></rect>
+              <text class="title" x="14" y="24">
+                {env.name}
+              </text>
+              {flags.map((_, i) => (
+                <g transform={`translate(${150 + i * 26} 13)`}>
+                  <rect
+                    class:list={['switch', 'small', env.on && 'on']}
+                    width="20"
+                    height="11"
+                    rx="5.5"
+                  ></rect>
+                  <circle
+                    class:list={['knob', env.on && 'on']}
+                    cx={env.on ? 14.5 : 5.5}
+                    cy="5.5"
+                    r="3.5"
+                  ></circle>
+                </g>
+              ))}
+              <rect
+                class="zone"
+                x="14"
+                y="40"
+                width={env.on ? 100 : 206}
+                height="120"
+                rx="6"
+              ></rect>
+              {env.on && <rect class="zone" x="120" y="40" width="100" height="120" rx="6"></rect>}
+              <rect class="node" x="30" y="58" width="68" height="22" rx="4"></rect>
+              <rect class="node" x="30" y="90" width="68" height="22" rx="4"></rect>
+              <path
+                class="db"
+                d="M44 124 v18 a20 6 0 0 0 40 0 v-18 a20 6 0 0 0 -40 0 a20 6 0 0 0 40 0"
+              ></path>
+              {env.on && (
+                <>
+                  <rect class="node" x="136" y="58" width="68" height="22" rx="4"></rect>
+                  <rect class="node" x="136" y="90" width="68" height="22" rx="4"></rect>
+                  <path
+                    class="db standby"
+                    d="M150 124 v18 a20 6 0 0 0 40 0 v-18 a20 6 0 0 0 -40 0 a20 6 0 0 0 40 0"
+                  ></path>
+                  <path class="sync" d="M84 136 H150" pathLength="100"></path>
+                </>
+              )}
+            </g>
+          </>
+        ))}
+      </svg>
+    )}
+
+    {variant === 'perimeter' && (
+      <svg viewBox="0 0 520 440" focusable="false">
+        {/* Three nested boundaries, each with one gate (the lit mark). */}
+        <rect class="ring r1" x="20" y="20" width="480" height="400" rx="28"></rect>
+        <rect class="ring r2" x="84" y="74" width="352" height="292" rx="22"></rect>
+        <rect class="ring r3" x="160" y="138" width="200" height="164" rx="16"></rect>
+        <rect class="gate" x="15" y="200" width="10" height="40" rx="5"></rect>
+        <rect class="gate" x="240" y="69" width="40" height="10" rx="5"></rect>
+        <rect class="gate" x="355" y="200" width="10" height="40" rx="5"></rect>
+        <text class="label" x="44" y="46">
+          edge · Cloudflare only
+        </text>
+        <text class="label" x="106" y="98">
+          VPC
+        </text>
+        <text class="label" x="176" y="160">
+          private subnets
+        </text>
+
+        {/* Allowed path: through each gate in turn, to the data. */}
+        <path
+          class="wire"
+          d="M-10 220 H52 C52 120, 150 74, 260 74 C360 74, 400 140, 400 220 H360 C330 220, 300 230, 290 236"
+          pathLength="100"
+        ></path>
+        <path
+          class="pkt hop-0"
+          d="M-10 220 H52 C52 120, 150 74, 260 74 C360 74, 400 140, 400 220 H360 C330 220, 300 230, 290 236"
+          pathLength="100"
+        ></path>
+        <path
+          class="pkt hop-2"
+          d="M-10 220 H52 C52 120, 150 74, 260 74 C360 74, 400 140, 400 220 H360 C330 220, 300 230, 290 236"
+          pathLength="100"
+        ></path>
+
+        {/* Turned away at the edge. */}
+        {[110, 330].map((y) => (
+          <>
+            <path class="wire faint" d={`M-10 ${y} H20`}></path>
+            <path class="cross" d={`M2 ${y - 6} l12 12 M14 ${y - 6} l-12 12`}></path>
+          </>
+        ))}
+        <path class="wire faint" d="M260 -10 V20"></path>
+        <path class="cross" d="M254 2 l12 12 M266 2 l-12 12"></path>
+
+        {/* The data: a database and a bucket whose objects need a scan tag. */}
+        <path
+          class="db core"
+          d="M206 214 v40 a28 8 0 0 0 56 0 v-40 a28 8 0 0 0 -56 0 a28 8 0 0 0 56 0"
+        ></path>
+        <g transform="translate(276 196)">
+          <path class="bucket" d="M0 8 L6 64 H50 L56 8 Z"></path>
+          <ellipse class="bucket" cx="28" cy="8" rx="28" ry="7"></ellipse>
+          <path class="check" d="M17 36 l8 8 l14 -16"></path>
+        </g>
+        <text class="label" x="260" y="290" text-anchor="middle">
+          scanned or unreadable
+        </text>
+      </svg>
+    )}
+  </div>
+</div>
+
+<script>
+  // Inbox variant: one email at a time, at random moments, so the motion never becomes a beat.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  for (const svg of document.querySelectorAll<SVGSVGElement>('[data-mail-flow]')) {
+    const inbound = [...svg.querySelectorAll<SVGPathElement>('[data-in]')];
+    const outbound = [...svg.querySelectorAll<SVGPathElement>('[data-out]')];
+    const flash = svg.querySelector<SVGElement>('.gate-flash');
+    const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)]!;
+    let onScreen = false;
+
+    // Restart a one-shot CSS animation on an element.
+    const fire = (el: Element, cls: string) => {
+      el.classList.remove(cls);
+      void el.getBoundingClientRect();
+      el.classList.add(cls);
+    };
+
+    for (const p of inbound) {
+      p.addEventListener('animationend', () => {
+        p.classList.remove('run');
+        if (flash) fire(flash, 'burst');
+        fire(pick(outbound), 'run');
+      });
+    }
+    for (const p of outbound) p.addEventListener('animationend', () => p.classList.remove('run'));
+    flash?.addEventListener('animationend', () => flash.classList.remove('burst'));
+
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry?.isIntersecting ?? false;
+    }).observe(svg);
+
+    const next = (delay: number) => {
+      window.setTimeout(() => {
+        if (onScreen && !document.hidden && !reduced.matches) fire(pick(inbound), 'run');
+        next(4000 + Math.random() * 5000);
+      }, delay);
+    };
+    next(1200 + Math.random() * 1500);
+  }
+</script>
+
+<style>
+  .illo {
+    animation: appear 0.6s ease-out 0.1s both;
+    perspective: 1100px;
+    /* The tilt pushes corners past the box; clip there (already faded) so the page never scrolls sideways. */
+    overflow: clip;
+    /* Fade every edge into the page, like the home hero. */
+    mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
+  }
+
+  /* A slight tilt, turned towards the title, like the home hero (a little gentler). */
+  .plane {
+    position: relative;
+    isolation: isolate;
+    transform: rotateX(18deg) rotateY(-30deg) rotateZ(2.5deg);
+    transform-origin: 40% 50%;
+  }
+
+  /* Dot matrix behind the art, densest in the middle; tilts with it. */
+  .plane::before {
+    content: '';
+    position: absolute;
+    inset: -4%;
+    z-index: -1;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--fg) 16%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 12px 12px;
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 25%, transparent 100%);
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .label {
+    fill: var(--muted);
+    font-size: 12px;
+  }
+
+  .mono {
+    font-family: var(--font-mono, ui-monospace, monospace);
+    font-size: 11px;
+  }
+
+  .title {
+    fill: var(--fg);
+    font-family: var(--font-display, inherit);
+    font-size: 15px;
+    font-weight: 500;
+  }
+
+  .wire {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.1;
+    stroke-opacity: 0.55;
+  }
+
+  .wire.faint {
+    stroke-dasharray: 3 4;
+  }
+
+  .pkt {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 4 120;
+    stroke-dashoffset: 4;
+    filter: drop-shadow(0 0 4px var(--accent));
+    animation: flow 2.8s linear infinite;
+  }
+
+  .hop-1 {
+    animation-delay: 0.933s;
+  }
+  .hop-2 {
+    animation-delay: 1.867s;
+  }
+  /* Inbox: packets wait for the script; each run is one trip, head to the end of the path. */
+  [data-mail-flow] .pkt {
+    animation: none;
+  }
+
+  [data-mail-flow] .pkt.run {
+    animation: trip 1.5s cubic-bezier(0.45, 0, 0.7, 1) forwards;
+  }
+
+  [data-mail-flow] [data-out].run {
+    animation-duration: 0.9s;
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+
+  /* inbox */
+  .wall {
+    stroke: var(--border-strong);
+    stroke-width: 2;
+    stroke-dasharray: 2 5;
+    stroke-linecap: round;
+  }
+
+  .gate {
+    fill: color-mix(in srgb, var(--accent) 14%, var(--bg));
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+  }
+
+  .gate-flash {
+    fill: var(--accent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 18px var(--accent));
+  }
+
+  .gate-flash.burst {
+    animation: burst 0.22s ease-out forwards;
+  }
+
+  .env {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+  }
+
+  .env-flap {
+    fill: none;
+    stroke: var(--border-strong);
+  }
+
+  .ticket {
+    fill: color-mix(in srgb, var(--surface) 80%, transparent);
+    stroke: var(--border-strong);
+    stroke-opacity: 0.6;
+  }
+
+  .ticket.locked {
+    stroke: var(--accent);
+    stroke-opacity: 0.8;
+    stroke-dasharray: 4 3;
+  }
+
+  .dot {
+    fill: var(--accent);
+  }
+
+  .dot.done {
+    fill: none;
+    stroke: var(--muted);
+  }
+
+  .dot.locked {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+
+  .line {
+    fill: color-mix(in srgb, var(--fg) 22%, transparent);
+  }
+
+  .line.faint {
+    fill: color-mix(in srgb, var(--fg) 10%, transparent);
+  }
+
+  /* module */
+  .plate {
+    fill: color-mix(in srgb, var(--bg) 85%, transparent);
+    stroke: var(--border-strong);
+  }
+
+  .plate.top {
+    fill: color-mix(in srgb, var(--accent) 12%, var(--bg));
+    stroke: var(--accent);
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 35%, transparent));
+  }
+
+  .switch {
+    fill: none;
+    stroke: var(--border-strong);
+  }
+
+  .switch.on {
+    fill: color-mix(in srgb, var(--accent) 30%, transparent);
+    stroke: var(--accent);
+  }
+
+  .knob {
+    fill: var(--muted);
+  }
+
+  .knob.on {
+    fill: var(--accent);
+  }
+
+  /* The module's own switches flip back and forth: same code, different flags. */
+  .switch:not(.small) + .knob {
+    animation: toggle 5.6s ease-in-out infinite;
+  }
+
+  .env-box {
+    fill: color-mix(in srgb, var(--surface) 60%, transparent);
+    stroke: var(--border-strong);
+    stroke-opacity: 0.6;
+  }
+
+  .env-box.on {
+    stroke: var(--accent);
+    stroke-opacity: 0.7;
+  }
+
+  .zone {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.5;
+    stroke-dasharray: 5 4;
+  }
+
+  .node {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+  }
+
+  .db,
+  .bucket {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+    stroke-width: 1.2;
+  }
+
+  .db.standby {
+    stroke-dasharray: 3 3;
+  }
+
+  .sync {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    stroke-dasharray: 3 4;
+    animation: march 1.6s linear infinite;
+  }
+
+  /* perimeter */
+  .ring {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.55;
+  }
+
+  .r1 {
+    stroke-dasharray: 6 5;
+    animation: march 6s linear infinite;
+  }
+
+  .r2 {
+    fill: color-mix(in srgb, var(--accent) 3%, transparent);
+  }
+
+  .r3 {
+    fill: color-mix(in srgb, var(--accent) 6%, transparent);
+    stroke: var(--accent);
+    stroke-opacity: 0.6;
+  }
+
+  .cross {
+    fill: none;
+    stroke: var(--muted);
+    stroke-width: 1.5;
+    stroke-linecap: round;
+  }
+
+  .db.core {
+    stroke: var(--accent);
+    filter: drop-shadow(0 0 12px color-mix(in srgb, var(--accent) 40%, transparent));
+  }
+
+  .check {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  @keyframes flow {
+    from {
+      stroke-dashoffset: 4;
+    }
+    to {
+      stroke-dashoffset: -120;
+    }
+  }
+
+  /* A flashburst: on at once, gone in about a fifth of a second. */
+  @keyframes burst {
+    0% {
+      opacity: 0;
+      transform: scale(1);
+    }
+    12% {
+      opacity: 0.95;
+      transform: scale(1.35);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+  }
+
+  /* One trip: the dash enters at the start and is fully absorbed at the end. */
+  @keyframes trip {
+    from {
+      stroke-dashoffset: 4;
+    }
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  @keyframes march {
+    to {
+      stroke-dashoffset: -44;
+    }
+  }
+
+  @keyframes toggle {
+    0%,
+    40% {
+      transform: translateX(0);
+    }
+    50%,
+    90% {
+      transform: translateX(12px);
+    }
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .illo,
+    .pkt,
+    .sync,
+    .r1,
+    .switch:not(.small) + .knob {
+      animation: none;
+    }
+
+    .pkt,
+    .gate-flash {
+      display: none;
+    }
+  }
+</style>
