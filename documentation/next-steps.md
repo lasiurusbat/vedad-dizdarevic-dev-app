@@ -2,9 +2,28 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-06 (day 5)
+## Stopped at: 2026-11-06 (day 5, afternoon)
 
-**Everything from today is merged** (#30–#37; no open PRs). Today was the Sorted page and the look:
+**Everything is merged** (#30–#40; no open PRs).
+
+### Afternoon: Sorted page review and the restructure plan
+
+A design review of the live Sorted page (1440 px and 390 px, both themes) found: the strongest evidence comes late (about 1,100 px of text on desktop, 2,000 px on a phone, before the first diagram; stats and cost table before the reader knows the system); the same claims repeat three or four times ("three flags away", "no long-lived keys", the perimeter, stack chips vs Tech stack); the Decisions list is cut off from its evidence and mixes gain and price in one "Why"; the desktop layout leaves the right 40% empty beside a 70ch column; too many sections look alike (bold-lead bullet lists, the same faded card everywhere).
+
+**PR 1 done (#40):** prose backticks gone; cost table item column fixed (the number columns were 4 × 24%; now 16% each, items at least 8rem from 40rem up, phones still fit all four columns); diagrams take an optional `focusNode` so a phone opens centred on it (Sorted production centres on Cloudflare, i.e. the request path); problem log without 01–05 numbers; dashboard map group labels in sentence case, meta line without middle dots; no stack chips under case-study titles.
+
+**Agreed plan for the next PRs (one each, branch from `main`):**
+
+- **PR 2, hero and order:** a fact sheet beside the title (status, role, built, region, environments, source; new `facts` frontmatter) replaces the links row and most of Scope; outcome stats move up under the hero, with the one honesty sentence from Scope as a note; the cost card moves into the body (used from MDX, not `CaseStudySummary`).
+- **PR 3, sections by decision:** remove the separate Decisions list; each decision opens its own section next to its evidence (one module → Scaling path; perimeter → network/data; keyless delivery → release diagram; cost per environment → cost card), with a `TradeOff` margin note (gained / price) in the empty right column on desktop, under the heading on phones. Decisions get `gain` / `price` fields. Then operations (monitoring, dashboard map, problems I hit), the workload with the gallery, Tech stack as reference near the end, Limitations as gap / next step. Cut the duplicated sentences. `case-studies.spec.ts` counts h2 sections and checks "The problem"; the `example` drafts follow.
+- **PR 4, diagram path buttons:** Request / Mail / Release buttons on the production diagram highlight that path and dim the rest (classes only, CSP-safe; needs a spike and an e2e test). Replaces the two arrow-chain bullets above it. This is the page's one bold element; everything else gets quieter (faded line-art card only on the diagram and the cost card).
+- **PR 5, ending:** full-width closing CTA band (plus a link to the next case study once RainAlert exists), Limitations as a gap | next step table.
+- Rejected: a sticky table of contents in the right column (full-width diagrams would pass under it).
+
+**Do PRs 2–3 before the German Sorted version**, so it is translated once against the final structure.
+
+### Morning (#30–#37): the Sorted page and the look
+
 
 - **Costs from the AWS bill (#30).** The cost card shows dev and prod as billed (Cost Explorer, usage before credits, Oct 13 to Nov 4, projected to 730 h, split per environment by resource; `vdd-` charges left out) next to the doc estimates: dev before ~$105, **dev billed ~$38**, prod billed ~$96, prod at go-live ~$150. Credits currently pay the whole bill. Today's prod is still the pre-launch setup (Fargate Spot, one NAT gateway, single-AZ RDS); the page's decisions describe the go-live setup.
 - **Release path diagram (#31):** second React Flow diagram (`sorted-release`, compact canvas), v1.0.0 in nodes and text.
@@ -18,8 +37,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Next (in this order)
 
-1. **Fix the Tailwind typography backticks** around inline code in prose (`.prose code::before, .prose code::after { content: none }` in `site/src/styles/global.css`); several new sections use inline code, so this is now more visible.
-2. **Sorted German version** (`de/sorted.mdx`): German texts for the gallery, the `costs` block, the problem log, `ScalingPath`, `TechStack`, `DashboardMap` and the release diagram captions (diagram text alternatives already exist in DE). Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
+1. **Sorted page restructure, PRs 2–5** (plan above): hero fact sheet and order, sections by decision with trade-off notes, diagram path buttons, closing band.
+2. **Sorted German version** (after PRs 2–3) (`de/sorted.mdx`): German texts for the gallery, the `costs` block, the problem log, `ScalingPath`, `TechStack`, `DashboardMap` and the release diagram captions (diagram text alternatives already exist in DE). Then delete the draft `example` entries and move the e2e tests (`case-studies.spec.ts`, `diagram.spec.ts`) to Sorted.
 3. **Tests for the new pieces:** gallery prev/next and edge fades, the random hero variant (exactly one visible), reduced motion; light coverage for `TechStack`, `ScalingPath`, `DashboardMap` (render, no axe violations already covered by the page sweep).
 4. **RainAlert case study** (EN, then DE), DevOps-first like Sorted; reuse `costs`, `ProblemLog`, `TechStack` where the notes support them. The puddle image is AI-generated; say so in the caption.
 5. Rest of Phase 4: Skills groups, Work with me, How this site is built; About still lacks languages; About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
@@ -41,7 +60,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
 - The Sorted page states costs as estimates and says failover and backup restores are designed but not drilled. Update only when the owner confirms a drill happened. The owner approved publishing that the deploy role is an administrator (2026-11-04).
 - Local-only files: `.claude/` and `case-studies/Sorted-architecture.md` stay out of git (listed in `.git/info/exclude`, owner's decision 2026-11-06).
-- A preview server may still be running on port 4329 (`astro preview`): `cd site && npx astro preview stop`.
+- A preview server may still be running on port 4199 (`tests/e2e/serve.mjs` serving `site/dist`): `pkill -f "serve[.]mjs"`.
 - Old local branches whose PRs are merged can be deleted (`git branch --merged origin/main`); `feat/sorted-diagram` has one local commit that duplicates #27 and can go too.
 - e2e runs rebuild `site/dist` with `SHOW_DRAFTS=1`; rebuild without it before using `astro preview` to judge the production page.
 - Node 20 deprecation warning in the deploy run (`configure-aws-credentials@v5`, `pnpm/action-setup@v4`); bump the actions when newer majors exist.
