@@ -72,6 +72,7 @@ import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
 import ScalingPath from '../../../components/ScalingPath.astro';
+import DashboardMap from '../../../components/DashboardMap.astro';
 import ticketsLight from '../../../assets/case-studies/sorted/tickets-light.png';
 import ticketsDark from '../../../assets/case-studies/sorted/tickets-dark.png';
 import ticketLight from '../../../assets/case-studies/sorted/ticket-light.png';
@@ -190,6 +191,64 @@ Ordered from the edge visitors reach first down to the application the platform 
       tools: ['TypeScript', 'Bun', 'Express 5', 'React 19', 'Prisma 7', 'PostgreSQL row-level security', 'pg-boss', 'Vercel AI SDK'],
     },
   ]}
+/>
+
+## Monitoring: CloudWatch and Grafana
+
+CloudWatch holds the data; Grafana Cloud reads it in place, so nothing is shipped or copied. Terraform creates a read-only IAM role that Grafana's AWS account can assume only with the stack's External ID (protection against the confused deputy), limited to CloudWatch metrics and that environment's log group.
+
+- **Logs.** Containers log to `/ecs/sorted-<env>` in CloudWatch Logs, 30 days in prod and 7 in dev. The server writes structured JSON with a request ID, so one Logs Insights query follows a user's `X-Request-Id` through the system.
+- **Metrics.** The AWS namespaces for the ALB, ECS, RDS and SES, plus Container Insights in prod for the running task count.
+- **Uptime.** Synthetic checks probe the site and `/api/health`, which also checks the database.
+- **Spot visibility.** An EventBridge rule writes every `SpotInterruption` task stop into its own log group, so any restart is explainable.
+- **Alerts and runbook.** Rules on the same signals as the dashboard, each mapped to a section of a symptom-first runbook: the first five minutes, rollback, and the failure modes I actually hit.
+
+<DashboardMap
+  title="Sorted Overview (prod)"
+  meta="Grafana Cloud · CloudWatch and synthetic checks · refreshes every 5 minutes"
+  groups={[
+    {
+      name: 'Availability',
+      panels: [
+        { title: 'Uptime', viz: 'stat', source: 'Synthetic checks, `probe_success` averaged per check' },
+        { title: 'Healthy targets', viz: 'stat', source: 'ALB `HealthyHostCount`, minimum, 1 min' },
+        { title: 'Running tasks', viz: 'stat', source: 'Container Insights `RunningTaskCount`, minimum, 1 min' },
+      ],
+    },
+    {
+      name: 'Load balancer',
+      panels: [
+        { title: '5xx errors', viz: 'timeseries', source: 'ALB `HTTPCode_Target_5XX_Count`, sum, 5 min' },
+        { title: 'Requests', viz: 'bars', source: 'ALB `RequestCount`, sum, 5 min' },
+        { title: 'Response time', viz: 'bars', source: 'ALB `TargetResponseTime`, average, 5 min' },
+      ],
+    },
+    {
+      name: 'Compute',
+      panels: [
+        { title: 'ECS CPU', viz: 'bars', source: 'ECS `CPUUtilization`, average, 5 min, amber at 70 %' },
+        { title: 'ECS memory', viz: 'bars', source: 'ECS `MemoryUtilization`, average, 5 min, amber at 70 %' },
+      ],
+    },
+    {
+      name: 'Database',
+      panels: [
+        { title: 'RDS CPU', viz: 'bars', source: 'RDS `CPUUtilization`, average, 5 min' },
+        { title: 'RDS CPU credits', viz: 'timeseries', source: 'RDS `CPUCreditBalance`, minimum, 5 min, burstable instance' },
+        { title: 'RDS free storage', viz: 'gauge', source: 'RDS `FreeStorageSpace` of 20 GiB, red under 2 GiB' },
+        { title: 'RDS connections', viz: 'bars', source: 'RDS `DatabaseConnections`, maximum, 5 min' },
+      ],
+    },
+    {
+      name: 'Mail and alerts',
+      panels: [
+        { title: 'SES bounce rate', viz: 'timeseries', source: 'SES `Reputation.BounceRate`, maximum, 5 min' },
+        { title: 'SES complaint rate', viz: 'timeseries', source: 'SES `Reputation.ComplaintRate`, maximum, 5 min' },
+        { title: 'Firing alerts', viz: 'alerts', source: 'Grafana alert rules in the Sorted prod folder' },
+      ],
+    },
+  ]}
+  footnote="The panels of the production dashboard, grouped by layer, with the metric behind each one. No values are shown here on purpose. The dashboard and its alert rules live in Grafana, not in Terraform (see Limitations)."
 />
 
 ## Problems I hit
