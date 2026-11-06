@@ -1,7 +1,6 @@
 ---
 import { type Locale, useTranslations } from '../i18n';
 import type { CaseStudy } from '../lib/caseStudies';
-import CostComparison from './CostComparison.astro';
 
 interface Props {
   locale: Locale;
@@ -10,41 +9,90 @@ interface Props {
 
 const { locale, data } = Astro.props;
 const t = useTranslations(locale);
-const repoLinks = data.repoUrl ? [{ label: t.caseRepo, url: data.repoUrl }] : [];
 // Live links (the running product) become badges; the domain shows where the link goes.
 const liveLinks = data.liveLinks.map((l) => ({ ...l, host: new URL(l.url).hostname }));
-const links = [...liveLinks, ...repoLinks];
+// The source row closes the fact sheet: a link for a public repository, a plain note otherwise.
+const repoText = data.repoUrl ? data.repoUrl.replace(/^https?:\/\//, '') : undefined;
+const hasSource = Boolean(data.repoUrl) || data.repoPrivate;
 ---
 
-<!-- The structured part of a case study; the MDX body follows it. Headings start at h2. -->
-<!-- Links sit first, next to the title, so they do not break the flow between outcome and write-up. -->
-{(links.length > 0 || data.repoPrivate) && (
-  <ul class="case-links not-prose text-sm" role="list">
-    {liveLinks.map((l) => (
-      <li>
-        {/* A status chip that is also the link: the dot says the product is live. */}
-        <a href={l.url} target="_blank" rel="noopener noreferrer" class="live-badge">
-          <span class="live-dot" aria-hidden="true"></span>
-          <span class="live-label">{l.label}</span>
-          <span class="live-host">
-            {l.host}
-            <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
-              <path d="M4 2.5h5.5V8 M9.5 2.5 3 9" />
-            </svg>
-          </span>
-          <span class="sr-only">{t.opensNewTab}</span>
-        </a>
-      </li>
-    ))}
-    {repoLinks.map((l) => (
-      <li>
-        <a href={l.url} rel="noopener noreferrer" class="underline">
-          {l.label}
-        </a>
-      </li>
-    ))}
-    {data.repoPrivate && <li class="text-muted">{t.casePrivateRepo}</li>}
-  </ul>
+<!--
+  The structured part of a case study, before the MDX body. Order: the fact sheet (what, who, when,
+  where, with the live link), then the outcome stats and their honesty note, so the evidence comes
+  before the reasoning; then the problem and the decisions. Headings start at h2.
+-->
+{(data.facts.length > 0 || hasSource || liveLinks.length > 0) && (
+  <div class="facts-block not-prose">
+    {(data.facts.length > 0 || hasSource) && (
+      <dl class="facts text-sm">
+        {data.facts.map((f) => (
+          <div class="fact">
+            <dt class="text-muted">{f.label}</dt>
+            <dd>{f.value}</dd>
+          </div>
+        ))}
+        {hasSource && (
+          <div class="fact">
+            <dt class="text-muted">{t.caseRepo}</dt>
+            <dd>
+              {data.repoUrl ? (
+                <a href={data.repoUrl} rel="noopener noreferrer" class="underline">
+                  {repoText}
+                </a>
+              ) : (
+                t.casePrivateRepo
+              )}
+            </dd>
+          </div>
+        )}
+      </dl>
+    )}
+    {liveLinks.length > 0 && (
+      <ul class="case-links text-sm" role="list">
+        {liveLinks.map((l) => (
+          <li>
+            {/* A status chip that is also the link: the dot says the product is live. */}
+            <a href={l.url} target="_blank" rel="noopener noreferrer" class="live-badge">
+              <span class="live-dot" aria-hidden="true"></span>
+              <span class="live-label">{l.label}</span>
+              <span class="live-host">
+                {l.host}
+                <svg
+                  viewBox="0 0 12 12"
+                  width="12"
+                  height="12"
+                  aria-hidden="true"
+                  focusable="false"
+                >
+                  <path d="M4 2.5h5.5V8 M9.5 2.5 3 9" />
+                </svg>
+              </span>
+              <span class="sr-only">{t.opensNewTab}</span>
+            </a>
+          </li>
+        ))}
+      </ul>
+    )}
+  </div>
+)}
+
+{data.outcomes.length > 0 && (
+  <section aria-labelledby="case-outcome" class="not-prose outcome">
+    {/* The stats speak for themselves under the hero; the heading is for screen readers. */}
+    <h2 id="case-outcome" class="sr-only">
+      {t.caseOutcome}
+    </h2>
+    {/* One panel of large stats separated by hairlines; the value reads first, the label explains. */}
+    <dl class="stats card border-border rounded-lg border">
+      {data.outcomes.map((o) => (
+        <div class="stat">
+          <dt class="text-muted text-sm">{o.label}</dt>
+          <dd class="font-display">{o.value}</dd>
+        </div>
+      ))}
+    </dl>
+    {data.outcomesNote && <p class="text-muted max-w-measure mt-3 text-sm">{data.outcomesNote}</p>}
+  </section>
 )}
 
 <h2>{t.caseProblem}</h2>
@@ -63,29 +111,52 @@ const links = [...liveLinks, ...repoLinks];
   ))}
 </ol>
 
-{data.outcomes.length > 0 && (
-  <>
-    <h2>{t.caseOutcome}</h2>
-    {/* One panel of large stats separated by hairlines; the value reads first, the label explains. */}
-    <dl class="not-prose stats card border-border my-6 rounded-lg border">
-      {data.outcomes.map((o) => (
-        <div class="stat">
-          <dt class="text-muted text-sm">{o.label}</dt>
-          <dd class="font-display">{o.value}</dd>
-        </div>
-      ))}
-    </dl>
-    {data.costs && <CostComparison costs={data.costs} />}
-  </>
-)}
-
 <style>
+  /*
+   * Fact sheet: a key/value list on hairlines, label left and value right from 30rem up, stacked
+   * on narrow phones. Quieter than the stats below it (small text, no card): it answers "what is
+   * this", the stats answer "what came of it". The live badge sits under it.
+   */
+  .facts-block {
+    max-width: var(--container-measure);
+    margin-bottom: 2rem;
+  }
+
+  .facts {
+    border-top: 1px solid var(--border);
+  }
+
+  .fact {
+    display: grid;
+    gap: 0.125rem;
+    padding: 0.625rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  @media (min-width: 30rem) {
+    .fact {
+      grid-template-columns: 8.5rem minmax(0, 1fr);
+      gap: 1rem;
+    }
+  }
+
+  .fact dd a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    margin: -0.75rem 0;
+  }
+
   .case-links {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
     gap: 0.75rem 1.5rem;
-    margin-bottom: 2rem;
+    margin-top: 1.25rem;
+  }
+
+  .outcome {
+    margin-bottom: 2.5rem;
   }
 
   /*
@@ -195,11 +266,6 @@ const links = [...liveLinks, ...repoLinks];
     stroke-linejoin: round;
   }
 
-  .case-links a:not(.live-badge) {
-    display: inline-flex;
-    min-height: 2.75rem;
-    align-items: center;
-  }
   .case-links li {
     display: flex;
     align-items: center;
