@@ -48,7 +48,9 @@ export const en = {
     'The diagram needs JavaScript. Open the text description above for the same information.',
 
   caseProblem: 'The problem',
-  caseDecisions: 'Decisions and trade-offs',
+  tradeOff: 'Trade-off',
+  tradeGained: 'Gained',
+  tradePrice: 'Price',
   caseOutcome: 'Outcome',
   caseCtaText: 'Need a platform like this for your product?',
   caseCtaButton: 'Get in touch',
@@ -57,7 +59,6 @@ export const en = {
   caseLive: 'Live',
   caseRepo: 'Source code',
   opensNewTab: '(opens in a new tab)',
-  caseWhy: 'Why',
   costTotal: 'Total',
   problemArea: 'Area',
   problemSymptom: 'What broke',

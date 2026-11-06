@@ -51,7 +51,9 @@ export const de: Messages = {
     'Das Diagramm benötigt JavaScript. Dieselben Informationen stehen in der Textbeschreibung darüber.',
 
   caseProblem: 'Das Problem',
-  caseDecisions: 'Entscheidungen und Abwägungen',
+  tradeOff: 'Abwägung',
+  tradeGained: 'Gewonnen',
+  tradePrice: 'Preis',
   caseOutcome: 'Ergebnis',
   caseCtaText: 'Sie brauchen eine Plattform wie diese für Ihr Produkt?',
   caseCtaButton: 'Kontakt aufnehmen',
@@ -60,7 +62,6 @@ export const de: Messages = {
   caseLive: 'Live',
   caseRepo: 'Quellcode',
   opensNewTab: '(öffnet in einem neuen Tab)',
-  caseWhy: 'Warum',
   costTotal: 'Summe',
   problemArea: 'Bereich',
   problemSymptom: 'Was nicht ging',

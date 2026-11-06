@@ -10,15 +10,6 @@ stack:
     'Cloudflare',
     'Grafana Cloud',
   ]
-decisions:
-  - decision: 'One Terraform module builds every environment; dev and prod are separate roots that only set flags'
-    why: 'Environments cannot drift, and the production topology (Multi-AZ database, a NAT gateway per zone, on-demand Fargate) is three flags away instead of a rebuild. The price is a module of about 3,000 lines that has to stay generic.'
-  - decision: 'Keyless delivery: GitHub OIDC, immutable ECR tags, a reviewed image tag as the deploy, rollback as a one-line change'
-    why: 'No long-lived AWS keys exist anywhere, and a version always means the same bytes. The deploy role is an administrator because terraform apply creates IAM, networks and databases; it is limited by trust instead, pinned to immutable repository IDs and one GitHub environment. A permission boundary would be better, and I list it as a gap.'
-  - decision: 'Perimeter by construction: the ALB admits only Cloudflare ranges, security groups reference each other, and unscanned attachments cannot be read'
-    why: 'A bug in the app cannot expose the database or serve an unscanned file, because the bucket policy denies any object not tagged NO_THREATS_FOUND by GuardDuty. The cost is manual upkeep of the Cloudflare IP list, documented in the runbook.'
-  - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
-    why: 'Fixed cost stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
 illustration: 'inbox'
 status: 'Live and commercially available'
 facts:
@@ -80,6 +71,7 @@ import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
 import ScreenshotGallery from '../../../components/ScreenshotGallery.astro';
 import ProblemLog from '../../../components/ProblemLog.astro';
 import TechStack from '../../../components/TechStack.astro';
+import TradeOff from '../../../components/TradeOff.astro';
 import CostComparison from '../../../components/CostComparison.astro';
 import ScalingPath from '../../../components/ScalingPath.astro';
 import DashboardMap from '../../../components/DashboardMap.astro';
@@ -103,9 +95,14 @@ Two paths run through the platform:
   title="Sorted production architecture on AWS: the request path, the mail path with attachment scanning, and the release path."
 />
 
-## Availability and scaling
+## One module, every environment
 
-High availability in production is three Terraform flags, with no migration. Past that, the application is designed to run as several tasks behind the same load balancer.
+<TradeOff
+  gained="Environments cannot drift, and Multi-AZ production is three flags away instead of a rebuild."
+  price="A module of about 3,000 lines that has to stay generic."
+/>
+
+Dev and prod are separate Terraform roots that only set flags on one shared module. Beyond Multi-AZ, the application is designed to run as several tasks behind the same load balancer.
 
 <ScalingPath
   label="Sorted availability and scaling, in three stages"
@@ -143,18 +140,26 @@ High availability in production is three Terraform flags, with no migration. Pas
   ]}
 />
 
-<CostComparison costs={props.costs} />
+## A perimeter by construction
 
-## Compute, network and data
+<TradeOff
+  gained="A bug in the app cannot expose the database or serve an unscanned file."
+  price="The list of Cloudflare IP ranges on the ALB is kept up to date by hand, as the runbook describes."
+/>
 
-- **Compute.** One Fargate task with two containers, nginx and the Bun server, on ARM64 for about 20% lower cost.
+- **Edge.** The ALB accepts only Cloudflare's IP ranges, so every request passes Cloudflare first.
 - **Network.** Security groups reference each other, not CIDRs. RDS accepts connections only from the task. There is no SSH and no bastion; ECS Exec is the break-glass path.
 - **Data.** Private RDS with encryption, a staged rollout of database TLS (`off`, `verify`, `require`) and secrets injected from Secrets Manager. Backups of the documentation and subscriber lists go straight to S3 Glacier Deep Archive, in a versioned bucket with its own KMS key.
-- **Mail and attachments.** SES, SNS and S3 form the inbound pipeline. Webhooks trust only SNS signatures, the inbound bucket has its own KMS key, and GuardDuty Malware Protection scans every attachment.
+- **Attachments.** SES, SNS and S3 form the inbound pipeline. Webhooks trust only SNS signatures and the inbound bucket has its own KMS key. GuardDuty Malware Protection scans every attachment, and the bucket policy denies reading any object not tagged `NO_THREATS_FOUND`.
 
-## Release path
+## Keyless delivery
 
-Two repositories, two roles, no stored keys. In the application repository, a git tag runs the full check suite and pushes an immutable image to ECR. The infrastructure repository decides which image runs: a deploy is a reviewed Terraform change, and the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate` and 22 offline `terraform test` runs with mocked providers, which assert the security properties without an AWS account.
+<TradeOff
+  gained="No long-lived AWS keys exist anywhere, and a version always means the same bytes."
+  price="The deploy role is an administrator, because terraform apply creates IAM, networks and databases. It is limited by trust instead: pinned to immutable repository IDs and one GitHub environment."
+/>
+
+Two repositories, two roles. In the application repository, a git tag runs the full check suite and pushes an image to ECR under an immutable tag. The infrastructure repository decides which image runs: a deploy is a reviewed Terraform change to the image tag, and a rollback is the same one-line change back. The workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate` and 22 offline `terraform test` runs with mocked providers, which assert the security properties without an AWS account.
 
 <ArchitectureDiagram
   locale="en"
@@ -163,40 +168,16 @@ Two repositories, two roles, no stored keys. In the application repository, a gi
   title="How a Sorted release gets to AWS: a git tag builds an immutable image in ECR, and a reviewed Terraform change deploys it to ECS."
 />
 
-## Tech stack
+## Cost per environment
 
-<TechStack
-  label="Sorted tech stack by layer"
-  layers={[
-    { name: 'Edge', role: 'What visitors reach first', tools: ['Cloudflare DNS', 'Proxy', 'TLS'] },
-    {
-      name: 'Cloud',
-      role: 'AWS eu-central-1, where everything runs',
-      tools: ['ECS on Fargate (ARM64)', 'ALB', 'RDS PostgreSQL', 'SES', 'SNS', 'S3', 'KMS', 'GuardDuty', 'ECR', 'Secrets Manager', 'EventBridge'],
-    },
-    {
-      name: 'Infrastructure as code',
-      role: 'One module builds dev and prod',
-      tools: ['Terraform', 'AWS, Cloudflare and random providers', 'terraform test, mocked providers'],
-    },
-    {
-      name: 'CI/CD',
-      role: 'From a git tag to a running task',
-      tools: ['GitHub Actions', 'GitHub OIDC, no stored keys', 'Docker multi-stage builds'],
-    },
-    {
-      name: 'Observability',
-      role: 'Read in place, nothing copied',
-      tools: ['CloudWatch logs and metrics', 'Grafana Cloud, read-only role'],
-    },
-    {
-      name: 'Workload',
-      role: 'The application the platform runs',
-      workload: true,
-      tools: ['TypeScript', 'Bun', 'Express 5', 'React 19', 'Prisma 7', 'PostgreSQL row-level security', 'pg-boss', 'Vercel AI SDK'],
-    },
-  ]}
+<TradeOff
+  gained="Fixed cost stays low without throwing the design away."
+  price="Dev accepts one to three minutes of downtime when Spot reclaims its task. Prod is designed for on-demand Fargate for that reason."
 />
+
+Dev runs on Fargate Spot, stops its task off-hours and has no NAT gateway. Prod is designed for on-demand Fargate with a Savings Plan; today it still runs the pre-launch setup on Spot with one NAT gateway. Both run on ARM64, for about 20% lower compute cost.
+
+<CostComparison costs={props.costs} />
 
 ## Monitoring
 
@@ -256,6 +237,38 @@ CloudWatch holds the data; Grafana Cloud reads it in place, so nothing is shippe
   footnote="The panels of the production dashboard, grouped by layer, with the metric behind each one. No values are shown here on purpose. The dashboard and its alert rules live in Grafana, not in Terraform (see Limitations)."
 />
 
+## Problems I hit
+
+<ProblemLog
+  items={[
+    {
+      area: 'Networking',
+      problem: 'Every visitor looked like one IP, so rate limits were shared',
+      fix: "Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB",
+    },
+    {
+      area: 'Database',
+      problem: 'Prisma connected without TLS despite `sslmode=verify-full`',
+      fix: "Switched the migration URL to Prisma's own TLS parameters and a pinned CA, because `prisma migrate deploy` ignores libpq parameters",
+    },
+    {
+      area: 'Messaging',
+      problem: 'SES webhooks could not be subscribed in the first apply',
+      fix: 'Moved the subscription to a second apply behind a flag and documented the order, because SNS needs the running app to confirm it',
+    },
+    {
+      area: 'Deployment',
+      problem: 'A rotated secret did not take effect',
+      fix: 'Forced a new deployment, because a running ECS task keeps the values it started with. Every secret change now ends with one',
+    },
+    {
+      area: 'Security',
+      problem: 'GitHub OIDC trust was name-based',
+      fix: 'Switched trust to immutable owner and repository IDs, because a re-created repository name could inherit the role',
+    },
+  ]}
+/>
+
 ## The workload
 
 The platform exists to run this application. Each team gets a Sorted address, or forwards its existing one. An incoming email becomes a ticket. AI classifies it, summarizes it and, for non-transactional questions, answers from the team's knowledge base. Agents assign, reply and merge from one queue, with templates and an audit log. Teams have three roles, the interface comes in 22 languages, and there is a super-admin console.
@@ -295,34 +308,37 @@ Four rules keep the AI safe:
   ]}
 />
 
-## Problems I hit
+## Tech stack
 
-<ProblemLog
-  items={[
+<TechStack
+  label="Sorted tech stack by layer"
+  layers={[
+    { name: 'Edge', role: 'What visitors reach first', tools: ['Cloudflare DNS', 'Proxy', 'TLS'] },
     {
-      area: 'Networking',
-      problem: 'Every visitor looked like one IP, so rate limits were shared',
-      fix: "Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB",
+      name: 'Cloud',
+      role: 'AWS eu-central-1, where everything runs',
+      tools: ['ECS on Fargate (ARM64)', 'ALB', 'RDS PostgreSQL', 'SES', 'SNS', 'S3', 'KMS', 'GuardDuty', 'ECR', 'Secrets Manager', 'EventBridge'],
     },
     {
-      area: 'Database',
-      problem: 'Prisma connected without TLS despite `sslmode=verify-full`',
-      fix: "Switched the migration URL to Prisma's own TLS parameters and a pinned CA, because `prisma migrate deploy` ignores libpq parameters",
+      name: 'Infrastructure as code',
+      role: 'One module builds dev and prod',
+      tools: ['Terraform', 'AWS, Cloudflare and random providers', 'terraform test, mocked providers'],
     },
     {
-      area: 'Messaging',
-      problem: 'SES webhooks could not be subscribed in the first apply',
-      fix: 'Moved the subscription to a second apply behind a flag and documented the order, because SNS needs the running app to confirm it',
+      name: 'CI/CD',
+      role: 'From a git tag to a running task',
+      tools: ['GitHub Actions', 'GitHub OIDC, no stored keys', 'Docker multi-stage builds'],
     },
     {
-      area: 'Deployment',
-      problem: 'A rotated secret did not take effect',
-      fix: 'Forced a new deployment, because a running ECS task keeps the values it started with. Every secret change now ends with one',
+      name: 'Observability',
+      role: 'Read in place, nothing copied',
+      tools: ['CloudWatch logs and metrics', 'Grafana Cloud, read-only role'],
     },
     {
-      area: 'Security',
-      problem: 'GitHub OIDC trust was name-based',
-      fix: 'Switched trust to immutable owner and repository IDs, because a re-created repository name could inherit the role',
+      name: 'Workload',
+      role: 'The application the platform runs',
+      workload: true,
+      tools: ['TypeScript', 'Bun', 'Express 5', 'React 19', 'Prisma 7', 'PostgreSQL row-level security', 'pg-boss', 'Vercel AI SDK'],
     },
   ]}
 />
@@ -330,7 +346,7 @@ Four rules keep the AI safe:
 ## Limitations and what I would do next
 
 - **One task.** The database fails over across zones, but the single app task is restarted by ECS in the other zone, a short interruption. I have not tested it under load or a real failover, and there is no autoscaling yet.
-- **The deploy role is an administrator.** This is a deliberate trade-off with tight trust conditions. A permission boundary and a scoped policy generated from a plan would be a better end state.
+- **The deploy role is an administrator.** A permission boundary and a scoped policy generated from a plan would be a better end state.
 - **Alert rules live in Grafana, not in Terraform.** Only the IAM role is code today.
 - **Terraform state holds generated secrets in plain text.** The bucket is private and encrypted, but I would create those secrets outside state or rotate them on a schedule.
 - **Backup restore is documented but not drilled.** Both the RDS snapshot and the Deep Archive backups need a scheduled restore test.

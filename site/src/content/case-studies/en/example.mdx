@@ -3,11 +3,6 @@ title: 'Example case study'
 summary: 'A placeholder that shows the case study format: problem, stack, decisions with trade-offs, outcome and links.'
 problem: 'One or two sentences on the problem or goal. This entry is a draft used to test the layout; it says nothing about real projects.'
 stack: ['Stack item', 'Another item', 'A third item']
-decisions:
-  - decision: 'A decision that was made'
-    why: 'The trade-off behind it: cost, security or reliability.'
-  - decision: 'A second decision'
-    why: 'What was given up, and what was gained.'
 outcomes:
   - label: 'Example metric'
     value: '42'
@@ -22,10 +17,17 @@ draft: true
 ---
 
 import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+import TradeOff from '../../../components/TradeOff.astro';
 
 ## The write-up
 
 This is the free-form part of a case study, written in MDX. It can hold longer reasoning, a diagram (see the `Diagram` component) and screenshots.
+
+## A decision
+
+<TradeOff gained="What the decision gained." price="What it cost in return." />
+
+Each decision opens its own section, next to its evidence.
 
 ### A subsection
 

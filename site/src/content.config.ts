@@ -9,7 +9,8 @@ import { z } from 'astro/zod';
  * The language is the folder (no `language` field, so it cannot disagree with the URL). A project
  * does not need a German file at launch; the language switch then falls back to the home page.
  * Frontmatter fields drive the card and the structured part of the page; the MDX body is the
- * free-form write-up (diagrams, screenshots, longer reasoning).
+ * free-form write-up (diagrams, screenshots, longer reasoning). Decisions live in the body: each
+ * opens its own section with a <TradeOff gained price /> note next to its evidence.
  */
 const caseStudies = defineCollection({
   loader: glob({ pattern: '*/[^_]*.mdx', base: './src/content/case-studies' }),
@@ -20,11 +21,6 @@ const caseStudies = defineCollection({
     /** The problem or goal in a sentence or two. */
     problem: z.string(),
     stack: z.array(z.string()).min(1),
-    /** Two or three decisions with their trade-offs (cost, security, reliability). */
-    decisions: z
-      .array(z.object({ decision: z.string(), why: z.string() }))
-      .min(1)
-      .max(4),
     /**
      * Fact sheet under the summary: a status line, then a row of short facts (label above value).
      * `status` is the text beside the live dot; it shows only with a `liveLinks` entry, whose
