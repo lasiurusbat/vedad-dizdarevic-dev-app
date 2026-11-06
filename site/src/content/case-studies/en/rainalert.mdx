@@ -1,6 +1,6 @@
 ---
-title: 'Rain Alert: a release pipeline where a git tag is the whole release'
-summary: 'A live rain forecast web app that I run alone on free tiers. A git tag is the whole release: the image is built once, tested inside itself, pushed, deployed and then checked on the live domain.'
+title: 'Rain Alert: from git tag to a checked release, on free tiers'
+summary: 'A live rain forecast web app I run alone, on free and rate-limited services. Pushing a tag builds the image once, tests it inside the container, ships that same image and confirms the new version on rainalert.live.'
 problem: 'The product is small: type a city, see the chance of rain for seven days. The engineering problem is running it reliably and cheaply in production, as one person, on services that are free, shared and rate-limited. Release and rollback had to be low-ceremony, and a mistake had to be hard to make.'
 stack: ['Docker', 'GitHub Actions', 'Docker Hub', 'Render', 'Python and Flask']
 status: 'Live and free to use'

@@ -21,14 +21,14 @@ const studies = [
   {
     path: '/projects/rainalert/',
     lang: 'en',
-    title: 'Rain Alert: a release pipeline where a git tag is the whole release',
+    title: 'Rain Alert: from git tag to a checked release, on free tiers',
     problem: 'The problem',
     cta: 'Get in touch',
   },
   {
     path: '/de/projects/rainalert/',
     lang: 'de',
-    title: 'Rain Alert: eine Release-Pipeline, in der ein Git-Tag das ganze Release ist',
+    title: 'Rain Alert: vom Git-Tag zum geprüften Release, auf kostenlosen Tarifen',
     problem: 'Das Problem',
     cta: 'Kontakt aufnehmen',
   },
