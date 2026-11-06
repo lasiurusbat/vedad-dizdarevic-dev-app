@@ -40,6 +40,8 @@ const face = `btn btn-${variant}`;
     --btn-edge: light-dark(#2c5260, #4f8597);
     --btn-shine: light-dark(rgb(255 255 255 / 0.28), rgb(255 255 255 / 0.12));
     --btn-glow: light-dark(rgb(56 100 116 / 0.18), rgb(143 180 195 / 0.16));
+    /* A mild glow that hugs the outline, in the accent hue. */
+    --btn-halo: light-dark(rgb(56 100 116 / 0.22), rgb(143 180 195 / 0.3));
     --btn-text: #ffffff;
 
     display: inline-flex;
@@ -51,6 +53,7 @@ const face = `btn btn-${variant}`;
     box-shadow:
       inset 0 1px 0 0 var(--btn-shine),
       0 0 0 1px rgb(0 0 0 / 0.04),
+      0 0 10px 0 var(--btn-halo),
       0 4px 16px -4px var(--btn-glow);
     color: var(--btn-text);
     font-weight: 500;
@@ -67,6 +70,7 @@ const face = `btn btn-${variant}`;
     --btn-edge: light-dark(#cfd3de, #2b3042);
     --btn-shine: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.07));
     --btn-glow: light-dark(rgb(20 22 31 / 0.08), rgb(0 0 0 / 0));
+    --btn-halo: light-dark(rgb(56 100 116 / 0.1), rgb(166 181 190 / 0.12));
     --btn-text: var(--fg);
   }
 
@@ -74,12 +78,14 @@ const face = `btn btn-${variant}`;
   .btn:hover,
   .cta-wrap:hover .btn {
     --btn-edge: light-dark(#21424e, #6a9fb1);
+    --btn-halo: light-dark(rgb(56 100 116 / 0.32), rgb(143 180 195 / 0.42));
     filter: brightness(1.08);
   }
 
   .btn-secondary:hover,
   .cta-wrap:hover .btn-secondary {
     --btn-edge: light-dark(#a9b0bf, #444b60);
+    --btn-halo: light-dark(rgb(56 100 116 / 0.16), rgb(166 181 190 / 0.2));
     filter: brightness(1.04);
   }
 
