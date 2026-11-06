@@ -212,13 +212,21 @@ const approx = (v: number) => `~${currency}${v}`;
     font-weight: 400;
   }
 
+  /* From tablet width the line item column keeps room for its label on one line; on phones all four
+     columns must fit without a sideways scroll, so labels wrap instead. */
+  @media (min-width: 40rem) {
+    tbody th {
+      min-width: 8rem;
+    }
+  }
+
   tbody tr + tr th,
   tbody tr + tr td {
     border-top: 1px solid var(--border);
   }
 
   .num {
-    width: 24%;
+    width: 16%;
     text-align: right;
   }
 
