@@ -83,14 +83,14 @@ const t = useTranslations(locale);
   }
 
   /* Name and role span the full width of the text column, the same width as the positioning
-     sentence below. "Vedad Dizdarevic" is 7.40em wide in Inter Tight 500 at -0.01em, so
-     100cqi / 7.40 = 13.5cqi; 13.3cqi leaves a hair of room for rounding. The role keeps its
+     sentence below. "Vedad Dizdarevic" is 8.04em wide in DM Sans 500 at -0.01em, so
+     100cqi / 8.04 = 12.4cqi; 12.3cqi leaves a hair of room for rounding. The role keeps its
      own measured ratio to the name (below), so it matches the same width. */
   .headline {
     /* Capped at the desktop size (4.5rem): on tablets the column is the full page width, and an
        uncapped name would be ~96px tall. There it is narrower than the sentence; on phones
        and desktops the cap never applies. */
-    font-size: min(13.3cqi, 4.5rem);
+    font-size: min(12.3cqi, 4.5rem);
     line-height: 1.08;
     letter-spacing: -0.01em;
   }
@@ -101,14 +101,14 @@ const t = useTranslations(locale);
   }
 
   /* The role line is exactly as wide as the name. Text width scales linearly with font size,
-     so the ratio is measured once per language (Inter Tight, weight 500, -0.01em tracking) and
+     so the ratio is measured once per language (DM Sans, weight 500, -0.01em tracking) and
      holds at every viewport. Re-measure if the name, the role text or the font changes. */
   .role {
-    font-size: 0.684em;
+    font-size: 0.674em;
   }
 
   .role:lang(de) {
-    font-size: 0.646em;
+    font-size: 0.63em;
   }
 
   /* 10% smaller than the text-lg it used to be. Plain wrapping (not the site-wide
