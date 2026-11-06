@@ -25,10 +25,23 @@ const caseStudies = defineCollection({
       .array(z.object({ decision: z.string(), why: z.string() }))
       .min(1)
       .max(4),
-    /** Outcome metrics, e.g. { label: 'Monthly cost', value: '€4' }. */
-    outcomes: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
     /**
-     * Optional cost comparison under the outcomes: monthly estimates per environment, itemised.
+     * Fact sheet under the title: short label/value rows (status, role, built, region,
+     * environments). The source row is added from `repoUrl` / `repoPrivate`, the live link from
+     * `liveLinks`, so neither belongs here.
+     */
+    facts: z
+      .array(z.object({ label: z.string(), value: z.string() }))
+      .max(6)
+      .default([]),
+    /** Outcome metrics, e.g. { label: 'Monthly cost', value: '€4' }. Shown under the fact sheet. */
+    outcomes: z.array(z.object({ label: z.string(), value: z.string() })).default([]),
+    /** One honesty sentence under the stats: what is measured, estimated or not yet drilled. */
+    outcomesNote: z.string().optional(),
+    /**
+     * Optional cost comparison: monthly estimates per environment, itemised. Not part of the
+     * summary; the MDX body places it with `<CostComparison costs={props.costs} />` (the page
+     * passes the parsed `costs` to `<Content />`).
      * Always estimates; `footnote` must say where the figures come from. A `null` cell means
      * "not itemised" (shown as a dash). `total` is the source's own rounded figure, so it may
      * differ slightly from the sum of the rows.

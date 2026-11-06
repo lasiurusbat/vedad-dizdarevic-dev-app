@@ -22,5 +22,5 @@ const alternates = await translationsOf(slugOf(entry));
   illustration={entry.data.illustration}
 >
   <CaseStudySummary locale="en" data={entry.data} />
-  <Content />
+  <Content costs={entry.data.costs} />
 </CaseStudyLayout>

@@ -52,7 +52,7 @@ export const en = {
   caseOutcome: 'Outcome',
   caseCtaText: 'Need a platform like this for your product?',
   caseCtaButton: 'Get in touch',
-  casePrivateRepo: 'Source code: private repository',
+  casePrivateRepo: 'Private repository',
   caseRepo: 'Source code',
   opensNewTab: '(opens in a new tab)',
   caseWhy: 'Why',
