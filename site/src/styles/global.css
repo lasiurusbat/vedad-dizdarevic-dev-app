@@ -290,3 +290,89 @@
   font-weight: 500;
   letter-spacing: -0.01em;
 }
+
+/*
+ * Section headings in a case study open a "plate": a faint square grid that fades out in every
+ * direction, reaching down behind the first lines of the section, plus one dashed corner bracket
+ * marking where the section starts. The text's left edge sits on a vertical grid line and the
+ * heading on a horizontal one, so the grid frames the content instead of sitting behind it.
+ * Pure CSS (pseudo-elements, no images), CSP-safe; themed through the tokens.
+ *   --plate-cell   grid size
+ *   --plate-out    how far the grid reaches left of the text: a whole number of cells, so a line
+ *                  lands on the text edge (overflow to the left never scrolls)
+ *   --plate-right  how far it reaches right of the text; kept inside the page so nothing
+ *                  scrolls sideways
+ */
+.prose {
+  --plate-cell: 2rem;
+  --plate-out: 6rem;
+  --plate-right: 0rem;
+  isolation: isolate;
+}
+
+@media (min-width: 48rem) {
+  .prose {
+    --plate-right: 4rem;
+  }
+}
+
+@media (min-width: 64rem) {
+  .prose {
+    --plate-right: 12rem;
+  }
+}
+
+.prose > h2 {
+  position: relative;
+  margin-top: 4.5rem;
+  margin-bottom: 1.25rem;
+  padding-top: var(--plate-cell);
+  font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2rem);
+  line-height: 1.15;
+}
+
+.prose > h2:first-child {
+  margin-top: 1.5rem;
+}
+
+/* The field starts two cells above the heading and reaches about six cells into the section;
+   the mask fades it to nothing before any edge, strongest around the heading's start. */
+.prose > h2::before {
+  content: '';
+  position: absolute;
+  z-index: -1;
+  top: calc(-2 * var(--plate-cell));
+  left: calc(-1 * var(--plate-out));
+  right: calc(-1 * var(--plate-right));
+  height: calc(var(--plate-cell) * 10);
+  pointer-events: none;
+  --plate-line: light-dark(rgb(20 22 31 / 0.09), rgb(255 255 255 / 0.08));
+  background-image:
+    linear-gradient(to right, var(--plate-line) 1px, transparent 1px),
+    linear-gradient(to bottom, var(--plate-line) 1px, transparent 1px);
+  background-size: var(--plate-cell) var(--plate-cell);
+  background-position: var(--plate-out) 0;
+  mask-image: radial-gradient(ellipse 34% 50% at 34% 48%, #000 30%, transparent 100%);
+}
+
+/* The corner bracket, on the grid's top line: one cell left of the text edge on wide screens,
+   hugging it on phones. */
+.prose > h2::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: max(-1 * var(--plate-cell), -0.75rem);
+  width: 11rem;
+  height: calc(var(--plate-cell) * 3);
+  border-top: 1px dashed var(--border-strong);
+  border-left: 1px dashed var(--border-strong);
+  opacity: 0.75;
+  pointer-events: none;
+  mask-image: linear-gradient(135deg, #000 45%, transparent 90%);
+}
+
+@media (min-width: 48rem) {
+  .prose > h2::after {
+    left: calc(-1 * var(--plate-cell));
+  }
+}
