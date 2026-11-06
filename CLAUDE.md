@@ -63,7 +63,7 @@ The layout tree in [implementation-plan.md](documentation/implementation-plan.md
 - **Mobile first:** unprefixed utilities target ~360px; touch targets ≥44px; nothing hover-only.
 - **Hero headline:** the `h1` is the name alone (the e2e test checks it); the role is a paragraph styled to the same width. Widths are fixed ratios: the name is sized in container units of the text column (`13.3cqi`, capped at `4.5rem`), the role at `0.684em` (EN) and `0.646em` (DE) of it. Re-measure the ratios if the name, the role wording or the heading font changes.
 - **Hero diagram:** `HeroArchitecture.astro` with data in `site/src/diagrams/hero-variants.ts`, made up and decorative (`aria-hidden`). Official AWS icons only (same release as the case-study diagram); groups without an official icon are labelled boxes. No style attributes: bar and node geometry are SVG attributes, the random pick toggles a class.
-- **Cost figures in charts** come from the owner's docs only (`costs` frontmatter, rendered by `CostComparison.astro`); the footnote must say they are estimates and where they come from.
+- **Cost figures in charts** come from the owner's docs or the AWS bill only (`costs` frontmatter, rendered by `CostComparison.astro`); the footnote must say they are estimates and where they come from. Billed columns are Cost Explorer usage before credits (credits pay the bill), projected to 730 hours and split per environment by resource; the account is shared, so leave out `vdd-` charges.
 - **Deploy order:** upload `/_astro/` hashed assets first without `--delete`, then the rest with `--delete`.
 
 ## Workflow
