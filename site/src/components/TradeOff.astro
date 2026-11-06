@@ -1,13 +1,10 @@
 ---
 /*
- * A decision's trade-off, set as a margin note: what the decision gained and what it costs.
- * Placed in MDX right after the section heading that names the decision, so the reasoning sits
- * next to its evidence instead of in a separate list.
- *
- * Wide screens (80rem and up, where the page leaves room beside the 70ch text column) float it
- * into the empty right column; its margin box is zero wide, so the text column keeps its full
- * measure. Wide figures and the next heading clear it (global.css), so it never runs into a
- * diagram. Narrower screens show it under the heading, before the section text.
+ * A decision's trade-off as a small ledger, directly under the section heading that names the
+ * decision: what it gained on the left, what it costs on the right (stacked on phones). The gained
+ * side is "lit" like a traced diagram path (accent top edge, faint accent tint); the price side
+ * stays neutral. Both texts are body size in the main text colour, because they are the point of
+ * the section, not a footnote. The + and - signs say which side is which before the label is read.
  */
 import { getLocale, useTranslations } from '../i18n';
 
@@ -22,12 +19,22 @@ const t = useTranslations(getLocale(Astro.currentLocale));
 
 <div class="tradeoff not-prose" role="note" aria-label={t.tradeOff}>
   <dl>
-    <div>
-      <dt>{t.tradeGained}</dt>
+    <div class="side gained">
+      <dt>
+        <span class="sign" aria-hidden="true">
+          +
+        </span>
+        {t.tradeGained}
+      </dt>
       <dd>{gained}</dd>
     </div>
-    <div>
-      <dt>{t.tradePrice}</dt>
+    <div class="side price">
+      <dt>
+        <span class="sign" aria-hidden="true">
+          −
+        </span>
+        {t.tradePrice}
+      </dt>
       <dd>{price}</dd>
     </div>
   </dl>
@@ -35,37 +42,79 @@ const t = useTranslations(getLocale(Astro.currentLocale));
 
 <style>
   .tradeoff {
-    --note-width: 17rem;
-    --note-gap: 3rem;
-
-    margin: 0 0 1.75rem;
-    padding-left: 1rem;
-    border-left: 1px solid var(--border-strong);
-    font-size: var(--text-sm);
-    line-height: 1.5;
+    margin: 0 0 2.25rem;
   }
 
   dl {
     display: grid;
-    gap: 0.75rem;
+    border: 1px solid var(--border);
+    border-radius: var(--radius-md);
+    overflow: hidden;
+  }
+
+  .side {
+    padding: 1rem 1.25rem 1.125rem;
+    border-top: 2px solid var(--border-strong);
+  }
+
+  .gained {
+    border-top-color: var(--accent);
+    background: color-mix(in srgb, var(--accent) 10%, transparent);
+  }
+
+  /* Phones: stacked, a hairline between the two sides. */
+  .price {
+    border-top: 1px solid var(--border);
   }
 
   dt {
-    color: var(--fg);
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    color: var(--muted);
+    font-family: var(--font-display);
+    font-size: var(--text-sm);
     font-weight: 500;
   }
 
-  dd {
-    margin-top: 0.125rem;
-    color: var(--muted);
+  .sign {
+    display: inline-grid;
+    place-items: center;
+    width: 1.125rem;
+    height: 1.125rem;
+    border: 1px solid currentColor;
+    border-radius: 50%;
+    font-size: 0.75rem;
+    line-height: 1;
   }
 
-  @media (min-width: 80rem) {
-    .tradeoff {
-      float: right;
-      clear: right;
-      width: var(--note-width);
-      margin: 0.25rem calc(-1 * (var(--note-width) + var(--note-gap))) 1rem 0;
+  .gained dt {
+    color: var(--fg);
+  }
+
+  /* The lit side's sign is filled, the price side's only outlined. */
+  .gained .sign {
+    border-color: var(--accent);
+    background: var(--accent);
+    color: var(--bg);
+  }
+
+  dd {
+    margin-top: 0.375rem;
+    color: var(--fg);
+    font-size: var(--text-body);
+    line-height: 1.55;
+  }
+
+  /* From 40rem the two sides stand side by side, each with its own top edge. */
+  @media (min-width: 40rem) {
+    dl {
+      grid-template-columns: 1fr 1fr;
+    }
+
+    .price {
+      border-top: 2px solid var(--border-strong);
+      border-left: 1px solid var(--border);
     }
   }
 </style>
