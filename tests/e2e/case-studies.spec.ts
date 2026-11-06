@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
+import { themeState } from './theme-state';
 
 // Runs against the production build (no drafts): Sorted is the case study in both languages.
 const studies = [
@@ -21,7 +22,7 @@ const studies = [
 
 for (const scheme of ['light', 'dark'] as const) {
   test.describe(`${scheme} theme`, () => {
-    test.use({ colorScheme: scheme });
+    test.use({ storageState: themeState(scheme) });
 
     for (const s of studies) {
       test(`${s.path} has no axe violations`, async ({ page }) => {
