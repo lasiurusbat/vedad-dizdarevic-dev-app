@@ -121,7 +121,7 @@ The response to that incident came in layers:
 3. **Add a second source.** When Open-Meteo refuses, OpenWeather answers, translated into Open-Meteo's shape so nothing above the client knows which one replied. It runs within a self-imposed daily budget of 900 calls, because that provider bills past its free tier, and it leaves unknown values unknown.
 4. **Degrade honestly.** A broken upstream returns `503` and a missing city `404`, never a `200` that says "not found".
 
-The runbook names the uptime check: the domain's home page, because it calls no upstream, proves DNS and the certificate, and can assert the version.
+An uptime check pings the home page. It calls no upstream API, so it proves DNS, the certificate and the version, and it keeps the free instance from sleeping.
 
 ## Problems I hit
 
@@ -233,18 +233,13 @@ The platform runs a small, stateless Flask app. Type a city and it shows the cha
   items={[
     {
       gap: 'No SLA anywhere',
-      detail: 'The free instance has 512 MB and sleeps when idle, and the free upstreams limit by IP on a shared egress address.',
-      next: 'Run the uptime check from the runbook; it also keeps the instance warm.',
+      detail: 'The free instance has 512 MB and stays awake only because the uptime check pings it. The free weather APIs limit by IP, and Render’s outgoing IP is shared.',
+      next: 'Move to a paid instance, or ask Open-Meteo for an API key, if usage grows past the free limits.',
     },
     {
       gap: 'Releases need no approval',
       detail: 'Any tag on main ships once the tests pass.',
       next: 'Add required reviewers to the production environment; the deploy job already runs in it.',
-    },
-    {
-      gap: 'Live integration tests are manual',
-      detail: 'The seven tests against the real APIs depend on third parties, so they are not a gate.',
-      next: 'Run them on a schedule, outside the release path.',
     },
   ]}
 />
