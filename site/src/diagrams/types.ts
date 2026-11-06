@@ -15,7 +15,13 @@ export interface ServiceData extends Record<string, unknown> {
 }
 
 export type ServiceNode = Node<ServiceData, 'service'>;
-export type GroupNode = Node<{ label: string }, 'group'>;
+/** A box around nodes. `cloud` (the AWS Region) shows the official AWS Cloud icon; VPC and subnet
+ * boxes are labelled boxes styled by `variant` (flow.css), since no icon is drawn for them. */
+export interface GroupData extends Record<string, unknown> {
+  label: string;
+  variant?: 'cloud' | 'vpc' | 'public' | 'private';
+}
+export type GroupNode = Node<GroupData, 'group'>;
 export type DiagramNode = ServiceNode | GroupNode;
 
 export interface DiagramDefinition {

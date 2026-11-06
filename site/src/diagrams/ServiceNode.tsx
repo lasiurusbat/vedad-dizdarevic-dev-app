@@ -1,6 +1,10 @@
 import { Handle, Position, type NodeProps } from '@xyflow/react';
 import { cloudIcon } from './icons';
-import type { DiagramIcon, ServiceNode as ServiceNodeType } from './types';
+import type {
+  DiagramIcon,
+  GroupNode as GroupNodeType,
+  ServiceNode as ServiceNodeType,
+} from './types';
 
 const SIDES = [
   { id: 't', position: Position.Top },
@@ -51,13 +55,18 @@ export function ServiceNode({ data }: NodeProps<ServiceNodeType>) {
   );
 }
 
-export function GroupLabel({ data }: NodeProps) {
+export function GroupLabel({ data }: NodeProps<GroupNodeType>) {
+  const variant = data.variant ?? 'cloud';
   return (
-    <span className="vdd-group-label">
+    <span className="vdd-group-label" data-variant={variant}>
       {/* Theme classes from global.css: the header switch or the device setting decides. */}
-      <img className="only-light" src={cloudIcon.light} alt="" width={24} height={24} />
-      <img className="only-dark" src={cloudIcon.dark} alt="" width={24} height={24} />
-      {String(data.label)}
+      {variant === 'cloud' && (
+        <>
+          <img className="only-light" src={cloudIcon.light} alt="" width={24} height={24} />
+          <img className="only-dark" src={cloudIcon.dark} alt="" width={24} height={24} />
+        </>
+      )}
+      {data.label}
     </span>
   );
 }
