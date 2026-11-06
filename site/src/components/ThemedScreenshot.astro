@@ -8,9 +8,9 @@ import type { ImageMetadata } from 'astro';
  *
  * placement:
  *   full  - the width of the text column (the default)
- *   aside - a narrow figure for tall images (an app panel): floated right beside the paragraph
- *           that follows it from 40rem, centred above the text on phones. Headings and component
- *           blocks clear it (global.css), so it never runs into the next section.
+ *   natural - shown 1:1, at the image's own pixel width: one WebP at the source width, no
+ *             resized variants, never scaled up or down, except to fit a screen narrower than
+ *             the image (phones). For small app captures that should stay crisp.
  */
 interface Props {
   /** The screenshot; with `dark`, the light-UI version of a pair. */
@@ -20,15 +20,18 @@ interface Props {
   /** Describes what the screenshot shows. Required, never "screenshot". */
   alt: string;
   caption?: string;
-  placement?: 'full' | 'aside';
+  placement?: 'full' | 'natural';
 }
 
 const { light, dark, alt, caption, placement = 'full' } = Astro.props;
-const aside = placement === 'aside';
-// Never wider than the source: small screenshots are not upscaled.
-const widths = (aside ? [320, 480, 640] : [720, 1080, 1440]).filter((w) => w <= light.width);
-if (widths.length === 0 || widths[widths.length - 1]! < light.width) widths.push(light.width);
-const sizes = aside ? '(min-width: 40rem) 20rem, 22rem' : '(min-width: 64rem) 960px, 100vw';
+const natural = placement === 'natural';
+// Natural: one file at the source width. Full: resized variants, never wider than the source.
+const widths = natural
+  ? [light.width]
+  : [720, 1080, 1440]
+      .filter((w) => w <= light.width)
+      .concat(light.width < 720 ? [light.width] : []);
+const sizes = natural ? `${light.width}px` : '(min-width: 64rem) 960px, 100vw';
 
 // Processed by Astro's image pipeline: hashed WebP files under /_astro/, never raw into public/.
 async function variants(src: ImageMetadata) {
@@ -42,7 +45,7 @@ const l = await variants(light);
 const d = dark ? await variants(dark) : undefined;
 ---
 
-<figure class:list={['not-prose', aside ? 'shot-aside' : 'my-8']}>
+<figure class:list={['not-prose my-8', natural && 'shot-natural']}>
   <div class="border-border bg-surface overflow-hidden rounded-lg border">
     {/* With a pair, .only-light / .only-dark hide the inactive one (the header switch decides),
         and a hidden lazy image is never downloaded. */}
@@ -55,7 +58,7 @@ const d = dark ? await variants(dark) : undefined;
       height={light.height}
       loading="lazy"
       decoding="async"
-      class:list={['h-auto w-full', d && 'only-light']}
+      class:list={['h-auto', !natural && 'w-full', d && 'only-light']}
     />
     {d && dark && (
       <img
@@ -67,7 +70,7 @@ const d = dark ? await variants(dark) : undefined;
         height={dark.height}
         loading="lazy"
         decoding="async"
-        class="only-dark h-auto w-full"
+        class:list={['only-dark h-auto', !natural && 'w-full']}
       />
     )}
   </div>
@@ -75,16 +78,15 @@ const d = dark ? await variants(dark) : undefined;
 </figure>
 
 <style>
-  .shot-aside {
-    max-width: 22rem;
-    margin: 0.5rem auto 1.75rem;
+  /* 1:1: the frame wraps the image at its own width (the border sits outside it), and the image
+     only shrinks when the screen is narrower than it. */
+  .shot-natural > div {
+    width: fit-content;
+    max-width: 100%;
   }
 
-  @media (min-width: 40rem) {
-    .shot-aside {
-      float: right;
-      width: 20rem;
-      margin: 0.375rem 0 1.25rem 2rem;
-    }
+  .shot-natural img {
+    display: block;
+    max-width: 100%;
   }
 </style>
