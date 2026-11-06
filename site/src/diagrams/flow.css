@@ -74,6 +74,9 @@
   border-radius: var(--radius-md);
   background: transparent;
 }
+.vdd-edge-dashed .react-flow__edge-path {
+  stroke-dasharray: 6 4;
+}
 .react-flow__edge-text {
   font-size: 11px;
   fill: var(--muted);

@@ -22,6 +22,11 @@ export interface DiagramDefinition {
   id: string;
   nodes: DiagramNode[];
   edges: Edge[];
+  /** fitView padding (share of the diagram). Default 0.02. */
+  padding?: number;
+  /** Zoom buttons in a row instead of a column: wide, flat diagrams have room below the nodes but
+   * not beside them. */
+  controlsHorizontal?: boolean;
   /** Ordered text alternative: what the diagram says, for screen readers and no-JS visitors. */
   description: { en: string[]; de: string[] };
 }
