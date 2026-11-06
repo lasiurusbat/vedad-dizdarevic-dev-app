@@ -1,7 +1,7 @@
 ---
-title: 'Sorted: a multi-tenant SaaS platform on AWS, in Terraform'
-summary: 'The AWS platform behind a live multi-tenant support-ticket SaaS. One Terraform module builds dev and prod, Multi-AZ is three settings away, CI/CD uses no long-lived keys, and inbound mail is malware-scanned. Built and run solo in six weeks.'
-problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and "the AI cannot do harm" had to be enforced by code and infrastructure, for a commercial product with one person to run it.'
+title: 'Sorted: the AWS platform behind a live multi-tenant SaaS'
+summary: 'A live, commercial support-ticket SaaS whose AWS platform I built and run alone. One Terraform module builds dev and prod, Multi-AZ is three flags away, CI/CD has no long-lived keys, and attachments are malware-scanned.'
+problem: 'Anyone who talks to customers by email ends up with a shared inbox that nobody can search, assign or measure. Sorted turns it into a ticket system with AI triage, which makes ticket content personal data. Tenant isolation, encryption and an AI that never sees refund or payment tickets and cannot send anything on its own had to be enforced by code and infrastructure, for a commercial product with one person to run it.'
 stack:
   [
     'AWS (ECS Fargate, RDS, ALB, SES, SNS, S3, GuardDuty)',
@@ -9,26 +9,25 @@ stack:
     'GitHub Actions + OIDC',
     'Cloudflare',
     'Grafana Cloud',
-    'Workload: TypeScript, Bun, React 19, PostgreSQL (row-level security)',
   ]
 decisions:
   - decision: 'One Terraform module builds every environment; dev and prod are separate roots that only set flags'
-    why: 'Environments cannot drift, and the production topology (Multi-AZ database, a NAT gateway per zone, on-demand Fargate) is a few flag flips away instead of a rebuild. The price is a module of about 3,000 lines that has to stay generic.'
+    why: 'Environments cannot drift, and the production topology (Multi-AZ database, a NAT gateway per zone, on-demand Fargate) is three flags away instead of a rebuild. The price is a module of about 3,000 lines that has to stay generic.'
   - decision: 'Keyless delivery: GitHub OIDC, immutable ECR tags, a reviewed image tag as the deploy, rollback as a one-line change'
     why: 'No long-lived AWS keys exist anywhere, and a version always means the same bytes. The deploy role is an administrator because terraform apply creates IAM, networks and databases; it is limited by trust instead, pinned to immutable repository IDs and one GitHub environment. A permission boundary would be better, and I list it as a gap.'
   - decision: 'Perimeter by construction: the ALB admits only Cloudflare ranges, security groups reference each other, and unscanned attachments cannot be read'
     why: 'A bug in the app cannot expose the database or serve an unscanned file, because the bucket policy denies any object not tagged NO_THREATS_FOUND by GuardDuty. The cost is manual upkeep of the Cloudflare IP list, documented in the runbook.'
   - decision: 'Cost levers per environment: Spot, an off-hours schedule and no NAT in dev; on-demand plus a Savings Plan in prod'
-    why: 'Fixed cost before launch stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
+    why: 'Fixed cost stays low without throwing the design away. Dev tolerates one to three minutes of downtime when Spot is reclaimed; prod does not.'
 outcomes:
-  - label: 'Environments from one Terraform module (dev, prod)'
-    value: '2'
   - label: 'Long-lived AWS keys in CI/CD'
     value: '0'
   - label: 'Offline Terraform tests'
     value: '22'
-  - label: 'Built and run solo'
-    value: '6 wk'
+  - label: 'Dev cost, billed vs before'
+    value: '−64%'
+  - label: 'Weeks to live, built solo'
+    value: '6'
 costs:
   title: 'Monthly cost, estimated'
   highlight: '−64% in dev'
@@ -41,7 +40,7 @@ costs:
       emphasis: true
     - label: 'Prod, billed'
       total: 96
-    - label: 'Prod, at go-live'
+    - label: 'Prod, Multi-AZ'
       total: 150
   rows:
     - item: 'NAT gateway'
@@ -58,7 +57,7 @@ costs:
       values: [5, 0, 0, null]
     - item: 'KMS keys, secrets, other'
       values: [null, 3, 6, null]
-  footnote: 'The two “billed” columns are projected to a 730-hour month from my AWS bill for October 13 to November 4, 2026 (Cost Explorer, usage before credits), split per environment by resource; October’s CloudWatch alarm charge of about $7, gone in November, is left out. Today both environments run Fargate Spot and a single-AZ database, prod with one NAT gateway, dev with none, its task stopped off-hours and its database stopped about 70% of the time. The other two columns are my estimates from the architecture docs at on-demand eu-central-1 prices: dev before the cost work, and prod at go-live with a Multi-AZ database, two NAT gateways and on-demand Fargate, before the Savings Plan. Rows are rounded, so they may not add up to the totals.'
+  footnote: 'The two “billed” columns are projected to a 730-hour month from my AWS bill for October 13 to November 4, 2026 (Cost Explorer, usage before credits), split per environment by resource. October’s CloudWatch alarm charge of about $7, gone in November, is left out. Today both environments run Fargate Spot and a single-AZ database. Prod has one NAT gateway; dev has none, stops its task off-hours and keeps its database stopped about 70% of the time. The other two columns are my estimates from the architecture docs at on-demand eu-central-1 prices: “Dev, before” is dev before the cost work, and “Prod, Multi-AZ” adds a Multi-AZ database, two NAT gateways and on-demand Fargate, before the Savings Plan. Rows are rounded, so they may not add up to the totals.'
 repoPrivate: true
 liveLinks:
   - label: 'Sorted, live'
@@ -82,11 +81,14 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 
 ## Scope
 
-Sorted is a commercial SaaS product, live at [sorted.onl](https://sorted.onl): self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it in six weeks (September 17 to October 31, 2026). This write-up describes the production configuration, defined in Terraform and reviewed. The running costs are projected from my AWS bill, the go-live figures are estimates from the docs in the repository, and failover has been designed but not drilled.
+Sorted is live at [sorted.onl](https://sorted.onl), with self sign-up, Stripe billing and custom plans for support teams. I own the platform end to end: the infrastructure, the pipelines and the operations, plus the application they run. I built it from September 17 to October 31, 2026. This page describes the production configuration as defined in Terraform. The running costs are projected from my AWS bill, the Multi-AZ figures are estimates from the docs in the repository, and failover has been designed but not drilled.
 
 ## Architecture
 
-The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx and the Bun server in one Fargate task, then RDS PostgreSQL in private subnets. The mail path is customer email, SES receipt rule, S3 (own KMS key) and SNS, a signed webhook on the ALB, a saved ticket, a `pg-boss` job for AI classification, then either the agent queue or an automatic reply out through SES, with delivery events coming back through SNS.
+Two paths run through the platform:
+
+- **Requests:** browser → Cloudflare → ALB with an ACM certificate → nginx and the Bun server in one Fargate task → RDS PostgreSQL in private subnets.
+- **Mail:** customer email → SES receipt rule → S3 (own KMS key) and SNS → signed webhook on the ALB → saved ticket → `pg-boss` job for AI classification → agent queue or automatic reply through SES. Delivery events come back through SNS.
 
 <ArchitectureDiagram
   locale="en"
@@ -96,7 +98,7 @@ The request path is browser, Cloudflare, an ALB with an ACM certificate, nginx a
 
 ## Availability and scaling
 
-The platform is built to grow without a rebuild. Every environment already spans two availability zones, and the step to a highly available production is three settings in Terraform, not a migration. Beyond that, the application is designed to run as several tasks, so it scales out behind the same load balancer.
+High availability in production is three Terraform flags, with no migration. Past that, the application is designed to run as several tasks behind the same load balancer.
 
 <ScalingPath
   label="Sorted availability and scaling, in three stages"
@@ -108,13 +110,13 @@ The platform is built to grow without a rebuild. Every environment already spans
       points: [
         'Each VPC spans two availability zones, with public subnets for the load balancer and private subnets for the task and the database.',
         'ECS replaces a failed task on its own. Health checks and a grace period cover migrations and start-up.',
-        'Deploys are rolling (minimum 100 %, maximum 200 %), so the old task serves until the new one is healthy. The circuit breaker rolls a bad release back automatically.',
+        'Deploys are rolling (minimum 100%, maximum 200%), so the old task serves until the new one is healthy. The circuit breaker rolls a bad release back automatically.',
         'Database migrations are expand, then contract, so two releases can share one database during a deploy.',
       ],
     },
     {
       title: 'Multi-AZ production',
-      status: 'Three settings away',
+      status: 'Three flags away',
       points: [
         '`db_multi_az` adds a synchronous RDS standby in the second zone with automatic failover.',
         '`nat_gateway_per_az` gives each zone its own NAT gateway and route table, so a task restarted in the surviving zone keeps its outbound access.',
@@ -126,7 +128,7 @@ The platform is built to grow without a rebuild. Every environment already spans
       title: 'Scale out',
       status: 'Designed, not yet built',
       points: [
-        'Several tasks can run side by side: live chat events cross over Postgres `LISTEN/NOTIFY` and the job queue (pg-boss) is shared in the database.',
+        'Several tasks can run side by side: live chat events cross over Postgres `LISTEN/NOTIFY` and the job queue (`pg-boss`) is shared in the database.',
         'A `SERVER_ROLE` switch already splits the API and the background worker, so each can become its own service and scale on its own.',
         'Next: two or more tasks, a target-tracking autoscaling policy, and a load test to find the real limit.',
       ],
@@ -134,20 +136,16 @@ The platform is built to grow without a rebuild. Every environment already spans
   ]}
 />
 
-Failover and scale-out have been designed but not drilled under real load; that is listed under Limitations.
+## Compute, network and data
 
-## Infrastructure highlights
-
-- **Compute.** One Fargate task with two containers, on ARM64 for about 20 % lower cost. Rolling deploys use the deployment circuit breaker with automatic rollback, and every database migration must work with the previous release (expand, then contract).
+- **Compute.** One Fargate task with two containers, nginx and the Bun server, on ARM64 for about 20% lower cost.
 - **Network.** Security groups reference each other, not CIDRs. RDS accepts connections only from the task. There is no SSH and no bastion; ECS Exec is the break-glass path.
-- **Data.** Private RDS with encryption, a staged rollout of database TLS (`off`, `verify`, `require`) and secrets injected from Secrets Manager.
+- **Data.** Private RDS with encryption, a staged rollout of database TLS (`off`, `verify`, `require`) and secrets injected from Secrets Manager. Backups of the documentation and subscriber lists go straight to S3 Glacier Deep Archive, in a versioned bucket with its own KMS key.
 - **Mail and attachments.** SES, SNS and S3 form the inbound pipeline. Webhooks trust only SNS signatures, the inbound bucket has its own KMS key, and GuardDuty Malware Protection scans every attachment.
-- **Delivery.** A release is a git tag that runs the full check suite and pushes immutable images. Deploying is a reviewed infrastructure change; the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate`, and 22 offline `terraform test` runs with mocked providers that assert the security properties without an AWS account.
-- **Operations.** Structured JSON logs, Grafana Cloud reading CloudWatch through a read-only role with an External ID, alerts tied to a symptom-first runbook.
 
-## How a release gets there
+## Release path
 
-Two repositories, two roles, no stored keys. The application repository turns a git tag into an immutable image; the infrastructure repository decides which image runs, through a reviewed Terraform change.
+Two repositories, two roles, no stored keys. In the application repository, a git tag runs the full check suite and pushes an immutable image to ECR. The infrastructure repository decides which image runs: a deploy is a reviewed Terraform change, and the workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate` and 22 offline `terraform test` runs with mocked providers, which assert the security properties without an AWS account.
 
 <ArchitectureDiagram
   locale="en"
@@ -157,8 +155,6 @@ Two repositories, two roles, no stored keys. The application repository turns a 
 />
 
 ## Tech stack
-
-Ordered from the edge visitors reach first down to the application the platform runs.
 
 <TechStack
   label="Sorted tech stack by layer"
@@ -193,7 +189,7 @@ Ordered from the edge visitors reach first down to the application the platform 
   ]}
 />
 
-## Monitoring: CloudWatch and Grafana
+## Monitoring
 
 CloudWatch holds the data; Grafana Cloud reads it in place, so nothing is shipped or copied. Terraform creates a read-only IAM role that Grafana's AWS account can assume only with the stack's External ID (protection against the confused deputy), limited to CloudWatch metrics and that environment's log group.
 
@@ -226,8 +222,8 @@ CloudWatch holds the data; Grafana Cloud reads it in place, so nothing is shippe
     {
       name: 'Compute',
       panels: [
-        { title: 'ECS CPU', viz: 'bars', source: 'ECS `CPUUtilization`, average, 5 min, amber at 70 %' },
-        { title: 'ECS memory', viz: 'bars', source: 'ECS `MemoryUtilization`, average, 5 min, amber at 70 %' },
+        { title: 'ECS CPU', viz: 'bars', source: 'ECS `CPUUtilization`, average, 5 min, amber at 70%' },
+        { title: 'ECS memory', viz: 'bars', source: 'ECS `MemoryUtilization`, average, 5 min, amber at 70%' },
       ],
     },
     {
@@ -251,43 +247,16 @@ CloudWatch holds the data; Grafana Cloud reads it in place, so nothing is shippe
   footnote="The panels of the production dashboard, grouped by layer, with the metric behind each one. No values are shown here on purpose. The dashboard and its alert rules live in Grafana, not in Terraform (see Limitations)."
 />
 
-## Problems I hit
-
-<ProblemLog
-  items={[
-    {
-      area: 'Networking',
-      problem: 'Every visitor looked like one IP, so rate limits were shared',
-      fix: "Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB",
-    },
-    {
-      area: 'Database',
-      problem: 'Prisma connected without TLS despite `sslmode=verify-full`',
-      fix: "`prisma migrate deploy` ignores libpq parameters, so the migration URL uses Prisma's own parameters and a pinned CA",
-    },
-    {
-      area: 'Messaging',
-      problem: 'SES webhooks could not be subscribed in the first apply',
-      fix: 'SNS needs the running app to confirm, so the subscription is a second apply behind a flag, with the order documented',
-    },
-    {
-      area: 'Deployment',
-      problem: 'A rotated secret did not take effect',
-      fix: 'A running ECS task keeps the values it started with. Rule: after changing a secret, force a new deployment',
-    },
-    {
-      area: 'Security',
-      problem: 'GitHub OIDC trust was name-based',
-      fix: 'A re-created repository name could inherit the role, so trust now uses immutable owner and repository IDs',
-    },
-  ]}
-/>
-
 ## The workload
 
-The platform exists to run this application.
+The platform exists to run this application. Each team gets a Sorted address, or forwards its existing one. An incoming email becomes a ticket. AI classifies it, summarizes it and, for non-transactional questions, answers from the team's knowledge base. Agents assign, reply and merge from one queue, with templates and an audit log. Teams have three roles, the interface comes in 22 languages, and there is a super-admin console.
 
-Each customer team gets a Sorted address or forwards its own in. An incoming email becomes a ticket. AI classifies it, summarizes it and, for non-transactional questions, answers from the team's knowledge base. **Refund and payment tickets never go to the AI.** Humans work a queue: assign, reply, merge, templates, audit log. It is multi-tenant SaaS with self sign-up, Stripe billing, three team roles, 22 UI languages and a super-admin console. All screenshots below use demo data.
+Four rules keep the AI safe:
+
+1. **Refund and payment tickets never go to the AI.**
+2. **The webhook never calls the AI.** It saves the message and returns 200, so AI latency or failure cannot lose a customer's email.
+3. **Guardrails live in code.** The model returns category, priority, confidence and a draft. Application code decides whether anything is sent.
+4. **Every AI failure ends with the ticket open for a human.** A sweep every five minutes opens anything a crash left behind.
 
 <ScreenshotGallery
   label="Sorted screenshots, demo data"
@@ -317,12 +286,37 @@ Each customer team gets a Sorted address or forwards its own in. An incoming ema
   ]}
 />
 
-Three structural rules keep the AI safe:
+## Problems I hit
 
-1. **The webhook never calls the AI.** It saves the message and returns 200, so AI latency or failure cannot lose a customer's email.
-2. **Guardrails are code, not prompt text.** The model returns category, priority, confidence and a draft. Application code decides whether anything is sent.
-3. **Every AI failure ends with the ticket open for a human.** A sweep every five minutes opens anything a crash left behind.
-
+<ProblemLog
+  items={[
+    {
+      area: 'Networking',
+      problem: 'Every visitor looked like one IP, so rate limits were shared',
+      fix: "Locked the ALB to Cloudflare's ranges, then trusted `CF-Connecting-IP` because nothing else can reach the ALB",
+    },
+    {
+      area: 'Database',
+      problem: 'Prisma connected without TLS despite `sslmode=verify-full`',
+      fix: "Switched the migration URL to Prisma's own TLS parameters and a pinned CA, because `prisma migrate deploy` ignores libpq parameters",
+    },
+    {
+      area: 'Messaging',
+      problem: 'SES webhooks could not be subscribed in the first apply',
+      fix: 'Moved the subscription to a second apply behind a flag and documented the order, because SNS needs the running app to confirm it',
+    },
+    {
+      area: 'Deployment',
+      problem: 'A rotated secret did not take effect',
+      fix: 'Forced a new deployment, because a running ECS task keeps the values it started with. Every secret change now ends with one',
+    },
+    {
+      area: 'Security',
+      problem: 'GitHub OIDC trust was name-based',
+      fix: 'Switched trust to immutable owner and repository IDs, because a re-created repository name could inherit the role',
+    },
+  ]}
+/>
 
 ## Limitations and what I would do next
 
@@ -330,7 +324,7 @@ Three structural rules keep the AI safe:
 - **The deploy role is an administrator.** This is a deliberate trade-off with tight trust conditions. A permission boundary and a scoped policy generated from a plan would be a better end state.
 - **Alert rules live in Grafana, not in Terraform.** Only the IAM role is code today.
 - **Terraform state holds generated secrets in plain text.** The bucket is private and encrypted, but I would create those secrets outside state or rotate them on a schedule.
-- **Backup restore is documented but not drilled.** Both the RDS snapshot and the Deep Archive path need a scheduled restore test.
+- **Backup restore is documented but not drilled.** Both the RDS snapshot and the Deep Archive backups need a scheduled restore test.
 - **No WAF rules of my own.** I would add rate-based rules and test them against the SES and Stripe webhooks first, because a challenge on those paths would silently break mail and billing.
 
 I do not claim a formal security audit. I used review passes while building.

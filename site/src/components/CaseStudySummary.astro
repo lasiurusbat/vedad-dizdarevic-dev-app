@@ -17,6 +17,20 @@ const links = [
 ---
 
 <!-- The structured part of a case study; the MDX body follows it. Headings start at h2. -->
+<!-- Links sit first, next to the title, so they do not break the flow between outcome and write-up. -->
+{(links.length > 0 || data.repoPrivate) && (
+  <ul class="case-links not-prose text-sm" role="list">
+    {links.map((l) => (
+      <li>
+        <a href={l.url} rel="noopener noreferrer" class="underline">
+          {l.label}
+        </a>
+      </li>
+    ))}
+    {data.repoPrivate && <li class="text-muted">{t.casePrivateRepo}</li>}
+  </ul>
+)}
+
 <h2>{t.caseProblem}</h2>
 <p>{data.problem}</p>
 
@@ -49,23 +63,22 @@ const links = [
   </>
 )}
 
-{(links.length > 0 || data.repoPrivate) && (
-  <>
-    <h2>{t.caseLinks}</h2>
-    <ul>
-      {data.repoPrivate && <li>{t.casePrivateRepo}</li>}
-      {links.map((l) => (
-        <li>
-          <a href={l.url} rel="noopener noreferrer">
-            {l.label}
-          </a>
-        </li>
-      ))}
-    </ul>
-  </>
-)}
-
 <style>
+  .case-links {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+  .case-links a {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+  }
+  .case-links li {
+    display: flex;
+    align-items: center;
+  }
   /* Two columns on phones, four on wide screens; hairlines between cells, no boxes. */
   .stats {
     display: grid;
