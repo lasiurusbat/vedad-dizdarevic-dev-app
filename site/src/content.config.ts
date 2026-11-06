@@ -26,13 +26,15 @@ const caseStudies = defineCollection({
       .min(1)
       .max(4),
     /**
-     * Fact sheet under the title: short label/value rows (status, role, built, region,
-     * environments). The source row is added from `repoUrl` / `repoPrivate`, the live link from
-     * `liveLinks`, so neither belongs here.
+     * Fact sheet under the summary: a status line, then a row of short facts (label above value).
+     * `status` is the text beside the live dot; it shows only with a `liveLinks` entry, whose
+     * domain becomes the link. `facts` are a few words each (role, built, region); the source
+     * cell is added from `repoUrl` / `repoPrivate`, so it does not belong here.
      */
+    status: z.string().optional(),
     facts: z
-      .array(z.object({ label: z.string(), value: z.string() }))
-      .max(6)
+      .array(z.object({ label: z.string(), value: z.string().max(32) }))
+      .max(5)
       .default([]),
     /** Outcome metrics, e.g. { label: 'Monthly cost', value: '€4' }. Shown under the fact sheet. */
     outcomes: z.array(z.object({ label: z.string(), value: z.string() })).default([]),

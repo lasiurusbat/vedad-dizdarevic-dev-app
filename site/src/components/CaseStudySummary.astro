@@ -11,67 +11,58 @@ const { locale, data } = Astro.props;
 const t = useTranslations(locale);
 // Live links (the running product) become badges; the domain shows where the link goes.
 const liveLinks = data.liveLinks.map((l) => ({ ...l, host: new URL(l.url).hostname }));
-// The source row closes the fact sheet: a link for a public repository, a plain note otherwise.
-const repoText = data.repoUrl ? data.repoUrl.replace(/^https?:\/\//, '') : undefined;
-const hasSource = Boolean(data.repoUrl) || data.repoPrivate;
+// The source cell closes the fact row: the repository path as a link, or a plain note if private.
+const source = data.repoUrl
+  ? { value: data.repoUrl.replace(/^https?:\/\/(www\.)?github\.com\//, ''), url: data.repoUrl }
+  : data.repoPrivate
+    ? { value: t.casePrivateRepo }
+    : undefined;
+const cells: { label: string; value: string; url?: string }[] = [
+  ...data.facts,
+  ...(source ? [{ label: t.caseRepo, ...source }] : []),
+];
 ---
 
 <!--
   The structured part of a case study, before the MDX body. Order: the fact sheet (what, who, when,
-  where, with the live link), then the outcome stats and their honesty note, so the evidence comes
+  where; the status line carries the live link), then the outcome stats and their honesty note, so the evidence comes
   before the reasoning; then the problem and the decisions. Headings start at h2.
 -->
-{(data.facts.length > 0 || hasSource || liveLinks.length > 0) && (
-  <div class="facts-block not-prose">
-    {(data.facts.length > 0 || hasSource) && (
-      <dl class="facts text-sm">
-        {data.facts.map((f) => (
-          <div class="fact">
-            <dt class="text-muted">{f.label}</dt>
-            <dd>{f.value}</dd>
-          </div>
+{(liveLinks.length > 0 || cells.length > 0) && (
+  <div class="facts not-prose">
+    {liveLinks.length > 0 && (
+      <p class="status">
+        <span class="sr-only">{t.caseStatus}:</span>
+        <span class="live-dot" aria-hidden="true"></span>
+        <span class="status-text">{data.status ?? t.caseLive}</span>
+        {liveLinks.map((l) => (
+          <a href={l.url} target="_blank" rel="noopener noreferrer" class="status-link">
+            {l.host}
+            <svg viewBox="0 0 12 12" width="12" height="12" aria-hidden="true" focusable="false">
+              <path d="M4 2.5h5.5V8 M9.5 2.5 3 9" />
+            </svg>
+            <span class="sr-only">{t.opensNewTab}</span>
+          </a>
         ))}
-        {hasSource && (
+      </p>
+    )}
+    {cells.length > 0 && (
+      <dl class="fact-row">
+        {cells.map((c) => (
           <div class="fact">
-            <dt class="text-muted">{t.caseRepo}</dt>
+            <dt class="text-muted">{c.label}</dt>
             <dd>
-              {data.repoUrl ? (
-                <a href={data.repoUrl} rel="noopener noreferrer" class="underline">
-                  {repoText}
+              {c.url ? (
+                <a href={c.url} rel="noopener noreferrer" class="underline">
+                  {c.value}
                 </a>
               ) : (
-                t.casePrivateRepo
+                c.value
               )}
             </dd>
           </div>
-        )}
-      </dl>
-    )}
-    {liveLinks.length > 0 && (
-      <ul class="case-links text-sm" role="list">
-        {liveLinks.map((l) => (
-          <li>
-            {/* A status chip that is also the link: the dot says the product is live. */}
-            <a href={l.url} target="_blank" rel="noopener noreferrer" class="live-badge">
-              <span class="live-dot" aria-hidden="true"></span>
-              <span class="live-label">{l.label}</span>
-              <span class="live-host">
-                {l.host}
-                <svg
-                  viewBox="0 0 12 12"
-                  width="12"
-                  height="12"
-                  aria-hidden="true"
-                  focusable="false"
-                >
-                  <path d="M4 2.5h5.5V8 M9.5 2.5 3 9" />
-                </svg>
-              </span>
-              <span class="sr-only">{t.opensNewTab}</span>
-            </a>
-          </li>
         ))}
-      </ul>
+      </dl>
     )}
   </div>
 )}
@@ -113,94 +104,92 @@ const hasSource = Boolean(data.repoUrl) || data.repoPrivate;
 
 <style>
   /*
-   * Fact sheet: a key/value list on hairlines, label left and value right from 30rem up, stacked
-   * on narrow phones. Quieter than the stats below it (small text, no card): it answers "what is
-   * this", the stats answer "what came of it". The live badge sits under it.
+   * Fact sheet: a status line (live dot, status, the product's domain as the link), then one row
+   * of short facts, label above value. Small text on hairlines and no card, so it stays quieter
+   * than the stats panel below it: this answers "what is it", the stats "what came of it".
+   * Two columns on phones, one line from tablet width up.
    */
-  .facts-block {
-    max-width: var(--container-measure);
-    margin-bottom: 2rem;
-  }
-
   .facts {
-    border-top: 1px solid var(--border);
+    --live: light-dark(#2f7d55, #6cc795);
+
+    margin-bottom: 2rem;
+    font-size: var(--text-sm);
   }
 
-  .fact {
-    display: grid;
-    gap: 0.125rem;
-    padding: 0.625rem 0;
-    border-bottom: 1px solid var(--border);
-  }
-
-  @media (min-width: 30rem) {
-    .fact {
-      grid-template-columns: 8.5rem minmax(0, 1fr);
-      gap: 1rem;
-    }
-  }
-
-  .fact dd a {
-    display: inline-flex;
-    min-height: 2.75rem;
-    align-items: center;
-    margin: -0.75rem 0;
-  }
-
-  .case-links {
+  .status {
     display: flex;
     flex-wrap: wrap;
     align-items: center;
-    gap: 0.75rem 1.5rem;
-    margin-top: 1.25rem;
+    column-gap: 0.75rem;
+    min-height: 2.75rem;
+    padding-bottom: 0.5rem;
   }
 
-  .outcome {
-    margin-bottom: 2.5rem;
+  .status-text {
+    margin-left: 0.125rem;
+    color: var(--fg);
+    font-weight: 500;
   }
 
-  /*
-   * Live badge: a pill (set apart from the 10px action buttons: it goes to the product, it is not
-   * a call to contact) on the secondary buttons' lit-from-above surface. The status dot is the one
-   * extra colour, a muted green that means "online". The domain is the second segment so the
-   * reader knows where the link leads; the arrow marks that it leaves this site. It opens in a new
-   * tab (announced to screen readers), so the case study stays open.
-   */
-  .live-badge {
-    --badge-top: light-dark(#ffffff, #1b1d2a);
-    --badge-bottom: light-dark(#f3f4f8, #12131d);
-    --badge-edge: light-dark(#cfd3de, #2b3042);
-    --badge-shine: light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.07));
-    --badge-halo: light-dark(rgb(56 100 116 / 0.12), rgb(166 181 190 / 0.14));
-    --live: light-dark(#2f7d55, #6cc795);
-
+  /* The domain sits at the end of the line, muted until hovered; the arrow says it leaves. */
+  .status-link {
     display: inline-flex;
     min-height: 2.75rem;
     align-items: center;
-    gap: 0.625rem;
-    padding: 0 0.5rem 0 1rem;
-    border: 1px solid var(--badge-edge);
-    border-radius: 999px;
-    background: linear-gradient(to bottom, var(--badge-top), var(--badge-bottom));
-    box-shadow:
-      inset 0 1px 0 0 var(--badge-shine),
-      0 0 14px 0 var(--badge-halo);
-    color: var(--fg);
-    font-weight: 500;
-    text-decoration: none;
+    gap: 0.375rem;
+    margin-left: auto;
+    color: var(--muted);
+    text-decoration: underline;
+    text-decoration-color: var(--border);
+    text-underline-offset: 0.25em;
     transition:
-      border-color 150ms ease,
-      box-shadow 150ms ease;
+      color 150ms ease,
+      text-decoration-color 150ms ease;
   }
 
-  .live-badge:hover {
-    --badge-edge: light-dark(#83909a, #4f8597);
-    --badge-halo: light-dark(rgb(56 100 116 / 0.22), rgb(143 180 195 / 0.3));
+  .status-link:hover {
+    color: var(--fg);
+    text-decoration-color: currentColor;
   }
 
-  .live-badge:focus-visible {
-    outline: 2px solid var(--accent);
-    outline-offset: 3px;
+  .status-link svg {
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.4;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  .fact-row {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 1rem 1.5rem;
+    padding: 0.875rem 0;
+    border-block: 1px solid var(--border);
+  }
+
+  /* From tablet width the facts share one line, each as wide as its value, spread edge to edge
+     so the row ends where the stats panel below ends. */
+  @media (min-width: 48rem) {
+    .fact-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 2rem;
+    }
+
+    .fact dd {
+      white-space: nowrap;
+    }
+  }
+
+  .fact {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+  }
+
+  .fact dd {
+    color: var(--fg);
   }
 
   .live-dot {
@@ -241,35 +230,10 @@ const hasSource = Boolean(data.repoUrl) || data.repoPrivate;
     }
   }
 
-  /* The domain segment: a hairline before it, muted until hovered. */
-  .live-host {
-    display: inline-flex;
-    min-height: 1.875rem;
-    align-items: center;
-    gap: 0.375rem;
-    padding: 0 0.75rem 0 0.625rem;
-    border-left: 1px solid var(--badge-edge);
-    color: var(--muted);
-    font-weight: 400;
-    transition: color 150ms ease;
+  .outcome {
+    margin-bottom: 2.5rem;
   }
 
-  .live-badge:hover .live-host {
-    color: var(--fg);
-  }
-
-  .live-host svg {
-    fill: none;
-    stroke: currentColor;
-    stroke-width: 1.4;
-    stroke-linecap: round;
-    stroke-linejoin: round;
-  }
-
-  .case-links li {
-    display: flex;
-    align-items: center;
-  }
   /* Two columns on phones, four on wide screens; hairlines between cells, no boxes. */
   .stats {
     display: grid;

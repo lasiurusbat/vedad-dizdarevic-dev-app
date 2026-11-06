@@ -56,6 +56,8 @@ export const de: Messages = {
   caseCtaText: 'Sie brauchen eine Plattform wie diese für Ihr Produkt?',
   caseCtaButton: 'Kontakt aufnehmen',
   casePrivateRepo: 'Privates Repository',
+  caseStatus: 'Status',
+  caseLive: 'Live',
   caseRepo: 'Quellcode',
   opensNewTab: '(öffnet in einem neuen Tab)',
   caseWhy: 'Warum',

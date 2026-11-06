@@ -42,7 +42,7 @@ test('Sorted: fact sheet, then stats, then the problem; the cost card sits in th
 }) => {
   await page.goto('/projects/sorted/');
   const top = async (selector: string) => (await page.locator(selector).first().boundingBox())!.y;
-  const facts = await top('dl.facts');
+  const facts = await top('.facts');
   const stats = await top('dl.stats');
   const problem = await top('main h2:text-is("The problem")');
   expect(facts).toBeLessThan(stats);
