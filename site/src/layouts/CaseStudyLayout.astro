@@ -1,5 +1,6 @@
 ---
 import { type Locale, localeUrl, useTranslations } from '../i18n';
+import CTAButton from '../components/CTAButton.astro';
 import Base from './Base.astro';
 
 interface Props {
@@ -42,5 +43,10 @@ const t = useTranslations(locale);
     <div class="prose mt-10">
       <slot />
     </div>
+    {/* Every case study ends with a way to act on it. */}
+    <aside class="border-border mt-16 flex max-w-measure flex-col items-start gap-4 border-t pt-8">
+      <p class="font-display text-xl">{t.caseCtaText}</p>
+      <CTAButton href={`${localeUrl(locale)}#contact`}>{t.caseCtaButton}</CTAButton>
+    </aside>
   </article>
 </Base>
