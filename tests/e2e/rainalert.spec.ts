@@ -58,3 +58,16 @@ test('Rain Alert diagram renders and traces both paths under the production CSP'
   await expect(page.locator('[data-path-status]')).toContainText('OpenWeather');
   expect(violations).toEqual([]);
 });
+
+test('Rain Alert header illustration: decorative, beside the title on desktop only', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/projects/rainalert/');
+  const illo = page.locator('.case-head .illo');
+  await expect(illo).toBeVisible();
+  await expect(illo).toHaveAttribute('aria-hidden', 'true');
+  await expect(illo.locator('.umbrella')).toHaveCount(1);
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(illo).toBeHidden();
+});
