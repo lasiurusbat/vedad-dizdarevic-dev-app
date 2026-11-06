@@ -14,7 +14,10 @@ test('Sorted case study: private repo noted, screenshots served from /_astro/ wi
   page,
 }) => {
   await page.goto('/projects/sorted/');
-  await expect(page.getByText('Source code: private repository')).toBeVisible();
+  // The fact sheet closes with the source row; a private repository is noted, never linked.
+  const source = page.locator('.fact').filter({ hasText: 'Source code' });
+  await expect(source.locator('dd')).toHaveText('Private repository');
+  await expect(source.locator('a')).toHaveCount(0);
   // Three screenshots, each as a light/dark pair; only the version for the active theme shows.
   const imgs = page.locator('figure img');
   await expect(imgs).toHaveCount(6);
@@ -32,4 +35,21 @@ test('Sorted case study: private repo noted, screenshots served from /_astro/ wi
 test('Sorted is on the home page work section', async ({ page }) => {
   await page.goto('/');
   await expect(page.locator('#work').getByRole('link', { name: /Sorted/ })).toBeVisible();
+});
+
+test('Sorted: fact sheet, then stats, then the problem; the cost card sits in the body', async ({
+  page,
+}) => {
+  await page.goto('/projects/sorted/');
+  const top = async (selector: string) => (await page.locator(selector).first().boundingBox())!.y;
+  const facts = await top('.facts');
+  const stats = await top('dl.stats');
+  const problem = await top('main h2:text-is("The problem")');
+  expect(facts).toBeLessThan(stats);
+  expect(stats).toBeLessThan(problem);
+  // The cost card comes after the decisions, from the MDX body (one table only).
+  await expect(page.locator('main table')).toHaveCount(1);
+  expect(await top('main table')).toBeGreaterThan(
+    await top('main h2:text-is("Decisions and trade-offs")'),
+  );
 });
