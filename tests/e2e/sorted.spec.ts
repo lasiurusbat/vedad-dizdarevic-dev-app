@@ -47,9 +47,9 @@ test('Sorted: fact sheet, then stats, then the problem; the cost card sits in th
   const problem = await top('main h2:text-is("The problem")');
   expect(facts).toBeLessThan(stats);
   expect(stats).toBeLessThan(problem);
-  // The cost card sits in its decision's section (one table only).
-  await expect(page.locator('main table')).toHaveCount(1);
-  expect(await top('main table')).toBeGreaterThan(
+  // The cost card sits in its decision's section.
+  await expect(page.locator('main .cost table')).toHaveCount(1);
+  expect(await top('main .cost table')).toBeGreaterThan(
     await top('main h2:text-is("Cost per environment")'),
   );
 });
@@ -79,3 +79,18 @@ for (const width of [390, 1440]) {
     expect(overflow).toBeLessThanOrEqual(0);
   });
 }
+
+test('Sorted ends with the limitations table and the closing band', async ({ page }) => {
+  await page.goto('/projects/sorted/');
+  const limits = page.getByRole('table', { name: /Limitations of the Sorted platform/ });
+  await expect(limits.getByRole('columnheader')).toHaveText(['Gap', 'Next step']);
+  await expect(limits.locator('tbody tr')).toHaveCount(6);
+  const band = page.getByRole('complementary', {
+    name: 'Need a platform like this for your product?',
+  });
+  await expect(band.getByRole('link', { name: 'Get in touch' })).toHaveAttribute(
+    'href',
+    '/#contact',
+  );
+  await expect(band.getByRole('link', { name: 'See more work' })).toHaveAttribute('href', '/#work');
+});

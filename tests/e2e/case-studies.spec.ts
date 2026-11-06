@@ -57,8 +57,12 @@ for (const s of studies) {
 
   test(`${s.path} links back to the work section`, async ({ page }) => {
     await page.goto(s.path);
+    // At the top of the article, and again as the secondary action in the closing band.
     const back = page.locator('main a[href$="#work"]');
-    await expect(back).toHaveAttribute('href', s.lang === 'en' ? '/#work' : '/de/#work');
+    await expect(back).toHaveCount(2);
+    for (const link of await back.all()) {
+      await expect(link).toHaveAttribute('href', s.lang === 'en' ? '/#work' : '/de/#work');
+    }
   });
 }
 
