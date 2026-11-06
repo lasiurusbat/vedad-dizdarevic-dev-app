@@ -43,6 +43,8 @@ export const en = {
   galleryPrev: 'Previous screenshot',
   galleryNext: 'Next screenshot',
   diagramSimplified: 'Simplified diagram.',
+  diagramPaths: 'Trace a path',
+  diagramPathAll: 'Everything',
   diagramTextAlternative: 'Text description of the diagram',
   diagramNeedsJs:
     'The diagram needs JavaScript. Open the text description above for the same information.',

@@ -16,10 +16,35 @@ const { locale, id, title, compact = false } = Astro.props;
 const t = useTranslations(locale);
 const description = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease }[id]
   .description;
+const definition = { 'sorted-production': sortedProduction, 'sorted-release': sortedRelease }[id];
 const steps = locale === 'de' && description.de.length > 0 ? description.de : description.en;
+// Path buttons: hidden until the diagram mounts (FlowDiagram wires them), so no-JS visitors see
+// none. "Everything" (no data-path value) clears the selection.
+const paths = (definition.paths ?? []).map((p) => ({
+  id: p.id,
+  label: p.label[locale],
+  summary: p.summary[locale],
+}));
 ---
 
 <figure class:list={['not-prose diagram my-8', compact && 'compact']}>
+  {paths.length > 0 && (
+    <div class="paths" role="group" aria-label={t.diagramPaths} data-paths hidden>
+      <span class="paths-label text-muted text-sm" aria-hidden="true">
+        {t.diagramPaths}
+      </span>
+      <div class="paths-buttons">
+        <button type="button" data-path="" data-summary="" aria-pressed="true">
+          {t.diagramPathAll}
+        </button>
+        {paths.map((p) => (
+          <button type="button" data-path={p.id} data-summary={p.summary} aria-pressed="false">
+            {p.label}
+          </button>
+        ))}
+      </div>
+    </div>
+  )}
   {/* Focusable so keyboard users can scroll it sideways on a narrow screen. */}
   <div
     class="border-border overflow-x-auto rounded-lg border"
@@ -29,6 +54,7 @@ const steps = locale === 'de' && description.de.length > 0 ? description.de : de
   >
     <div class="diagram-mount" data-diagram={id} data-label={title}></div>
   </div>
+  {paths.length > 0 && <p class="path-status mt-3 text-sm" aria-live="polite" data-path-status />}
   <figcaption class="text-muted mt-2 text-sm">
     {t.diagramSimplified} {title}
   </figcaption>
@@ -76,6 +102,69 @@ const steps = locale === 'de' && description.de.length > 0 ? description.de : de
 </style>
 
 <style>
+  /*
+   * Path buttons: a segmented row above the canvas, on the secondary buttons' lit-from-above
+   * surface. The pressed one takes the accent edge and glow; touch targets stay at 44px.
+   */
+  .paths {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.5rem 1rem;
+    margin-bottom: 0.75rem;
+  }
+  .paths[hidden] {
+    display: none;
+  }
+  .paths-buttons {
+    display: inline-flex;
+    flex-wrap: wrap;
+    padding: 3px;
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    background: var(--surface);
+  }
+  .paths button {
+    min-height: 2.75rem;
+    padding: 0 1rem;
+    border: 1px solid transparent;
+    border-radius: 9px;
+    color: var(--muted);
+    font-size: var(--text-sm);
+    font-weight: 500;
+    cursor: pointer;
+    transition:
+      color 150ms ease,
+      border-color 150ms ease,
+      box-shadow 150ms ease;
+  }
+  .paths button:hover {
+    color: var(--fg);
+  }
+  .paths button[aria-pressed='true'] {
+    border-color: color-mix(in srgb, var(--accent) 55%, var(--border-strong));
+    background: linear-gradient(
+      to bottom,
+      light-dark(#ffffff, #1b1d2a),
+      light-dark(#f3f4f8, #12131d)
+    );
+    box-shadow:
+      inset 0 1px 0 0 light-dark(rgb(255 255 255 / 1), rgb(255 255 255 / 0.07)),
+      0 0 14px 0 color-mix(in srgb, var(--accent) 25%, transparent);
+    color: var(--fg);
+  }
+  .paths button:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+  }
+  .path-status {
+    max-width: var(--container-measure);
+    color: var(--fg);
+  }
+  .path-status:empty {
+    display: none;
+  }
+
   /* Compact: the release path is about 3.5 times wider than tall. */
   .compact .diagram-mount {
     height: clamp(18rem, 32vw, 24rem);

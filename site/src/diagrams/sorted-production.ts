@@ -140,6 +140,41 @@ export const sortedProduction: DiagramDefinition = {
   edges,
   // The request path (Visitors, Cloudflare, ALB, task, RDS) runs down the middle.
   focusNode: 'cf',
+  paths: [
+    {
+      id: 'request',
+      label: { en: 'Requests', de: 'Anfragen' },
+      summary: {
+        en: 'A request passes Cloudflare, then the ALB with an ACM certificate, which accepts only Cloudflare’s ranges, then nginx and the Bun server in one Fargate task, which reads and writes RDS PostgreSQL in the private subnets.',
+        de: 'Eine Anfrage läuft durch Cloudflare, dann zum ALB mit ACM-Zertifikat, der nur Cloudflare-Bereiche annimmt, dann zu nginx und dem Bun-Server in einem Fargate-Task, der in den privaten Subnetzen mit RDS PostgreSQL arbeitet.',
+      },
+      nodes: ['users', 'cf', 'alb', 'task', 'rds', 'standby'],
+      edges: ['e1', 'e2', 'e3', 'e11', 'e12'],
+      focus: 'cf',
+    },
+    {
+      id: 'mail',
+      label: { en: 'Mail', de: 'Mail' },
+      summary: {
+        en: 'Customer email reaches an SES receipt rule, which stores it in S3 under its own KMS key and notifies SNS. SNS calls a signed webhook on the ALB; the task saves a ticket, queues a pg-boss job for AI classification, then routes it to the agent queue or sends an automatic reply through SES. Delivery events come back through SNS. Attachments stay unreadable until GuardDuty marks them clean.',
+        de: 'Kunden-E-Mails treffen auf eine SES-Empfangsregel, die sie in S3 mit eigenem KMS-Schlüssel ablegt und SNS benachrichtigt. SNS ruft einen signierten Webhook am ALB auf; der Task speichert ein Ticket, legt einen pg-boss-Job für die KI-Klassifizierung an und leitet es dann in die Warteschlange der Agents oder schickt eine automatische Antwort über SES. Zustellereignisse kommen über SNS zurück. Anhänge bleiben unlesbar, bis GuardDuty sie als sauber markiert.',
+      },
+      nodes: ['cust', 'ses', 's3mail', 'sns', 'alb', 'task', 's3att', 'gd'],
+      edges: ['e4', 'e8', 'e5', 'e6', 'e3', 'e7', 'e9', 'e10'],
+      focus: 'ses',
+    },
+    {
+      id: 'release',
+      label: { en: 'Releases', de: 'Releases' },
+      summary: {
+        en: 'A git tag runs the full checks in GitHub Actions, which pushes an immutable image to ECR through an OIDC role with no stored keys. ECS pulls that image when it starts the task.',
+        de: 'Ein Git-Tag startet die vollständigen Prüfungen in GitHub Actions, das über eine OIDC-Rolle ohne gespeicherte Schlüssel ein unveränderliches Image nach ECR schiebt. ECS holt dieses Image, wenn es den Task startet.',
+      },
+      nodes: ['tag', 'gha', 'ecr', 'task'],
+      edges: ['e14', 'e15', 'e13'],
+      focus: 'ecr',
+    },
+  ],
   description: {
     en: [
       'Visitors reach Cloudflare, which forwards HTTPS to an application load balancer in AWS eu-central-1. The load balancer sits in the public subnets of a VPC that spans two availability zones, and only accepts Cloudflare addresses.',
