@@ -1,5 +1,6 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
+import { themeState } from './theme-state';
 
 const widths = [360, 390, 768, 1280];
 const schemes = ['light', 'dark'] as const;
@@ -17,7 +18,7 @@ async function contactLink(page: Page, name: string, width: number) {
 
 for (const scheme of schemes) {
   test.describe(`${scheme} theme`, () => {
-    test.use({ colorScheme: scheme });
+    test.use({ storageState: themeState(scheme) });
 
     for (const p of pages) {
       for (const width of widths) {

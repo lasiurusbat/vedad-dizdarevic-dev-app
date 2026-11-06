@@ -52,8 +52,8 @@ const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : loca
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />
     <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
     <link rel="manifest" href="/site.webmanifest" />
-    <meta name="theme-color" content="#ffffff" media="(prefers-color-scheme: light)" />
-    <meta name="theme-color" content="#0f101a" media="(prefers-color-scheme: dark)" />
+    {/* Dark by default, whatever the device setting; theme.js switches it for a saved light. */}
+    <meta name="theme-color" content="#0f101a" />
     {/* Saved theme choice, applied before paint; must come after the theme-color tags. */}
     <script is:inline src="/theme.js"></script>
   </head>
