@@ -138,6 +138,8 @@ export const sortedProduction: DiagramDefinition = {
   id: 'sorted-production',
   nodes,
   edges,
+  // The request path (Visitors, Cloudflare, ALB, task, RDS) runs down the middle.
+  focusNode: 'cf',
   description: {
     en: [
       'Visitors reach Cloudflare, which forwards HTTPS to an application load balancer in AWS eu-central-1. The load balancer sits in the public subnets of a VPC that spans two availability zones, and only accepts Cloudflare addresses.',

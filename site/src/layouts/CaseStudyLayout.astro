@@ -7,12 +7,11 @@ interface Props {
   locale: Locale;
   title: string;
   summary: string;
-  tags?: string[];
   /** Where translations of this case study live; see Base. */
   alternates?: Partial<Record<Locale, string>>;
 }
 
-const { locale, title, summary, tags = [], alternates } = Astro.props;
+const { locale, title, summary, alternates } = Astro.props;
 const t = useTranslations(locale);
 ---
 
@@ -32,13 +31,6 @@ const t = useTranslations(locale);
     <header class="mt-4 max-w-measure">
       <h1 class="text-4xl">{title}</h1>
       <p class="text-muted mt-4 text-xl">{summary}</p>
-      {tags.length > 0 && (
-        <ul class="mt-4 flex flex-wrap gap-2" role="list">
-          {tags.map((tag) => (
-            <li class="border-border text-muted rounded-md border px-2 py-0.5 text-xs">{tag}</li>
-          ))}
-        </ul>
-      )}
     </header>
     <div class="prose mt-10">
       <slot />
