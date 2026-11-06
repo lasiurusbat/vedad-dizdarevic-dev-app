@@ -1,6 +1,7 @@
 import AxeBuilder from '@axe-core/playwright';
 import { expect, test, type Page } from '@playwright/test';
 import { SECURITY_HEADERS } from '../../worker/src/headers';
+import { useTheme } from './theme-state';
 
 // The Worker sends the CSP in production; the static server used here does not. Re-apply it as an
 // enforcing header (minus upgrade-insecure-requests, which would break plain-http localhost) so a
@@ -50,7 +51,7 @@ test('diagram renders under the production CSP without violations', async ({ pag
 
 for (const scheme of ['light', 'dark'] as const) {
   test(`${scheme} theme: the mounted diagram has no axe violations`, async ({ page }) => {
-    await page.emulateMedia({ colorScheme: scheme });
+    await useTheme(page, scheme);
     await openDiagram(page);
     const results = await new AxeBuilder({ page }).include('figure').analyze();
     expect(results.violations).toEqual([]);
