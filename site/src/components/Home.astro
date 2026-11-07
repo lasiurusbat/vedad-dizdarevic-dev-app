@@ -5,6 +5,8 @@ import CaseStudyCard from './CaseStudyCard.astro';
 import Credentials from './Credentials.astro';
 import Hero from './Hero.astro';
 import Section from './Section.astro';
+import SkillGroup from './SkillGroup.astro';
+import { skillGroups, text } from '../skills';
 
 interface Props {
   locale: Locale;
@@ -42,7 +44,14 @@ const sections = [
         ))}
       </div>
     ) : s.id === 'skills' ? (
-      <Credentials locale={locale} />
+      <div class="space-y-12">
+        <div class="grid gap-x-8 gap-y-8 md:grid-cols-2">
+          {skillGroups.map((g) => (
+            <SkillGroup title={g.title[locale]} items={g.items.map((i) => text(i, locale))} />
+          ))}
+        </div>
+        <Credentials locale={locale} />
+      </div>
     ) : s.id === 'about' ? (
       <div class="max-w-measure space-y-4 text-lg">
         <p>{t.aboutP1}</p>

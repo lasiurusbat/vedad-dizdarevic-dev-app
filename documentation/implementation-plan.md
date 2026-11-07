@@ -248,7 +248,7 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Skills
 
-- [ ] Grouped by area: Cloud, IaC, CI/CD, Containers, Observability (plus others as needed); no bars or percentages
+- [x] Grouped by area: Cloud, IaC, CI/CD, Containers, Observability (plus others as needed); no bars or percentages _(Eight groups from the CV's Technical Skills, October 2026, in `site/src/skills.ts`: platform first, application stack and ways of working last; Stripe and Windows left out)_
 - [x] DevOps diploma shown _(Certifications block under Skills: claims plus verification links, PDFs not published; AWS SAA shown as in progress)_
 - [ ] Sourced from `cv/data.yaml` if the shared-data option is taken (Phase 5)
 
