@@ -3,10 +3,11 @@ import { type Locale, useTranslations } from '../i18n';
 import { sortedProduction } from '../diagrams/sorted-production';
 import { sortedRelease } from '../diagrams/sorted-release';
 import { rainalertRelease } from '../diagrams/rainalert-release';
+import { sitePlatform } from '../diagrams/site-platform';
 
 interface Props {
   locale: Locale;
-  id: 'sorted-production' | 'sorted-release' | 'rainalert-release';
+  id: 'sorted-production' | 'sorted-release' | 'rainalert-release' | 'site-platform';
   /** Accessible name and caption. */
   title: string;
   /** A wide, flat diagram (two rows): a shorter canvas, so the fitted view has no empty bands. */
@@ -19,11 +20,13 @@ const description = {
   'sorted-production': sortedProduction,
   'sorted-release': sortedRelease,
   'rainalert-release': rainalertRelease,
+  'site-platform': sitePlatform,
 }[id].description;
 const definition = {
   'sorted-production': sortedProduction,
   'sorted-release': sortedRelease,
   'rainalert-release': rainalertRelease,
+  'site-platform': sitePlatform,
 }[id];
 const steps = locale === 'de' && description.de.length > 0 ? description.de : description.en;
 // Path buttons: hidden until the diagram mounts (FlowDiagram wires them), so no-JS visitors see

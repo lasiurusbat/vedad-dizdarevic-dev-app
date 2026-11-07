@@ -126,7 +126,12 @@ const parts = (s: string) =>
     color: var(--fg);
     font-family: var(--font-mono);
     font-size: 0.85em;
-    white-space: nowrap;
+    /* A chip moves to the next line whole; only one longer than the line itself (an OIDC
+       subject, a long path) breaks, so it never widens the page on a phone. Each fragment
+       keeps its own border. */
+    overflow-wrap: anywhere;
+    -webkit-box-decoration-break: clone;
+    box-decoration-break: clone;
   }
 
   /* Wide screens: three aligned columns under a small header row. */
