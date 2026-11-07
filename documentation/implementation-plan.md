@@ -196,7 +196,7 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 - [x] **Layout:** mobile-first single column at ~360px using unprefixed utilities; `md:`/`lg:` and container-query variants (`@container`, `@md:`) for wider screens
 - [x] Keep components in Astro files with utilities; extract repeated patterns into components, not `@apply` classes
 - [ ] **Header with CTAs:** name, section nav, language switch, and Contact / CV / GitHub / LinkedIn reachable on every screen; on mobile a compact sticky header or bottom bar; works without JavaScript _(In progress: name, section nav, language switch, Contact, GitHub and LinkedIn done, works without JS. The CV link follows with the CV, Phase 5.)_
-- [ ] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built", Impressum and Datenschutz links are added when those pages exist (Phases 4 and 9), to avoid dead links.)_
+- [ ] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built" links to the `this-site` case study since 2026-11-07; Impressum and Datenschutz links are added when those pages exist (Phase 9), to avoid dead links.)_
 - [x] **i18n:** Astro i18n routing with `defaultLocale: 'en'`, `locales: ['en', 'de']`; `/` English, `/de/` German; UI strings in `src/i18n/{en,de}.ts`; language switch links to the equivalent page; `<html lang>` set per page
 - [x] **Geo-based first language** (DE, AT, CH, LU, LI to `/de/`, everyone else English): in the Worker, no cookie; see tech-stack.md, Cloudflare Worker, item 5
 - [x] Skip-to-content link, semantic landmarks, heading hierarchy
@@ -265,9 +265,9 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### How this site is built
 
-- [ ] Architecture diagram of this site (Cloudflare → Worker → S3, contact flow)
-- [ ] Key decisions: Worker over CloudFront/public S3, Cloudflare free plan, `eu-central-1`, Typst CV, security headers
-- [ ] Live evidence: CI status badge, Lighthouse scores, securityheaders.com grade, link to the repo
+- [x] Architecture diagram of this site (Cloudflare → Worker → S3, contact flow) _(Built as a third case study, `this-site` (EN, DE), decided 2026-11-07: diagram `site-platform` with paths Requests, Contact and alerts (planned, dashed), Deploys)_
+- [ ] Key decisions: Worker over CloudFront/public S3, Cloudflare free plan, `eu-central-1`, Typst CV, security headers _(Done except the Typst CV, which comes with Phase 5: six decision sections with Gained | Price ledgers, a problem log and seven Limitations)_
+- [ ] Live evidence: CI status badge, Lighthouse scores, securityheaders.com grade, link to the repo _(Both repos linked. A badge image from GitHub would need a CSP exception; Lighthouse scores and the securityheaders.com grade come with Phase 9, after the CSP is enforced)_
 
 ### Done when
 

@@ -2,7 +2,7 @@ import AxeBuilder from '@axe-core/playwright';
 import { expect, test } from '@playwright/test';
 import { themeState } from './theme-state';
 
-// Runs against the production build (no drafts): Sorted is the case study in both languages.
+// Runs against the production build (no drafts): every case study, in both languages.
 const studies = [
   {
     path: '/projects/sorted/',
@@ -29,6 +29,21 @@ const studies = [
     path: '/de/projects/rainalert/',
     lang: 'de',
     title: 'Rain Alert: vom Git-Tag zum geprüften Release, auf kostenlosen Tarifen',
+    problem: 'Das Problem',
+    cta: 'Kontakt aufnehmen',
+  },
+  {
+    path: '/projects/this-site/',
+    lang: 'en',
+    title: 'This site: a private S3 bucket behind a Cloudflare Worker, with no stored keys in CI',
+    problem: 'The problem',
+    cta: 'Get in touch',
+  },
+  {
+    path: '/de/projects/this-site/',
+    lang: 'de',
+    title:
+      'Diese Website: ein privater S3-Bucket hinter einem Cloudflare Worker, ohne gespeicherte Schlüssel in der CI',
     problem: 'Das Problem',
     cta: 'Kontakt aufnehmen',
   },
@@ -121,9 +136,11 @@ test('the closing band links each case study to the next, wrapping round, in bot
 }) => {
   for (const [from, label, to, title] of [
     ['/projects/sorted/', 'Next case study', '/projects/rainalert/', 'Rain Alert'],
-    ['/projects/rainalert/', 'Next case study', '/projects/sorted/', 'Sorted'],
+    ['/projects/rainalert/', 'Next case study', '/projects/this-site/', 'This site'],
+    ['/projects/this-site/', 'Next case study', '/projects/sorted/', 'Sorted'],
     ['/de/projects/sorted/', 'Nächste Fallstudie', '/de/projects/rainalert/', 'Rain Alert'],
-    ['/de/projects/rainalert/', 'Nächste Fallstudie', '/de/projects/sorted/', 'Sorted'],
+    ['/de/projects/rainalert/', 'Nächste Fallstudie', '/de/projects/this-site/', 'Diese Website'],
+    ['/de/projects/this-site/', 'Nächste Fallstudie', '/de/projects/sorted/', 'Sorted'],
   ]) {
     await page.goto(from);
     const next = page.locator('aside.closing').getByRole('link', { name: new RegExp(label) });

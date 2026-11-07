@@ -73,6 +73,8 @@ export const en = {
   problemFix: 'Fix',
 
   footerRights: 'All rights reserved.',
+  footerHowBuilt: 'How this site is built',
+  footerNav: 'Footer',
 
   notFoundTitle: 'Page not found',
   notFoundText: 'The page you are looking for does not exist.',

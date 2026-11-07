@@ -21,10 +21,10 @@ Working log for picking up where the last session stopped. Task-level detail sta
 2. ~~Sorted German version~~ done (#43). The draft `example` entries are deleted and the e2e tests run on Sorted, against the production build without drafts (#52).
 3. ~~Tests for the new pieces~~ done: `tests/e2e/motion.spec.ts` (gallery buttons and edge fades, no-JS fallback, one hero variant per load and never the same twice, blocked sessionStorage, reduced motion) and `tests/e2e/components.spec.ts` (`TechStack`, `ScalingPath`, `DashboardMap`).
 4. ~~RainAlert case study~~ done in EN and DE (#54, #55); the closing band links each case study to the next (#56).
-5. Rest of Phase 4: Skills groups, Work with me, How this site is built; About has its languages line (from the CV); About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
+5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer), Work with me (needs the owner's input); About has its languages line (from the CV); About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
 6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
 7. **Owner:** add `e2e` to the required checks on `main`; fix the two Grafana panels noted above.
-8. Header CV link comes with Phase 5; footer links to How-this-site-is-built, Impressum and Datenschutz when those pages exist.
+8. Header CV link comes with Phase 5; footer links to Impressum and Datenschutz when those pages exist. Add the Typst CV to the `this-site` page once Phase 5 is done, and its Lighthouse and securityheaders.com results in Phase 9.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
 11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget (diagram-page JS budget proposed at 140 KB gzipped; the Sorted page now loads two diagrams, which share one React Flow bundle).

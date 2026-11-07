@@ -1,0 +1,249 @@
+---
+title: 'Diese Website: ein privater S3-Bucket hinter einem Cloudflare Worker, ohne gespeicherte Schlüssel in der CI'
+summary: 'Das Portfolio, das Sie lesen, betrieben als kleine Produktionsplattform: Terraform für AWS und Cloudflare, ein Worker vor einem privaten Bucket, OIDC statt gespeicherter Schlüssel in der CI und jedes Deploy auf der Live-Domain geprüft.'
+problem: 'Ich habe dieses Portfolio mit den Praktiken gebaut, die ich bei einer Kundenplattform einsetzen würde, im Maßstab eines Portfolios und fast ohne Kosten. Es musste standardmäßig privat sein, aus Code neu aufbaubar, ohne gespeicherte Schlüssel deploybar und offen darüber, was noch fehlt.'
+stack: ['Cloudflare Workers', 'AWS S3', 'Terraform', 'GitHub Actions', 'Astro']
+facts:
+  - label: 'Rolle'
+    value: 'Alleiniger Engineer'
+  - label: 'Erstes Deploy'
+    value: '03.11.2026'
+  - label: 'Region'
+    value: 'eu-central-1'
+outcomes:
+  - label: 'Langlebige AWS-Schlüssel in der CI'
+    value: '0'
+  - label: 'Security-Header auf jeder Antwort, nach jedem Deploy geprüft'
+    value: '6'
+  - label: 'OIDC-Rollen, jede für ein Repository'
+    value: '3'
+  - label: 'Monatliches AWS-Budget, mit Alarm'
+    value: '5 $'
+outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 7. November 2026. Kontaktformular, CV-Build und Lighthouse in der CI sind noch nicht gebaut, und die Content Security Policy ist noch im Report-only-Modus; siehe Grenzen.'
+repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
+order: 30
+draft: false
+---
+
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+import ProblemLog from '../../../components/ProblemLog.astro';
+import TechStack from '../../../components/TechStack.astro';
+import Limitations from '../../../components/Limitations.astro';
+import TradeOff from '../../../components/TradeOff.astro';
+
+## Architektur
+
+Drei Pfade laufen durch die Website: Anfragen, Deploys und das geplante Kontaktformular mit seinen Alarmen. Die Buttons über dem Diagramm zeichnen jeden einzeln nach. Der Code liegt in zwei öffentlichen Repositories: der [App](https://github.com/lasiurusbat/vedad-dizdarevic-dev-app) (Website, Worker, Tests, Deploy) und der [Infrastruktur](https://github.com/lasiurusbat/vedad-dizdarevic-dev-infra) (Terraform).
+
+<ArchitectureDiagram
+  locale="de"
+  id="site-platform"
+  compact
+  title="Wie vedad-dizdarevic.dev ausgeliefert und deployt wird: Cloudflare und ein Worker vor einem privaten S3-Bucket, der geplante Kontaktpfad über Lambda und SES und das Deploy aus GitHub Actions."
+/>
+
+## Ein privater Bucket hinter einem Worker
+
+<TradeOff
+  gained="Der Bucket ist nie öffentlich, der Verkehr läuft per HTTPS vom Browser bis S3, und die Edge-Logik ist versionierter, getesteter Code."
+  price="Der Worker kann AWS nicht per OIDC erreichen. Er hält deshalb den einzigen langlebigen Zugriffsschlüssel im Setup. Ich rotiere ihn alle 90 Tage von Hand."
+/>
+
+Ein öffentlicher S3-Website-Endpunkt spricht unverschlüsseltes HTTP mit seinem Origin, und CloudFront wäre ein zweites CDN hinter Cloudflare. Ein Worker führt die Edge-Logik im kostenlosen Tarif von Cloudflare aus.
+
+- **Signierte Lesezugriffe.** Der Worker signiert jede Anfrage an den S3-REST-Endpunkt mit SigV4 und versucht es einmal erneut. Die Voreinstellung der Bibliothek, zehn Versuche mit Backoff, könnte eine Seite sekundenlang aufhalten.
+- **Nur lesen, nichts auflisten.** Sein IAM-User hat zwei Berechtigungen: Objekte lesen und die Kontaktfunktion aufrufen. Ohne `s3:ListBucket` kann niemand auflisten, was im Bucket liegt. S3 beantwortet eine fehlende Seite mit 403, und der Worker liefert dafür die 404-Seite der Website.
+- **Saubere URLs.** `/de/projects/sorted/` wird zu seiner `index.html`; `/foo` leitet nur dann auf `/foo/` weiter, wenn die Seite existiert.
+- **Zwei Caches.** Gehashte Assets sind ein Jahr lang als unveränderlich gecacht; HTML bleibt fünf Minuten am Edge und wird bei jedem Deploy geleert.
+- **Der Bucket selbst.** Block Public Access an, eine Policy, die jede Anfrage ohne TLS ablehnt, Versionierung mit Ablauf alter Versionen nach 30 Tagen und serverseitige Verschlüsselung.
+
+## Security-Header an einer Stelle
+
+<TradeOff
+  gained="Eine Quelle für jeden Header, getestet in den Unit-Tests des Workers und nach jedem Deploy noch einmal auf der Live-Domain."
+  price="Eine strenge Policy schließt Inline-Skripte und -Styles aus. Theme-Skript, Diagramme und jede dynamische Größe der Website mussten ohne sie gebaut werden."
+/>
+
+Header setzt nur der Worker; weder das Cloudflare-Dashboard noch das Framework fügt welche hinzu. Jede Antwort trägt sechs: eine Content Security Policy, HSTS mit Preload, `X-Frame-Options: DENY`, `nosniff`, eine Referrer-Policy und eine Permissions-Policy.
+
+- **Kein `'unsafe-inline'`.** Styles und Skripte kommen vom eigenen Origin. Der Build schreibt keine Inline-Styles, und ein E2E-Test zählt `style`-Attribute.
+- **Diagramme unter der Produktions-Policy.** Framework-Islands erzeugen Inline-Skripte, deshalb laden die Diagramme über ein einfaches Modul-Skript, sobald sie ins Bild scrollen. Ein Test lädt sie mit der Produktions-CSP und schlägt bei jedem Verstoß fehl.
+- **Erst Report-only.** Die Policy läuft im Report-only-Modus, bis jede Seite in der Browser-Konsole sauber ist; sie durchzusetzen ist eine Änderung in einer Zeile.
+
+## Keine gespeicherten Schlüssel in der CI
+
+<TradeOff
+  gained="Jeder Workflow-Lauf bekommt AWS-Zugangsdaten, die mit dem Job ablaufen, und GitHub speichert kein AWS-Geheimnis, das abfließen könnte."
+  price="Die Trust-Policies binden numerische GitHub-IDs. Ein Repository umzubenennen oder neu anzulegen heißt deshalb, zuerst die Bootstrap-Variablen anzupassen."
+/>
+
+GitHub Actions übernimmt AWS-Rollen per OIDC. Ein kleiner Bootstrap-Stack, einmal von Hand angewendet, legt den Bucket für den Terraform-State und drei Rollen an:
+
+- **`gh-app-deploy`** für den Branch `main` des App-Repositorys. Sie darf Objekte im Website-Bucket auflisten, schreiben und löschen, sonst nichts, und den Terraform-State nicht lesen.
+- **`gh-infra-plan`** für Pull Requests im Infra-Repository: nur lesend, bis auf die Lock-Datei des States.
+- **`gh-infra-apply`** für `main` im Infra-Repository, in einer geschützten Umgebung `production`. Sie darf IAM nur für Namen ändern, die mit `vdd-` beginnen, und kann die CI-Rollen selbst deshalb nicht bearbeiten.
+
+GitHub vergibt inzwischen unveränderliche Subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`), deshalb vertrauen die Rollen den numerischen IDs von Owner und Repository. Ein neues Repository mit demselben Namen bekommt eine neue ID und keinen Zugriff.
+
+## Zwei Repositories, zwei Pipelines
+
+<TradeOff
+  gained="Infrastruktur und Website ändern sich im eigenen Takt, jede mit eigener, eng gefasster Rolle und eigenem Cloudflare-Token."
+  price="Die Werte, die die App aus Terraform braucht, etwa Bucket-Name und Rollen-ARN, werden von Hand in die Actions-Variablen der App kopiert."
+/>
+
+Terraform verwaltet AWS sowie Zone, DNS und Regeln bei Cloudflare; Wrangler deployt das Worker-Skript und seine Route. Keine Ressource wird von beiden verwaltet.
+
+**App-Repository.** Jeder Pull Request durchläuft Lint und Formatierung, Typprüfung und Build, die Tests des Workers in der Workers-Laufzeit, Playwright mit axe in beiden Themes und Sprachen sowie gitleaks. Ein Push auf `main` deployt:
+
+1. Gehashte Assets gehen zuerst hoch, und noch wird nichts gelöscht, damit Seiten aus dem alten Build ihre Dateien weiter finden.
+2. Der Rest geht mit `--delete` hoch.
+3. Wrangler deployt den Worker, und der Cache wird geleert.
+4. Ein Smoke-Test prüft die Live-Domain: alle sechs Header, die 404-Seite, `405` für ein `POST`, die Weiterleitungen von `www` und `http` und dass der Bucket direkten Zugriff ablehnt.
+
+**Infra-Repository.** Jeder Pull Request durchläuft `fmt`, `validate`, Trivy, Checkov und gitleaks und postet den Plan als Kommentar. Ein Merge wendet ihn in der geschützten Umgebung an, immer nur ein Lauf gleichzeitig. Das Apply verweigert jeden Plan, der eine Ressource löscht oder ersetzt, bis eine Person ihn mit `allow_destroy` erneut startet. Ausnahmen für die Scanner stehen direkt am Code, jede mit Begründung.
+
+## Sprache ohne Cookie
+
+<TradeOff
+  gained="Deutschsprachige Besucher landen ohne Cookie auf der deutschen Startseite, deshalb braucht die Website kein Consent-Banner."
+  price="Ohne Gedächtnis landet jemand in Deutschland, der die Startseite später in einem neuen Tab öffnet, wieder auf Deutsch."
+/>
+
+Der Worker schickt einen frischen Besuch auf `/` aus Deutschland, Österreich, der Schweiz, Luxemburg oder Liechtenstein mit einem ungecachten `302` nach `/de/`. Deep Links, Klicks innerhalb der Website und URLs mit `?lang=` lässt er in Ruhe. Der Sprachumschalter verlinkt auf `/?lang=en`, deshalb landet ein Klick auf Englisch immer auf Englisch. Crawler, die meist aus den USA kommen, indexieren die englische Startseite.
+
+## Kosten und Alarme auf einem geteilten Konto
+
+<TradeOff
+  gained="Der kostenlose Tarif von Cloudflare trägt DNS, TLS, den Edge-Cache und den Worker. Auf AWS nutzt die Website heute nur S3; Lambda und SES kommen dazu, wenn das Formular live geht."
+  price="Das AWS-Konto teilt sich die Website mit Sorted. Das Budget filtert deshalb auf einen Kostenzuordnungs-Tag, der von Hand aktiviert werden muss. Wird er abgeschaltet, zeigt das Budget ohne Warnung 0 $."
+/>
+
+- **Ein Monatsbudget von 5 $** mit Alarm bei 100 % der tatsächlichen und der prognostizierten Kosten, begrenzt auf den `Project`-Tag dieses Projekts.
+- **CloudWatch-Alarme** auf Fehler und Drosselungen von Lambda sowie auf Bounce- und Beschwerderate von SES, per SNS an mein Postfach.
+- **Ein Uptime-Monitor** prüft die Startseite von außerhalb von AWS und Cloudflare.
+- **Mail-Authentifizierung.** SPF, DKIM für den Mailanbieter und für SES sowie DMARC mit Berichten, alles als DNS-Einträge in Terraform.
+
+## Probleme, auf die ich gestoßen bin
+
+<ProblemLog
+  items={[
+    {
+      area: 'IAM',
+      problem: '`AssumeRoleWithWebIdentity` schlug in der CI fehl',
+      fix: 'GitHub vergab unveränderliche Subjects mit numerischen IDs; die Trust-Policies binden jetzt `repo:<owner>@<ownerId>/<repo>@<repoId>`',
+    },
+    {
+      area: 'Terraform',
+      problem: 'Ein Plan in der CI wollte einen genutzten DNS-Eintrag löschen',
+      fix: 'Eine lokal gesetzte Variable fehlte in der CI; sie steht jetzt in den Actions-Variablen, und jede benötigte Variable ist dokumentiert',
+    },
+    {
+      area: 'Terraform',
+      problem: 'Jeder Plan zeigte eine Änderung an den TXT-Einträgen',
+      fix: 'Cloudflare liefert TXT-Inhalte in Anführungszeichen zurück; die Einträge deklarieren sie jetzt mit maskierten Anführungszeichen',
+    },
+    {
+      area: 'Lambda',
+      problem: 'Reservierte Parallelität für die Kontaktfunktion wurde abgelehnt',
+      fix: 'Das Konto muss 10 Ausführungen unreserviert halten; die Funktion läuft unreserviert, und Cloudflare begrenzt stattdessen die Rate der Route',
+    },
+    {
+      area: 'CSP',
+      problem: 'Die Diagramme brachen unter der strengen Policy',
+      fix: 'Framework-Islands erzeugen Inline-Skripte und -Styles; ein einfaches Modul-Skript lädt sie jetzt, und ein Test führt sie unter der Produktions-Policy aus',
+    },
+    {
+      area: 'Cloudflare',
+      problem: 'Terraform konnte Web Analytics nicht verwalten',
+      fix: 'Die API antwortete dem eng gefassten Token mit 403; es bleibt außerhalb von Terraform und steht unter Grenzen',
+    },
+  ]}
+/>
+
+## Der Workload
+
+Die Plattform liefert eine statische Website aus, gebaut mit Astro: englische und deutsche Seiten, Fallstudien in MDX gegen ein typisiertes Schema und Tailwind CSS. Seiten ohne Diagramm laden kein Framework-JavaScript; die Diagramme laden React Flow erst, wenn sie ins Bild scrollen. Die Schriften sind selbst gehostet, Tracker gibt es keine.
+
+## Tech-Stack
+
+<TechStack
+  label="Tech-Stack dieser Website nach Schichten"
+  layers={[
+    { name: 'Edge', role: 'Was Besucher zuerst erreichen', tools: ['Cloudflare DNS', 'TLS, Full (strict)', 'Edge-Cache', 'Regeln für Weiterleitung und Rate-Limit'] },
+    {
+      name: 'Origin',
+      role: 'Wo die Seiten liegen',
+      tools: ['Cloudflare Worker (TypeScript)', 'aws4fetch, SigV4', 'Privater S3-Bucket, eu-central-1'],
+    },
+    {
+      name: 'Infrastructure as Code',
+      role: 'Alles aus zwei Repositories neu aufbaubar',
+      tools: ['Terraform, Provider für AWS und Cloudflare', 'S3-State mit nativem Locking', 'Bootstrap-Stack für State und OIDC'],
+    },
+    {
+      name: 'CI/CD',
+      role: 'Vom Pull Request zum geprüften Deploy',
+      tools: ['GitHub Actions', 'OIDC zu AWS', 'Wrangler', 'Trivy, Checkov, gitleaks', 'Plan als PR-Kommentar'],
+    },
+    {
+      name: 'Tests',
+      role: 'Was den Build scheitern lässt',
+      tools: ['Vitest in der Workers-Laufzeit', 'Playwright', 'axe', 'Smoke-Test auf der Live-Domain'],
+    },
+    {
+      name: 'Betrieb',
+      role: 'Merken, wenn etwas nicht stimmt',
+      tools: ['CloudWatch-Alarme', 'SNS', 'AWS Budgets', 'Uptime-Monitor', 'SPF, DKIM, DMARC'],
+    },
+    {
+      name: 'Workload',
+      role: 'Die Website, die die Plattform ausliefert',
+      workload: true,
+      tools: ['Astro', 'MDX', 'Tailwind CSS', 'React Flow'],
+    },
+  ]}
+/>
+
+## Grenzen und was ich als Nächstes tun würde
+
+<Limitations
+  label="Grenzen des Setups dieser Website und der nächste Schritt für jede"
+  items={[
+    {
+      gap: 'Die CSP ist nur Report-only',
+      detail: 'Verstöße erscheinen in der Browser-Konsole, werden aber nicht blockiert, und es gibt keinen Report-Endpunkt.',
+      next: 'Jede Seite in der Konsole prüfen, dann den Header auf Durchsetzen umstellen.',
+    },
+    {
+      gap: 'Das Kontaktformular ist nicht live',
+      detail: 'Funktion, IAM-signierte URL, SES, Rate-Limit und Turnstile existieren; die Funktion liefert noch einen Platzhalter, und der Worker hat keine Route dafür.',
+      next: 'Die Funktion schreiben, die Worker-Route mit Turnstile und Honeypot ergänzen und alles durchgehend testen.',
+    },
+    {
+      gap: 'Ein langlebiger Zugriffsschlüssel',
+      detail: 'Ich rotiere den Schlüssel des Workers alle 90 Tage von Hand; die erste Rotation ist bis zum 1. Februar 2027 fällig.',
+      next: 'Die Rotation in der CI automatisieren, über die bereits vorhandene Rotationsrolle.',
+    },
+    {
+      gap: 'Kein Performance-Budget in der CI',
+      detail: 'Lighthouse und Grenzen für das Seitengewicht sind geplant, aber noch nicht durchgesetzt.',
+      next: 'Lighthouse CI im Mobilprofil ergänzen, mit Budgets, die den Build scheitern lassen.',
+    },
+    {
+      gap: 'Analytics außerhalb von Terraform',
+      detail: 'Die Website in Cloudflare Web Analytics entstand bei einem frühen Apply, und das Token bekommt ein 403.',
+      next: 'Entscheiden, ob sie bleibt. Wenn ja, von Hand verwalten und den Grund festhalten; wenn nein, löschen.',
+    },
+    {
+      gap: 'Die Apply-Rolle ist in ihren Diensten weit gefasst',
+      detail: 'Sie ist auf die Namen dieses Projekts beschränkt und kann die CI-Rollen nicht ändern, hat aber volle Rechte auf Diensten wie Lambda und SES.',
+      next: 'Eine Permissions Boundary ergänzen und jeden Dienst auf die Aktionen eingrenzen, die Terraform nutzt.',
+    },
+    {
+      gap: 'DMARC noch bei p=none',
+      detail: 'Berichte werden gesammelt; fehlschlagende Mails werden noch nicht abgewiesen.',
+      next: 'Auf quarantine und dann reject umstellen, sobald die Berichte sauber sind.',
+    },
+  ]}
+/>

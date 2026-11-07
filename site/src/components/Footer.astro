@@ -1,6 +1,7 @@
 ---
 import { GITHUB_URL, LINKEDIN_URL, OWNER } from '../site';
 import { type Locale, useTranslations } from '../i18n';
+import { caseStudyPath } from '../lib/caseStudies';
 import ExternalLink from './ExternalLink.astro';
 
 interface Props {
@@ -17,7 +18,13 @@ const year = new Date().getFullYear();
     <p>
       © {year} {OWNER}. {t.footerRights}
     </p>
-    <nav aria-label="Social" class="flex gap-4">
+    <nav aria-label={t.footerNav} class="flex flex-wrap gap-x-4">
+      <a
+        href={caseStudyPath(locale, 'this-site')}
+        class="text-fg inline-flex min-h-11 items-center underline"
+      >
+        {t.footerHowBuilt}
+      </a>
       <ExternalLink href={GITHUB_URL} class="text-fg inline-flex min-h-11 items-center underline">
         {t.github}
       </ExternalLink>
