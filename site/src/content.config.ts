@@ -74,8 +74,9 @@ const caseStudies = defineCollection({
     /** Id of a diagram in src/diagrams/ (Phase 4 diagram spike). */
     diagram: z.string().optional(),
     /** Symbolic line-art illustration beside the title on wide screens: CaseIllustration for
-     * Sorted (inbox, module, perimeter), RainIllustration for Rain Alert (umbrella). */
-    illustration: z.enum(['inbox', 'module', 'perimeter', 'umbrella']).optional(),
+     * Sorted (inbox, module, perimeter), RainIllustration for Rain Alert (umbrella),
+     * SiteIllustration for this site (headers). */
+    illustration: z.enum(['inbox', 'module', 'perimeter', 'umbrella', 'headers']).optional(),
     /** Lower comes first on the home page. */
     order: z.number().default(100),
     /** Drafts are left out of production builds; SHOW_DRAFTS=1 (dev, e2e) includes them. */

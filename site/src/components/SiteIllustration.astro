@@ -1,0 +1,445 @@
+---
+/*
+ * Symbolic header illustration for the "this site" case study, in the same language as
+ * CaseIllustration (Sorted) and RainIllustration (Rain Alert): line art in the site tokens on a
+ * tilted dot-matrix plane, one accent motion, decorative (aria-hidden).
+ *
+ * It shows the page's core decision and how it is checked: a response leaves the locked bucket,
+ * passes the Worker gate and collects the six security headers; in the browser frame on the
+ * right, the post-deploy smoke test's six checks pass one by one. Chosen on 2026-11-07 from three
+ * options (headers, a short-lived OIDC key, the smoke test); the smoke test was folded into the
+ * browser frame.
+ *
+ * The motion is one 8-second trip: the packet runs into the gate and stops, the gate lights up
+ * briefly, and when it goes dark the packet leaves for the browser; the header stamps light as it
+ * passes, then the checks tick in order, hold, and clear in the same order.
+ *
+ * CSP: inline SVG only, no style attributes; geometry is SVG attributes, colours and motion live in
+ * the bundled stylesheet. Reduced motion: everything stands still in its finished state.
+ */
+import { getLocale } from '../i18n';
+
+export type SiteVariant = 'headers';
+
+interface Props {
+  /** The only variant; kept as a prop so the layout can treat all illustrations alike. */
+  variant: SiteVariant;
+}
+
+// The one word in the art follows the page language (decorative, so not in i18n).
+const words =
+  getLocale(Astro.currentLocale) === 'de' ? { private: 'privat' } : { private: 'private' };
+
+const headers = ['CSP', 'HSTS', 'X-Frame', 'nosniff', 'Referrer', 'Permissions'];
+/* The smoke test's checks against the live domain (tests/smoke), shortened to fit the frame. */
+const checks = [
+  { req: 'GET /', code: '200' },
+  { req: '/missing', code: '404' },
+  { req: 'POST /', code: '405' },
+  { req: 'www', code: '301' },
+  { req: 'http', code: '301' },
+  { req: 'S3 direct', code: '403' },
+];
+const row = (i: number) => 168 + i * 28;
+---
+
+<div class="illo" aria-hidden="true">
+  <div class="plane">
+    <svg viewBox="0 0 520 440" focusable="false">
+      {/* The private bucket, with a lock. */}
+      <ellipse class="line" cx="80" cy="176" rx="50" ry="14"></ellipse>
+      <path class="line" d="M30 176 V266 A50 14 0 0 0 130 266 V176"></path>
+      <rect class="lock" x="66" y="212" width="28" height="22" rx="4"></rect>
+      <path class="line" d="M72 212 V204 a8 8 0 0 1 16 0 V212"></path>
+      <text class="label" x="80" y="300" text-anchor="middle">
+        S3, {words.private}
+      </text>
+
+      {/* The Worker gate. */}
+      <rect class="gate" x="216" y="150" width="56" height="140" rx="10"></rect>
+      <text class="label" x="244" y="314" text-anchor="middle">
+        Worker
+      </text>
+
+      {/* The browser, running the smoke test's checks against the live domain. */}
+      <rect class="line" x="346" y="114" width="166" height="214" rx="8"></rect>
+      <path class="line" d="M346 140 H512"></path>
+      <circle class="dot" cx="358" cy="127" r="3"></circle>
+      <circle class="dot" cx="368" cy="127" r="3"></circle>
+      <circle class="dot" cx="378" cy="127" r="3"></circle>
+      <text class="bar-text" x="500" y="131" text-anchor="end">
+        smoke test
+      </text>
+      {checks.map((c, i) => (
+        <g class:list={['check', `c${i}`]}>
+          <text class="req" x="358" y={row(i)}>
+            {c.req}
+          </text>
+          <text class="code" x="468" y={row(i)} text-anchor="end">
+            {c.code}
+          </text>
+          <circle class="check-dot" cx="490" cy={row(i) - 4} r="8"></circle>
+          <path class="check-mark" d={`M486 ${row(i) - 4} l3 3 l6 -7`}></path>
+        </g>
+      ))}
+
+      <path class="wire" d="M130 220 H216 M272 220 H346"></path>
+      <path class="pkt-in" d="M130 220 H216" pathLength="100"></path>
+      <path class="pkt-out" d="M272 220 H346" pathLength="100"></path>
+
+      {/* Six headers stamped at the gate, lit one after another. */}
+      {headers.map((h, i) => (
+        <g class:list={['stamp', `s${i}`]}>
+          <rect
+            x={128 + (i % 3) * 98}
+            y={352 + Math.floor(i / 3) * 34}
+            width="88"
+            height="24"
+            rx="6"
+          ></rect>
+          <text x={172 + (i % 3) * 98} y={368 + Math.floor(i / 3) * 34} text-anchor="middle">
+            {h}
+          </text>
+        </g>
+      ))}
+    </svg>
+  </div>
+</div>
+
+<style>
+  /* Wrapper, plane and dot matrix: the same as CaseIllustration, so all case studies match. */
+  .illo {
+    animation: appear 0.6s ease-out 0.1s both;
+    perspective: 1100px;
+    overflow: clip;
+    mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
+  }
+
+  .plane {
+    position: relative;
+    isolation: isolate;
+    transform: rotateX(18deg) rotateY(-30deg) rotateZ(2.5deg);
+    transform-origin: 40% 50%;
+  }
+
+  .plane::before {
+    content: '';
+    position: absolute;
+    inset: -4%;
+    z-index: -1;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--fg) 16%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 12px 12px;
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 25%, transparent 100%);
+  }
+
+  svg {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  .label {
+    fill: var(--muted);
+    font-size: 12px;
+  }
+
+  .line {
+    fill: color-mix(in srgb, var(--surface) 80%, transparent);
+    stroke: var(--border-strong);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+  }
+
+  path.line {
+    fill: none;
+  }
+
+  .dot {
+    fill: var(--border-strong);
+  }
+
+  .wire {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.1;
+    stroke-opacity: 0.55;
+  }
+
+  .lock {
+    fill: color-mix(in srgb, var(--surface) 90%, transparent);
+    stroke: var(--border-strong);
+    stroke-width: 1.4;
+  }
+
+  .gate {
+    fill: color-mix(in srgb, var(--accent) 14%, var(--bg));
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+    animation: gate 8s linear infinite;
+  }
+
+  /* One 8-second trip. The packet reaches the gate at 16% and disappears into it; the gate is lit
+     from 16% to 26%; the packet leaves as it goes dark and reaches the browser at 45%. The stamps
+     light from 24%; the checks tick from 50%, 3% apart, hold, and clear in the same order. */
+  .pkt-in,
+  .pkt-out {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 6 120;
+    stroke-dashoffset: 6;
+    filter: drop-shadow(0 0 4px var(--accent));
+    animation: trip-in 8s linear infinite;
+  }
+
+  .pkt-out {
+    animation-name: trip-out;
+  }
+
+  .stamp rect {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.2;
+    animation: stamp 8s linear infinite;
+  }
+
+  .stamp text {
+    fill: var(--muted);
+    font-size: 11px;
+    font-weight: 600;
+    animation: stamp-text 8s linear infinite;
+  }
+
+  .s1 rect,
+  .s1 text {
+    animation-delay: 0.12s;
+  }
+  .s2 rect,
+  .s2 text {
+    animation-delay: 0.24s;
+  }
+  .s3 rect,
+  .s3 text {
+    animation-delay: 0.36s;
+  }
+  .s4 rect,
+  .s4 text {
+    animation-delay: 0.48s;
+  }
+  .s5 rect,
+  .s5 text {
+    animation-delay: 0.6s;
+  }
+
+  .bar-text {
+    fill: var(--muted);
+    font-family: var(--font-mono);
+    font-size: 10px;
+  }
+
+  .req,
+  .code {
+    font-family: var(--font-mono);
+    font-size: 12px;
+  }
+
+  .req {
+    fill: var(--fg);
+  }
+
+  .code {
+    fill: var(--muted);
+  }
+
+  .check-dot {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.3;
+    animation: pass 8s linear infinite;
+  }
+
+  .check-mark {
+    fill: none;
+    stroke: var(--bg);
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    opacity: 0;
+    animation: mark 8s linear infinite;
+  }
+
+  .c1 > * {
+    animation-delay: 0.24s;
+  }
+  .c2 > * {
+    animation-delay: 0.48s;
+  }
+  .c3 > * {
+    animation-delay: 0.72s;
+  }
+  .c4 > * {
+    animation-delay: 0.96s;
+  }
+  .c5 > * {
+    animation-delay: 1.2s;
+  }
+
+  @keyframes trip-in {
+    0% {
+      stroke-dashoffset: 6;
+    }
+    16%,
+    100% {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  @keyframes trip-out {
+    0%,
+    26% {
+      stroke-dashoffset: 6;
+    }
+    45%,
+    100% {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  /* The gate lights up while the packet is inside it. */
+  @keyframes gate {
+    0%,
+    15% {
+      fill: color-mix(in srgb, var(--accent) 14%, var(--bg));
+      filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+    }
+    17%,
+    24% {
+      fill: color-mix(in srgb, var(--accent) 45%, var(--bg));
+      filter: drop-shadow(0 0 22px color-mix(in srgb, var(--accent) 75%, transparent));
+    }
+    26%,
+    100% {
+      fill: color-mix(in srgb, var(--accent) 14%, var(--bg));
+      filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+    }
+  }
+
+  @keyframes stamp {
+    0%,
+    20% {
+      fill: none;
+      stroke: var(--border-strong);
+    }
+    24%,
+    90% {
+      fill: color-mix(in srgb, var(--accent) 22%, transparent);
+      stroke: var(--accent);
+    }
+    96%,
+    100% {
+      fill: none;
+      stroke: var(--border-strong);
+    }
+  }
+
+  @keyframes stamp-text {
+    0%,
+    20% {
+      fill: var(--muted);
+    }
+    24%,
+    90% {
+      fill: var(--fg);
+    }
+    96%,
+    100% {
+      fill: var(--muted);
+    }
+  }
+
+  @keyframes pass {
+    0%,
+    50% {
+      fill: none;
+      stroke: var(--border-strong);
+      filter: none;
+    }
+    52%,
+    78% {
+      fill: var(--accent);
+      stroke: var(--accent);
+      filter: drop-shadow(0 0 6px color-mix(in srgb, var(--accent) 50%, transparent));
+    }
+    81%,
+    100% {
+      fill: none;
+      stroke: var(--border-strong);
+      filter: none;
+    }
+  }
+
+  @keyframes mark {
+    0%,
+    50% {
+      opacity: 0;
+    }
+    52%,
+    78% {
+      opacity: 1;
+    }
+    81%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  /* Reduced motion: still, in the finished state (all six headers set, every check passed). */
+  @media (prefers-reduced-motion: reduce) {
+    .illo,
+    .gate,
+    .pkt-in,
+    .pkt-out,
+    .stamp rect,
+    .stamp text,
+    .check-dot,
+    .check-mark {
+      animation: none;
+    }
+
+    .pkt-in,
+    .pkt-out {
+      display: none;
+    }
+
+    .stamp rect {
+      fill: color-mix(in srgb, var(--accent) 22%, transparent);
+      stroke: var(--accent);
+    }
+
+    .stamp text {
+      fill: var(--fg);
+    }
+
+    .check-dot {
+      fill: var(--accent);
+      stroke: var(--accent);
+    }
+
+    .check-mark {
+      opacity: 1;
+    }
+  }
+</style>
