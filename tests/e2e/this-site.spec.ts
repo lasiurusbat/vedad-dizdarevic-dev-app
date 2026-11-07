@@ -63,3 +63,23 @@ test('the footer links to this case study on every page, in both languages', asy
     await expect(page.locator('footer').getByRole('link', { name })).toHaveAttribute('href', href);
   }
 });
+
+test('This site header illustration: decorative, six headers, beside the title on desktop only', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/projects/this-site/');
+  const illo = page.locator('.case-head .illo');
+  await expect(illo).toBeVisible();
+  await expect(illo).toHaveAttribute('aria-hidden', 'true');
+  await expect(illo.locator('.stamp text')).toHaveText([
+    'CSP',
+    'HSTS',
+    'X-Frame',
+    'nosniff',
+    'Referrer',
+    'Permissions',
+  ]);
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(illo).toBeHidden();
+});
