@@ -16,6 +16,7 @@ import { GroupLabel, ServiceNode } from './ServiceNode';
 import { sortedProduction } from './sorted-production';
 import { sortedRelease } from './sorted-release';
 import { rainalertRelease } from './rainalert-release';
+import { sitePlatform } from './site-platform';
 import type { DiagramDefinition, DiagramNode } from './types';
 
 const nodeTypes = { service: ServiceNode, group: GroupLabel };
@@ -23,6 +24,7 @@ const diagrams = {
   'sorted-production': sortedProduction,
   'sorted-release': sortedRelease,
   'rainalert-release': rainalertRelease,
+  'site-platform': sitePlatform,
 };
 
 export type DiagramId = keyof typeof diagrams;
