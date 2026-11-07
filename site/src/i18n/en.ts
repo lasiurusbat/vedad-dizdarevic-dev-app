@@ -59,6 +59,7 @@ export const en = {
   caseCtaText: 'Need a platform like this for your product?',
   caseCtaButton: 'Get in touch',
   caseCtaMore: 'See more work',
+  caseNext: 'Next case study',
   casePrivateRepo: 'Private repository',
   caseStatus: 'Status',
   caseLive: 'Live',

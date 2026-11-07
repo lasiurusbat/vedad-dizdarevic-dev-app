@@ -13,9 +13,11 @@ interface Props {
   alternates?: Partial<Record<Locale, string>>;
   /** Symbolic art beside the title on wide screens; none when unset. */
   illustration?: IllustrationVariant | RainVariant;
+  /** The case study to read next, linked at the foot of the closing band. */
+  next?: { title: string; href: string };
 }
 
-const { locale, title, summary, alternates, illustration } = Astro.props;
+const { locale, title, summary, alternates, illustration, next } = Astro.props;
 const t = useTranslations(locale);
 ---
 
@@ -51,7 +53,8 @@ const t = useTranslations(locale);
   {/*
     Every case study ends with a way to act on it: a band across the page, outside the article's
     column, opened by the same faded hairline as the home sections and a soft bloom below it.
-    The contact is the primary action; the way back to the other work is secondary.
+    The contact is the primary action; the way back to the other work is secondary. Under them,
+    past a second hairline, the next case study, so a reader can go on without the home page.
   */}
   <aside class="closing" aria-labelledby="case-cta-title">
     <div class="max-w-page px-gutter closing-inner mx-auto">
@@ -65,6 +68,19 @@ const t = useTranslations(locale);
         </CTAButton>
       </div>
     </div>
+    {next && (
+      <div class="max-w-page px-gutter mx-auto">
+        <a href={next.href} class="next-case">
+          <span class="next-label">{t.caseNext}</span>
+          <span class="next-title font-display">
+            {next.title}
+            <span class="next-arrow" aria-hidden="true">
+              →
+            </span>
+          </span>
+        </a>
+      </div>
+    )}
   </aside>
 </Base>
 
@@ -115,6 +131,55 @@ const t = useTranslations(locale);
     font-weight: 500;
     line-height: 1.1;
     letter-spacing: -0.015em;
+  }
+
+  /* The next case study: a quiet text link, label above title, opened by a hairline. */
+  .next-case {
+    display: flex;
+    flex-direction: column;
+    gap: 0.35rem;
+    margin-top: clamp(2.5rem, 2rem + 2vw, 3.5rem);
+    padding-top: 1.5rem;
+    border-top: 1px solid var(--divider);
+    text-decoration: none;
+  }
+
+  .next-label {
+    color: var(--muted);
+    font-size: 0.875rem;
+  }
+
+  .next-title {
+    max-width: 40ch;
+    font-size: clamp(1.125rem, 1rem + 0.6vw, 1.5rem);
+    font-weight: 500;
+    line-height: 1.25;
+    text-decoration: underline;
+    text-decoration-color: transparent;
+    text-underline-offset: 0.2em;
+    transition: text-decoration-color 150ms ease;
+  }
+
+  .next-case:hover .next-title,
+  .next-case:focus-visible .next-title {
+    text-decoration-color: currentColor;
+  }
+
+  .next-arrow {
+    display: inline-block;
+    margin-left: 0.35em;
+    transition: transform 150ms ease;
+  }
+
+  .next-case:hover .next-arrow {
+    transform: translateX(0.2em);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .next-title,
+    .next-arrow {
+      transition: none;
+    }
   }
 
   .closing-actions {
