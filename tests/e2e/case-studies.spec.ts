@@ -115,3 +115,22 @@ test('language switch and hreflang point at the translation', async ({ page }) =
     'x-default /projects/sorted/',
   ]);
 });
+
+test('the closing band links each case study to the next, wrapping round, in both languages', async ({
+  page,
+}) => {
+  for (const [from, label, to, title] of [
+    ['/projects/sorted/', 'Next case study', '/projects/rainalert/', 'Rain Alert'],
+    ['/projects/rainalert/', 'Next case study', '/projects/sorted/', 'Sorted'],
+    ['/de/projects/sorted/', 'Nächste Fallstudie', '/de/projects/rainalert/', 'Rain Alert'],
+    ['/de/projects/rainalert/', 'Nächste Fallstudie', '/de/projects/sorted/', 'Sorted'],
+  ]) {
+    await page.goto(from);
+    const next = page.locator('aside.closing').getByRole('link', { name: new RegExp(label) });
+    await expect(next).toHaveAttribute('href', to);
+    await expect(next).toContainText(title);
+    await next.click();
+    await expect(page).toHaveURL(to);
+    await expect(page.locator('h1')).toContainText(title);
+  }
+});
