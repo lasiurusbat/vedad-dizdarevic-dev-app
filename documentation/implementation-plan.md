@@ -254,7 +254,7 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### About
 
-- [ ] Short path from 3D/CGI to DevOps (live in EN and DE: decade in 3D/CGI and render pipelines, DataScientest diploma July 2024, Sorted and this site as proof, AWS SAA in progress, games/books/bike/coffee; languages still open), what you're aiming for, languages, a line of personality (games, books, biking, coffee)
+- [ ] Short path from 3D/CGI to DevOps (live in EN and DE: decade in 3D/CGI and render pipelines, DataScientest diploma July 2024, Sorted and this site as proof, AWS SAA in progress, games/books/bike/coffee; languages from the CV since 2026-11-07), what you're aiming for, languages, a line of personality (games, books, biking, coffee)
 - [ ] Optional photo (optimized, with alt text)
 
 ### Work with me

@@ -33,6 +33,8 @@ export const de: Messages = {
     'Mein bisher größtes Projekt ist Sorted, ein kommerzielles SaaS-Produkt, dessen AWS-Plattform ich allein aufgebaut habe und betreibe, vom ersten Terraform-Modul bis zur Produktion in sechs Wochen. Auch diese Website ist ein Projekt: Terraform für AWS und Cloudflare, CI/CD über OIDC, Security-Header bei jedem Deploy getestet.',
   aboutP3:
     'Ich bereite mich auf die AWS Certified Solutions Architect – Associate vor und bin offen für Festanstellungen und freiberufliche Projekte. Abseits des Terminals: Spiele, Bücher, ein Fahrrad und zu viel Kaffee.',
+  aboutLanguagesLabel: 'Sprachen',
+  aboutLanguages: 'Bosnisch/Serbisch/Kroatisch (Muttersprache), Englisch und Deutsch (fließend)',
   hireTitle: 'Zusammenarbeit',
   contactTitle: 'Kontakt',
 
