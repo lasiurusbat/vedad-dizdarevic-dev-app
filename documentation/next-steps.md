@@ -2,18 +2,20 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-06 (day 5, late evening)
+## Stopped at: 2026-11-07 (day 6)
 
-**Merged today after the morning:** #40–#54. Open: **#55** (`fix/rainalert-copy`), the three Rain Alert commits that were pushed to #54 after it was merged (the 900 stat, title A, the copy-review edits, EN and DE) plus these docs. Merge #55 first next session.
+**Merged today:** #56–#61. Open: **#62** (`feat/about-sorted-link`), the About link to Sorted plus these end-of-session docs. Merge it first next session.
 
-### Evening: Sorted finished, dark by default, Rain Alert in EN and DE
+### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
-- **Sorted restructure complete:** fact sheet with status line and short facts (#46), gallery order dashboard first (#47), sections by decision (#48) with a Gained | Price ledger under each heading (#51), diagram path buttons Requests / Mail / Releases (#49), Limitations table and full-width closing band (#50).
-- **e2e on Sorted (#52):** the draft `example` pages are deleted; the e2e build is the production build without drafts.
-- **Dark by default (#53):** whatever the device setting; light only through the header switch. Tests pick a theme with `tests/e2e/theme-state.ts`, not `colorScheme` emulation.
-- **Rain Alert (#54, plus #55):** EN and DE from `case-studies/RainAlert-Case-Study.md`. Diagram `rainalert-release` (compact, Releases and Requests paths), five decision ledgers, problem log, the forecast panel shown 1:1 (`ThemedScreenshot placement="natural"`), a two-image gallery (`dark` optional), tech stack, Limitations (two rows, confirmed by the owner). Header illustration `RainIllustration.astro` ("umbrella", picked from three options; its two words follow the page language). Title A: "from git tag to a checked release, on free tiers"; stats 13+, 0, $0, 900.
-- **Owner facts (2026-11-06):** the uptime check for rainalert.live is running; the street photo behind the app screenshot is the owner's own; the puddle artwork is AI-generated (captioned).
-- **Lesson:** the owner merges quickly. Do not push more commits to a PR after saying it is ready; open a follow-up PR from `main` instead (the #54 commits had to be moved to #55).
+- **Next-case link (#56):** the closing band of every case study ends with "Next case study", in display order and wrapping round (`nextCaseStudy()` in `lib/caseStudies.ts`). The loop is now Sorted → Rain Alert → this site → Sorted.
+- **Tests (#57):** `tests/e2e/motion.spec.ts` (gallery buttons and fades, no-JS, hero variant, reduced motion) and `tests/e2e/components.spec.ts` (`TechStack`, `ScalingPath`, `DashboardMap`).
+- **Skills (#58):** eight groups from the CV's Technical Skills (October 2026) in `site/src/skills.ts`, platform first; Stripe and Windows left out.
+- **About (#59, #62):** a languages line from the CV; "Sorted" in the second paragraph links to its case study (`{sorted}` placeholder in the i18n string, split in `Home.astro`).
+- **How this site is built (#60):** built as a third case study, `this-site` (EN, DE; the owner chose this over a standalone page or a home section). Diagram `site-platform` (Requests, Contact and alerts (planned, dashed), Deploys), six decision ledgers, problem log, tech stack, seven Limitations. Every claim is from the app and infra repos; the copy was checked against the copywriting skill's AI-tells list. Footer link "How this site is built" on every page. `ProblemLog` code chips now wrap (a long OIDC subject made the page scroll sideways at 360px).
+- **Header illustration (#61):** `SiteIllustration.astro` (`illustration: 'headers'`), chosen from three options and refined by the owner: a response leaves the locked bucket, stops in the Worker gate (which lights briefly), then leaves for the browser, lighting the six header chips; the browser frame shows the six smoke-test checks ticking in order.
+- **Lesson:** the project skills in `app/.claude/skills/` (copywriting, frontend-design) only load when Claude Code is started from `app/`. Start sessions there.
+- **Open question for the owner:** the untracked `case-studies/cs_rainalert/` folder (raw screenshots): commit it, or add it to `.git/info/exclude` like `Sorted-architecture.md`?
 
 ## Next (in this order)
 
@@ -21,7 +23,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 2. ~~Sorted German version~~ done (#43). The draft `example` entries are deleted and the e2e tests run on Sorted, against the production build without drafts (#52).
 3. ~~Tests for the new pieces~~ done: `tests/e2e/motion.spec.ts` (gallery buttons and edge fades, no-JS fallback, one hero variant per load and never the same twice, blocked sessionStorage, reduced motion) and `tests/e2e/components.spec.ts` (`TechStack`, `ScalingPath`, `DashboardMap`).
 4. ~~RainAlert case study~~ done in EN and DE (#54, #55); the closing band links each case study to the next (#56).
-5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer), Work with me (needs the owner's input); About has its languages line (from the CV); About could link "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
+5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer, #60, header illustration #61), Work with me (needs the owner's input); About has its languages line (from the CV) and links "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
 6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
 7. **Owner:** add `e2e` to the required checks on `main`; fix the two Grafana panels noted above.
 8. Header CV link comes with Phase 5; footer links to Impressum and Datenschutz when those pages exist. Add the Typst CV to the `this-site` page once Phase 5 is done, and its Lighthouse and securityheaders.com results in Phase 9.

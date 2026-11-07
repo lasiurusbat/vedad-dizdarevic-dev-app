@@ -15,6 +15,8 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 const caseStudies = await getCaseStudies(locale);
+// About names Sorted in its second paragraph; `{sorted}` in the string marks where the link goes.
+const [aboutP2Before, aboutP2After] = t.aboutP2.split('{sorted}');
 
 // Page order: pitch first (work, skills, about), then the freelance offer, then contact.
 // Section ids are the anchors the header links to. Content arrives section by section (Phase 4).
@@ -55,7 +57,13 @@ const sections = [
     ) : s.id === 'about' ? (
       <div class="max-w-measure space-y-4 text-lg">
         <p>{t.aboutP1}</p>
-        <p>{t.aboutP2}</p>
+        <p>
+          {aboutP2Before}
+          <a href={caseStudyPath(locale, 'sorted')} class="underline">
+            Sorted
+          </a>
+          {aboutP2After}
+        </p>
         <p>{t.aboutP3}</p>
         <p class="text-muted text-base">
           <span class="text-fg font-medium">{t.aboutLanguagesLabel}:</span> {t.aboutLanguages}

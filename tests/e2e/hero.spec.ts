@@ -44,6 +44,9 @@ for (const p of pages) {
       await expect(hero.getByText(/3D\/CGI/)).toHaveCount(0);
       await expect(page.locator('#about').getByText(p.about)).toBeVisible();
       await expect(page.locator('#about').getByText(p.languages, { exact: true })).toBeVisible();
+      await expect(
+        page.locator('#about').getByRole('link', { name: 'Sorted', exact: true }),
+      ).toHaveAttribute('href', p.path === '/' ? '/projects/sorted/' : '/de/projects/sorted/');
 
       // Contact, GitHub and LinkedIn are reachable from the hero itself, with 44px targets.
       const contact = hero.getByRole('link', { name: p.contact, exact: true });
