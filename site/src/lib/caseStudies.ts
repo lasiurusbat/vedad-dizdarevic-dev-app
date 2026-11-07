@@ -36,3 +36,21 @@ export async function translationsOf(slug: string): Promise<Partial<Record<Local
     if (slugOf(e) === slug) result[localeOf(e)] = caseStudyPath(localeOf(e), slug);
   return result;
 }
+
+/**
+ * The case study after this one in display order, wrapping round to the first, so every page
+ * points to another. Undefined when the language has only this one.
+ */
+export async function nextCaseStudy(
+  locale: Locale,
+  slug: string,
+): Promise<{ title: string; href: string } | undefined> {
+  const entries = await getCaseStudies(locale);
+  if (entries.length < 2) return undefined;
+  const i = entries.findIndex((e) => slugOf(e) === slug);
+  const next = entries[(i + 1) % entries.length];
+  return {
+    title: next.data.title,
+    href: caseStudyPath(locale, slugOf(next)),
+  };
+}
