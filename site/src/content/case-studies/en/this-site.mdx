@@ -1,0 +1,249 @@
+---
+title: 'This site: a private S3 bucket behind a Cloudflare Worker, with no stored keys in CI'
+summary: 'The portfolio you are reading, run as a small production platform: Terraform for AWS and Cloudflare, a Worker in front of a private bucket, OIDC instead of stored keys in CI, and every deploy checked on the live domain.'
+problem: 'I built this portfolio with the practices I would use on a client platform, at portfolio scale and close to zero cost. It had to be private by default, rebuildable from code, deployable without stored keys, and open about what is not done yet.'
+stack: ['Cloudflare Workers', 'AWS S3', 'Terraform', 'GitHub Actions', 'Astro']
+facts:
+  - label: 'Role'
+    value: 'Sole engineer'
+  - label: 'First deploy'
+    value: 'Nov 3, 2026'
+  - label: 'Region'
+    value: 'eu-central-1'
+outcomes:
+  - label: 'Long-lived AWS keys in CI'
+    value: '0'
+  - label: 'Security headers on every response, checked after each deploy'
+    value: '6'
+  - label: 'OIDC roles, each trusted for one repository'
+    value: '3'
+  - label: 'Monthly AWS budget, with an alert'
+    value: '$5'
+outcomesNote: 'Figures from the app and infra repositories as of November 7, 2026. The contact form, the CV build and Lighthouse in CI are not built yet, and the Content Security Policy is still report-only; see Limitations.'
+repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
+order: 30
+draft: false
+---
+
+import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
+import ProblemLog from '../../../components/ProblemLog.astro';
+import TechStack from '../../../components/TechStack.astro';
+import Limitations from '../../../components/Limitations.astro';
+import TradeOff from '../../../components/TradeOff.astro';
+
+## Architecture
+
+Three paths run through the site: requests, deploys, and the planned contact form with its alarms. The buttons above the diagram trace each one. The code lives in two public repositories: the [app](https://github.com/lasiurusbat/vedad-dizdarevic-dev-app) (site, Worker, tests, deploy) and the [infrastructure](https://github.com/lasiurusbat/vedad-dizdarevic-dev-infra) (Terraform).
+
+<ArchitectureDiagram
+  locale="en"
+  id="site-platform"
+  compact
+  title="How vedad-dizdarevic.dev is served and deployed: Cloudflare and a Worker in front of a private S3 bucket, the planned contact path through Lambda and SES, and the deploy from GitHub Actions."
+/>
+
+## A private bucket behind a Worker
+
+<TradeOff
+  gained="The bucket is never public, traffic is HTTPS from the browser to S3, and the edge logic is versioned, tested code."
+  price="The Worker cannot use OIDC to reach AWS, so it holds the one long-lived access key in the setup. I rotate it by hand every 90 days."
+/>
+
+A public S3 website endpoint speaks plain HTTP to its origin, and CloudFront would put a second CDN behind Cloudflare. A Worker runs the edge logic on Cloudflare's free plan.
+
+- **Signed reads.** The Worker signs every request to the S3 REST endpoint with SigV4 and retries once. The library default of ten retries with backoff could stall a page for seconds.
+- **Read-only, and nothing to list.** Its IAM user has two permissions: read objects, and invoke the contact function. Without `s3:ListBucket`, nobody can list what the bucket holds. S3 answers a missing page with a 403, and the Worker serves the site's 404 page for it.
+- **Clean URLs.** `/projects/sorted/` maps to its `index.html`; `/foo` redirects to `/foo/` only when that page exists.
+- **Two caches.** Hashed assets are cached for a year as immutable; HTML stays at the edge for five minutes and is purged on every deploy.
+- **The bucket itself.** Block Public Access on, a policy that denies any request without TLS, versioning with old versions expiring after 30 days, and server-side encryption.
+
+## Security headers in one place
+
+<TradeOff
+  gained="One source for every header, tested in the Worker's unit tests and again on the live domain after each deploy."
+  price="A strict policy rules out inline scripts and styles. The theme script, the diagrams and every dynamic size on the site had to be built without them."
+/>
+
+Only the Worker sets headers; neither the Cloudflare dashboard nor the framework adds any. Every response carries six: a Content Security Policy, HSTS with preload, `X-Frame-Options: DENY`, `nosniff`, a referrer policy and a permissions policy.
+
+- **No `'unsafe-inline'`.** Styles and scripts come from the site's own origin. The build writes no inline styles, and an e2e test counts `style` attributes.
+- **Diagrams under the production policy.** Framework islands emit inline scripts, so the diagrams mount through a plain module script when they scroll into view. A test loads them with the production CSP and fails on any violation.
+- **Report-only first.** The policy ships in report-only mode until every page is clean in the browser console; enforcing it is a one-line change.
+
+## No stored keys in CI
+
+<TradeOff
+  gained="Each workflow run gets AWS credentials that expire with the job, and GitHub stores no AWS secret that could leak."
+  price="The trust policies pin numeric GitHub IDs, so renaming or recreating a repository means updating the bootstrap variables first."
+/>
+
+GitHub Actions assumes AWS roles through OIDC. A small bootstrap stack, applied once by hand, creates the Terraform state bucket and three roles:
+
+- **`gh-app-deploy`** for the app repository's `main` branch. It can list, write and delete objects in the site bucket, nothing else, and cannot read the Terraform state.
+- **`gh-infra-plan`** for pull requests in the infra repository: read-only, except for the state lock file.
+- **`gh-infra-apply`** for `main` in the infra repository, in a protected `production` environment. It can change IAM only for names starting with `vdd-`, so it cannot edit the CI roles themselves.
+
+GitHub now issues immutable subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`), so the roles trust the numeric owner and repository IDs. A new repository that reuses the name gets a new ID and no access.
+
+## Two repositories, two pipelines
+
+<TradeOff
+  gained="Infrastructure and site change on their own schedules, each with its own scoped role and Cloudflare token."
+  price="The values the app needs from Terraform, such as the bucket name and the role ARN, are copied into the app's Actions variables by hand."
+/>
+
+Terraform manages AWS and the Cloudflare zone, DNS and rules; Wrangler deploys the Worker script and its route. No resource is managed by both.
+
+**App repository.** Every pull request runs lint and formatting, a type check and build, the Worker's tests in the Workers runtime, Playwright with axe in both themes and languages, and gitleaks. A push to `main` deploys:
+
+1. Hashed assets go up first and nothing is deleted yet, so pages from the old build still find their files.
+2. The rest goes up with `--delete`.
+3. Wrangler deploys the Worker, and the cache is purged.
+4. A smoke test checks the live domain: all six headers, the 404 page, `405` for a `POST`, `www` and `http` redirects, and that the bucket refuses direct access.
+
+**Infra repository.** Every pull request runs `fmt`, `validate`, Trivy, Checkov and gitleaks, and posts the plan as a comment. A merge applies it in the protected environment, one run at a time. The apply refuses any plan that deletes or replaces a resource until a person re-runs it with `allow_destroy`. Scanner exceptions sit next to the code, each with a reason.
+
+## Language without a cookie
+
+<TradeOff
+  gained="German-speaking visitors land on the German home page without a cookie, so the site needs no consent banner."
+  price="Without memory, a visitor in Germany who opens the home page in a new tab later is sent to German again."
+/>
+
+The Worker sends a fresh visit to `/` from Germany, Austria, Switzerland, Luxembourg or Liechtenstein to `/de/` with an uncached `302`. It leaves deep links, clicks within the site and URLs with `?lang=` alone. The language switch links to `/?lang=en`, so a click on English always lands on English. Crawlers, which mostly come from the US, index the English home page.
+
+## Costs and alarms on a shared account
+
+<TradeOff
+  gained="Cloudflare's free plan carries DNS, TLS, the edge cache and the Worker. On AWS the site only uses S3 today; Lambda and SES start when the form goes live."
+  price="The AWS account is shared with Sorted, so the budget filters on a cost allocation tag that has to be activated by hand. If it is ever switched off, the budget reads $0 without a warning."
+/>
+
+- **A $5 monthly budget** with an alert at 100% of actual and of forecast spend, scoped to this project's `Project` tag.
+- **CloudWatch alarms** on Lambda errors and throttles and on the SES bounce and complaint rates, sent through SNS to my inbox.
+- **An uptime monitor** on the home page from outside AWS and Cloudflare.
+- **Mail authentication.** SPF, DKIM for both the mailbox provider and SES, and DMARC with reports, all as Terraform-managed DNS records.
+
+## Problems I hit
+
+<ProblemLog
+  items={[
+    {
+      area: 'IAM',
+      problem: '`AssumeRoleWithWebIdentity` failed in CI',
+      fix: 'GitHub issued immutable subjects with numeric IDs; the trust policies now pin `repo:<owner>@<ownerId>/<repo>@<repoId>`',
+    },
+    {
+      area: 'Terraform',
+      problem: 'A plan in CI wanted to delete a DNS record that was in use',
+      fix: 'A variable set locally was missing in CI; added it to the Actions variables and documented every required one',
+    },
+    {
+      area: 'Terraform',
+      problem: 'Every plan showed a change on the TXT records',
+      fix: 'Cloudflare returns TXT content wrapped in quotes; the records now declare it with escaped quotes',
+    },
+    {
+      area: 'Lambda',
+      problem: 'Reserved concurrency for the contact function was rejected',
+      fix: 'The account must keep 10 unreserved executions; the function runs unreserved, and Cloudflare rate-limits the route instead',
+    },
+    {
+      area: 'CSP',
+      problem: 'The diagrams broke under the strict policy',
+      fix: 'Framework islands emit inline scripts and styles; a plain module script now mounts them, and a test runs them under the production policy',
+    },
+    {
+      area: 'Cloudflare',
+      problem: 'Terraform could not manage Web Analytics',
+      fix: 'The API returned 403 for the scoped token; it stays out of Terraform and is listed under Limitations',
+    },
+  ]}
+/>
+
+## The workload
+
+The platform serves a static site built with Astro: English and German pages, case studies written in MDX against a typed schema, and Tailwind CSS. Pages without a diagram ship no framework JavaScript; the diagrams load React Flow only when they scroll into view. Fonts are self-hosted and there are no trackers.
+
+## Tech stack
+
+<TechStack
+  label="Tech stack of this site by layer"
+  layers={[
+    { name: 'Edge', role: 'What visitors reach first', tools: ['Cloudflare DNS', 'TLS, Full (strict)', 'Edge cache', 'Redirect and rate-limit rules'] },
+    {
+      name: 'Origin',
+      role: 'Where the pages live',
+      tools: ['Cloudflare Worker (TypeScript)', 'aws4fetch, SigV4', 'Private S3 bucket, eu-central-1'],
+    },
+    {
+      name: 'Infrastructure as code',
+      role: 'Everything rebuildable from two repositories',
+      tools: ['Terraform, AWS and Cloudflare providers', 'S3 state with native locking', 'Bootstrap stack for state and OIDC'],
+    },
+    {
+      name: 'CI/CD',
+      role: 'From a pull request to a checked deploy',
+      tools: ['GitHub Actions', 'OIDC to AWS', 'Wrangler', 'Trivy, Checkov, gitleaks', 'Plan as a PR comment'],
+    },
+    {
+      name: 'Testing',
+      role: 'What fails the build',
+      tools: ['Vitest in the Workers runtime', 'Playwright', 'axe', 'Smoke test on the live domain'],
+    },
+    {
+      name: 'Operations',
+      role: 'Knowing when something is wrong',
+      tools: ['CloudWatch alarms', 'SNS', 'AWS Budgets', 'Uptime monitor', 'SPF, DKIM, DMARC'],
+    },
+    {
+      name: 'Workload',
+      role: 'The site the platform serves',
+      workload: true,
+      tools: ['Astro', 'MDX', 'Tailwind CSS', 'React Flow'],
+    },
+  ]}
+/>
+
+## Limitations and what I would do next
+
+<Limitations
+  label="Limitations of this site's setup and the next step for each"
+  items={[
+    {
+      gap: 'The CSP is report-only',
+      detail: 'Violations are reported in the browser console but not blocked, and there is no report endpoint.',
+      next: 'Check every page in the console, then switch the header to enforcing.',
+    },
+    {
+      gap: 'The contact form is not live',
+      detail: 'The function, its IAM-signed URL, SES, the rate limit and Turnstile exist; the function still returns a placeholder and the Worker has no route for it.',
+      next: 'Write the function, add the Worker route with Turnstile and a honeypot, and test it end to end.',
+    },
+    {
+      gap: 'One long-lived access key',
+      detail: 'I rotate the Worker’s key by hand every 90 days; the first rotation is due by February 1, 2027.',
+      next: 'Script the rotation in CI through the rotation role that already exists.',
+    },
+    {
+      gap: 'No performance budget in CI',
+      detail: 'Lighthouse and page-weight limits are planned, not yet enforced.',
+      next: 'Add Lighthouse CI on the mobile profile with budgets that fail the build.',
+    },
+    {
+      gap: 'Analytics outside Terraform',
+      detail: 'The Cloudflare Web Analytics site was created by an early apply, and the token gets a 403.',
+      next: 'Decide whether it stays. If it does, manage it by hand and write down why; if not, delete it.',
+    },
+    {
+      gap: 'The apply role is broad within its services',
+      detail: 'It is scoped to this project’s names and cannot touch the CI roles, but it holds full rights on services such as Lambda and SES.',
+      next: 'Add a permissions boundary and narrow each service to the actions Terraform uses.',
+    },
+    {
+      gap: 'DMARC still at p=none',
+      detail: 'Reports are collected; failing mail is not yet rejected.',
+      next: 'Move to quarantine, then reject, once the reports are clean.',
+    },
+  ]}
+/>

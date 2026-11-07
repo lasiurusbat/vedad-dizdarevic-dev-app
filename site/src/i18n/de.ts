@@ -76,6 +76,8 @@ export const de: Messages = {
   problemFix: 'Lösung',
 
   footerRights: 'Alle Rechte vorbehalten.',
+  footerHowBuilt: 'Wie diese Website gebaut ist',
+  footerNav: 'Fußzeile',
 
   notFoundTitle: 'Seite nicht gefunden',
   notFoundText: 'Die gesuchte Seite existiert nicht.',
