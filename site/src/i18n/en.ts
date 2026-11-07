@@ -30,6 +30,8 @@ export const en = {
     'My largest project so far is Sorted, a commercial SaaS product whose AWS platform I built and run on my own, from the first Terraform module to production in six weeks. This site is a project too: Terraform for AWS and Cloudflare, CI/CD through OIDC, security headers tested on every deploy.',
   aboutP3:
     "I'm working towards the AWS Certified Solutions Architect – Associate and am open to full-time roles and freelance work. Away from the terminal: games, books, a bike and too much coffee.",
+  aboutLanguagesLabel: 'Languages',
+  aboutLanguages: 'Bosnian/Serbian/Croatian (native), English and German (fluent)',
   hireTitle: 'Work with me',
   contactTitle: 'Contact',
 
