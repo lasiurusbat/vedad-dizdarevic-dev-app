@@ -12,7 +12,7 @@ const bucket = process.env.SITE_BUCKET;
 const region = process.env.AWS_REGION ?? 'eu-central-1';
 
 const SIX_HEADERS = [
-  'content-security-policy-report-only',
+  'content-security-policy',
   'permissions-policy',
   'referrer-policy',
   'strict-transport-security',
@@ -49,6 +49,12 @@ test('GET / returns the page with all six security headers', async () => {
   assertSecurityHeaders(response, '/');
   const html = await response.text();
   assert.match(html, /<h1/);
+});
+
+test('the CSP is enforced, not only reported', async () => {
+  const { headers } = await get(base);
+  assert.match(headers.get('content-security-policy') ?? '', /default-src 'none'/);
+  assert.equal(headers.has('content-security-policy-report-only'), false);
 });
 
 test('a random path returns 404 with the custom page and security headers', async () => {

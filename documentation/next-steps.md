@@ -4,9 +4,9 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Stopped at: 2026-11-08 (day 7)
 
-**Merged today:** #62–#71 and infra #10; the share images PR follows. M3 is done; the contact form is live and delivers real mail. **Start next with Phase 9 hardening**, beginning with the inline style Turnstile applies under the enforced CSP (see "contact form" below).
+**Merged today:** #62–#73 and infra #10; the enforced CSP is the last PR. M3 is done; the contact form is live and delivers real mail. The CSP is enforced. **Next in Phase 9:** Lighthouse CI, then the remaining gates (`html-validate`, link checker, Dependabot, axe and layout coverage), then the legal pages.
 
-**Waiting on the owner:** the LinkedIn preview test and Search Console (see "SEO" below); Impressum details (the legal pages and launch depend on them); `e2e` in the required checks; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
+**Waiting on the owner:** a VAT ID, if any, for the Impressum (the address is decided); delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
 ### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
@@ -28,7 +28,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 - Built; see CLAUDE.md. Differences from the plan: the form needs JavaScript (Turnstile does), so there is no plain HTML POST; the email address is the fallback. The `gh-app-deploy` role needed `lambda:UpdateFunctionCode` and `lambda:GetFunctionConfiguration` on `vdd-contact` (infra `bootstrap/`).
 - **Lambda concurrency is not capped** (AWS rejects a reservation on this account), so Turnstile and the coarse rate limit are the only brakes. The AWS budget alert is the backstop.
-- **For Phase 9, before enforcing the CSP:** the real Turnstile script applies an inline style that `style-src 'self'` blocks (seen with Cloudflare's test key under the enforced policy on 2026-11-08). The form still got a token and worked, but check a visible challenge, then decide (a hash may be unstable across Turnstile updates; `api.js` must not be self-hosted).
+- **CSP and Turnstile:** the inline style seen with the test key on 2026-11-08 did not come back in the sweep before enforcing (same day): with the real key on the live domain and our policy enforced, only Cloudflare's own iframe logs `connect-src` errors, under Cloudflare's policy. Those are not ours. When checking this again, tell the iframe's messages apart by their source file, and click the field (the widget renders in a closed shadow root).
 - **Datenschutz:** the form's privacy note has no link yet because the page does not exist. Add it with the legal pages, and describe the form and Turnstile there.
 - **Live, confirmed 2026-11-08:** the owner sent a real message; it arrived at `hello@` and the reply reached the sender. The `this-site` case study is updated.
 - **Worker secrets must be set in a real terminal:** `wrangler secret put` run through `!` (no stdin) stored an empty `TURNSTILE_SECRET_KEY` and reported success, so the form answered 503 after a green deploy. The smoke test now posts a made-up token, which catches this.
@@ -37,7 +37,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 ### 2026-11-08: SEO (Phase 8)
 
 - Done: descriptions, canonical URLs, sitemap, `robots.txt`, JSON-LD and share images, rendered with Typst from a build-time endpoint so no image library is added. The colours in `site/src/og/card.typ` are copies of the dark tokens: change them together. The endpoint runs `typst`, so opening `/og/...` in `astro dev` needs it installed.
-- **Owner:** LinkedIn Post Inspector in both languages; verify the domain in Search Console and submit `https://vedad-dizdarevic.dev/sitemap-index.xml`.
+- Done by the owner on 2026-11-08: LinkedIn Post Inspector, Search Console and Bing verified, sitemap submitted. Check Search Console for errors in a few days.
 - Search Console and Bing Webmaster Tools verify through files: keep `site/public/googlee75783b48c054b73.html` and `site/public/BingSiteAuth.xml` unchanged, or the verification lapses.
 - Lighthouse SEO (the "done when") is not run yet; Lighthouse CI comes in Phase 9.
 
@@ -49,7 +49,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 4. ~~RainAlert case study~~ done in EN and DE (#54, #55); the closing band links each case study to the next (#56).
 5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer, #60, header illustration #61), ~~Work with me~~ (`WorkWithMe.astro`, status panel and services grid); About has its languages line (from the CV) and links "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
 6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
-7. **Owner:** add `e2e` to the required checks on `main`.
+7. ~~Add `e2e` to the required checks on `main`~~ done 2026-11-08.
 8. Footer links to Impressum and Datenschutz when those pages exist. Add Lighthouse and securityheaders.com results to the `this-site` page in Phase 9.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
@@ -72,7 +72,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - e2e runs rebuild `site/dist` with `SHOW_DRAFTS=1`; rebuild without it before using `astro preview` to judge the production page.
 - Node 20 deprecation warning in the deploy run (`configure-aws-credentials@v5`, `pnpm/action-setup@v4`); bump the actions when newer majors exist.
 - The Worker maps S3 403 to the 404 page, so a broken key would show as 404s; the smoke test's 200 on `/` is what catches that.
-- The CSP is report-only and has no report endpoint; check the browser console on every page before enforcing.
+- The enforced CSP has no report endpoint (listed under Limitations on the `this-site` page).
 
 ## How to run things locally (reminder)
 

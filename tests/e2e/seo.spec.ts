@@ -3,7 +3,7 @@ import { expect, test, type Page } from '@playwright/test';
 import { SECURITY_HEADERS } from '../../worker/src/headers';
 
 const SITE = 'https://vedad-dizdarevic.dev';
-const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
+const CSP = SECURITY_HEADERS['Content-Security-Policy']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 

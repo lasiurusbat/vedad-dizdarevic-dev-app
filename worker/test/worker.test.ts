@@ -188,12 +188,10 @@ describe('security headers', () => {
     }
   });
 
-  it('keeps the CSP in report-only mode for now', async () => {
+  it('enforces the CSP', async () => {
     const response = await call('/');
-    expect(response.headers.has('Content-Security-Policy')).toBe(false);
-    expect(response.headers.get('Content-Security-Policy-Report-Only')).toContain(
-      "default-src 'none'",
-    );
+    expect(response.headers.has('Content-Security-Policy-Report-Only')).toBe(false);
+    expect(response.headers.get('Content-Security-Policy')).toContain("default-src 'none'");
   });
 });
 

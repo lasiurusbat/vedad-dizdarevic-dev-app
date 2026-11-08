@@ -6,7 +6,7 @@ import { useTheme } from './theme-state';
 // The Worker sends the CSP in production; the static server used here does not. Re-apply it as an
 // enforcing header (minus upgrade-insecure-requests, which would break plain-http localhost) so a
 // violation by the diagram island shows up as a failure, not as a report nobody reads.
-const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
+const CSP = SECURITY_HEADERS['Content-Security-Policy']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 
