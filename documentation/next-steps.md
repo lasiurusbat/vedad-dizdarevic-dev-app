@@ -29,7 +29,9 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **Lambda concurrency is not capped** (AWS rejects a reservation on this account), so Turnstile and the coarse rate limit are the only brakes. The AWS budget alert is the backstop.
 - **For Phase 9, before enforcing the CSP:** the real Turnstile script applies an inline style that `style-src 'self'` blocks (seen with Cloudflare's test key under the enforced policy on 2026-11-08). The form still got a token and worked, but check a visible challenge, then decide (a hash may be unstable across Turnstile updates; `api.js` must not be self-hosted).
 - **Datenschutz:** the form's privacy note has no link yet because the page does not exist. Add it with the legal pages, and describe the form and Turnstile there.
-- Once live: update the `this-site` case study (EN, DE): `outcomesNote`, the Limitations row "The contact form is not live" (`this-site.spec.ts` checks it) and the planned, dashed edges of the `site-platform` diagram.
+- **Live, confirmed 2026-11-08:** the owner sent a real message; it arrived at `hello@` and the reply reached the sender. The `this-site` case study is updated.
+- **Worker secrets must be set in a real terminal:** `wrangler secret put` run through `!` (no stdin) stored an empty `TURNSTILE_SECRET_KEY` and reported success, so the form answered 503 after a green deploy. The smoke test now posts a made-up token, which catches this.
+- **DMARC:** that message was the first real SES mail. Confirm it as aligned in a later report before moving to `p=quarantine`.
 
 ## Next (in this order)
 

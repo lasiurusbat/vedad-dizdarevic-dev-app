@@ -309,37 +309,39 @@ Browser form ──POST /api/contact──▶ Worker ──verify Turnstile─�
 
 ### Infrastructure
 
-- [ ] SES domain identity in `eu-central-1` with DKIM (CNAMEs in Cloudflare DNS via Terraform), custom MAIL FROM subdomain
-- [ ] SES production access (requested in Phase 0)
-- [ ] Lambda function (Node.js LTS, arm64, 128 MB, short timeout), function URL with **`AWS_IAM`** auth
-- [ ] Lambda role: `ses:SendEmail` limited to the verified identity, CloudWatch Logs with 30-day retention
-- [ ] Worker IAM user gets `lambda:InvokeFunctionUrl` on this function only
-- [ ] Lambda reserved concurrency set low (e.g. 2) as a cost and abuse cap
-- [ ] Turnstile widget managed in Terraform; site key in the site build, secret key as a Worker secret
+- [x] SES domain identity in `eu-central-1` with DKIM (CNAMEs in Cloudflare DNS via Terraform), custom MAIL FROM subdomain
+- [x] SES production access (requested in Phase 0)
+- [x] Lambda function (Node.js LTS, arm64, 128 MB, short timeout), function URL with **`AWS_IAM`** auth
+- [x] Lambda role: `ses:SendEmail` limited to the verified identity, CloudWatch Logs with 30-day retention
+- [x] Worker IAM user gets `lambda:InvokeFunctionUrl` on this function only
+- [~] Lambda reserved concurrency set low (e.g. 2) as a cost and abuse cap (not possible: AWS rejects a reservation on this account; Turnstile and the rate limit are the brakes)
+- [x] Turnstile widget managed in Terraform; site key in the site build, secret key as a Worker secret
 
 ### Worker
 
-- [ ] `POST /api/contact` only; reject other methods
-- [ ] Validate `Origin` header matches the site
-- [ ] Verify Turnstile token server-side before anything else
-- [ ] Honeypot field check; size limit on the body
-- [ ] Rate limit per IP (Cloudflare rate limiting rule on `/api/contact`)
-- [ ] Forward validated JSON to the Lambda URL, signed with `aws4fetch` (service `lambda`)
+- [x] `POST /api/contact` only; reject other methods
+- [x] Validate `Origin` header matches the site
+- [x] Verify Turnstile token server-side before anything else
+- [x] Honeypot field check; size limit on the body
+- [x] Rate limit per IP (Cloudflare rate limiting rule on `/api/contact`)
+- [x] Forward validated JSON to the Lambda URL, signed with `aws4fetch` (service `lambda`)
 
 ### Lambda
 
-- [ ] Validate fields (name, email, message, type: job / freelance / other, language); length limits
-- [ ] Send a plain-text email to your inbox with `Reply-To` set to the sender (no auto-reply to the sender, to avoid becoming a spam relay)
-- [ ] Structured logging without storing message bodies
-- [ ] Unit tests for validation and the SES call (mocked)
+- [x] Validate fields (name, email, message, type: job / freelance / other, language); length limits
+- [x] Send a plain-text email to your inbox with `Reply-To` set to the sender (no auto-reply to the sender, to avoid becoming a spam relay)
+- [x] Structured logging without storing message bodies
+- [x] Unit tests for validation and the SES call (mocked)
 
 ### Form (site)
 
 - [x] Posts JSON through a small script, with inline success and error states. Hidden without JavaScript, because Turnstile needs it; the email address is the fallback
-- [ ] Labels, error messages, success state in EN and DE
-- [ ] Short privacy note linking to the Datenschutz page
+- [x] Labels, error messages, success state in EN and DE
+- [ ] Short privacy note linking to the Datenschutz page (the note is live; the link comes with the legal pages)
 
 ### Done when
+
+Done 2026-11-08: a real message arrived and a reply reached the sender.
 
 A real submission from the live site arrives in your inbox, spam submissions without a valid Turnstile token are rejected at the Worker, and direct calls to the Lambda URL without a signature return `403`.
 

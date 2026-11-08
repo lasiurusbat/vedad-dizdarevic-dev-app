@@ -87,6 +87,26 @@ test('POST /api/contact without a Turnstile token is rejected and sends nothing'
   assert.equal(response.status, 403);
 });
 
+// Reaches Turnstile, so an empty or wrong secret shows up here (503) and not only for a visitor.
+// With the two above this is three POSTs in a row, the most the route's rate limit allows in 10 s.
+test('POST /api/contact with a made-up token is rejected by Turnstile and sends nothing', async () => {
+  const response = await get(new URL('/api/contact', base), {
+    method: 'POST',
+    headers: { Origin: base.origin, 'Content-Type': 'application/json' },
+    body: JSON.stringify({
+      name: 'Smoke',
+      email: 'smoke@example.com',
+      type: 'other',
+      language: 'en',
+      message: 'Smoke test, never sent.',
+      website: '',
+      token: 'smoke-test-invalid-token',
+    }),
+  });
+  assert.equal(response.status, 403);
+  assert.deepEqual(await response.json(), { error: 'verification' });
+});
+
 test('the contact Lambda refuses unsigned calls', async () => {
   const config = await readFile(new URL('../../worker/wrangler.toml', import.meta.url), 'utf8');
   const url = config.match(/^CONTACT_FUNCTION_URL = "(.+)"$/m)?.[1];

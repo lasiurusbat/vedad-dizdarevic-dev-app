@@ -226,6 +226,22 @@ test('on a phone it fits, with 44px targets', async ({ page }) => {
   }
 });
 
+// 340: the split at the hyphen shows in this browser there; on others also at desktop widths.
+for (const width of [320, 340, 360, 768, 1100, 1440]) {
+  for (const path of ['/', '/de/']) {
+    test(`${path} at ${width}px: the address stays on one line`, async ({ page }) => {
+      await page.setViewportSize({ width, height: 800 });
+      await page.goto(path);
+      const lines = await page.locator('#contact a.direct').evaluate((a) => {
+        const range = document.createRange();
+        range.selectNodeContents(a);
+        return new Set([...range.getClientRects()].map((r) => Math.round(r.top))).size;
+      });
+      expect(lines).toBe(1);
+    });
+  }
+}
+
 for (const theme of ['dark', 'light'] as const) {
   test(`the form has no axe violations, with errors showing (${theme})`, async ({ page }) => {
     await useTheme(page, theme);

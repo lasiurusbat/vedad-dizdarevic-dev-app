@@ -24,7 +24,7 @@ test('This site: both repositories linked, the gaps listed', async ({ page }) =>
   const limits = page.getByRole('table', { name: /Limitations of this site/ });
   await expect(limits.locator('tbody tr')).toHaveCount(7);
   await expect(limits).toContainText('The CSP is report-only');
-  await expect(limits).toContainText('The contact form is not live');
+  await expect(limits).toContainText('No concurrency cap on the contact function');
 });
 
 test('This site diagram renders and traces its three paths under the production CSP', async ({
@@ -54,7 +54,7 @@ test('This site diagram renders and traces its three paths under the production 
   await expect(diagram.locator('.react-flow__node-service.vdd-on')).toHaveCount(4);
   await bar.getByRole('button', { name: 'Contact and alerts' }).click();
   await expect(diagram.locator('.react-flow__node-service.vdd-on')).toHaveCount(6);
-  await expect(page.locator('[data-path-status]')).toContainText('Planned');
+  await expect(page.locator('[data-path-status]')).toContainText('IAM-signed');
   await bar.getByRole('button', { name: 'Deploys' }).click();
   await expect(diagram.locator('.react-flow__node-service.vdd-on')).toHaveCount(4);
   expect(violations).toEqual([]);

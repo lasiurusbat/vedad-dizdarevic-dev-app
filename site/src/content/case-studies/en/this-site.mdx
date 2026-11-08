@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monthly AWS budget, with an alert'
     value: '$5'
-outcomesNote: 'Figures from the app and infra repositories as of November 7, 2026. The contact form and Lighthouse in CI are not built yet, and the Content Security Policy is still report-only; see Limitations.'
+outcomesNote: 'Figures from the app and infra repositories as of November 8, 2026. Lighthouse is not in CI yet, and the Content Security Policy is still report-only; see Limitations.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -34,13 +34,13 @@ import TradeOff from '../../../components/TradeOff.astro';
 
 ## Architecture
 
-Three paths run through the site: requests, deploys, and the planned contact form with its alarms. The buttons above the diagram trace each one. The code lives in two public repositories: the <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-app" target="_blank" rel="noopener noreferrer">app<span class="sr-only"> (opens in a new tab)</span></a> (site, Worker, tests, deploy) and the <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-infra" target="_blank" rel="noopener noreferrer">infrastructure<span class="sr-only"> (opens in a new tab)</span></a> (Terraform).
+Three paths run through the site: requests, deploys, and the contact form with its alarms. The buttons above the diagram trace each one. The code lives in two public repositories: the <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-app" target="_blank" rel="noopener noreferrer">app<span class="sr-only"> (opens in a new tab)</span></a> (site, Worker, tests, deploy) and the <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-infra" target="_blank" rel="noopener noreferrer">infrastructure<span class="sr-only"> (opens in a new tab)</span></a> (Terraform).
 
 <ArchitectureDiagram
   locale="en"
   id="site-platform"
   compact
-  title="How vedad-dizdarevic.dev is served and deployed: Cloudflare and a Worker in front of a private S3 bucket, the planned contact path through Lambda and SES, and the deploy from GitHub Actions."
+  title="How vedad-dizdarevic.dev is served and deployed: Cloudflare and a Worker in front of a private S3 bucket, the contact path through Lambda and SES, and the deploy from GitHub Actions."
 />
 
 ## A private bucket behind a Worker
@@ -80,7 +80,7 @@ Only the Worker sets headers; neither the Cloudflare dashboard nor the framework
 
 GitHub Actions assumes AWS roles through OIDC. A small bootstrap stack, applied once by hand, creates the Terraform state bucket and three roles:
 
-- **`gh-app-deploy`** for the app repository's `main` branch. It can list, write and delete objects in the site bucket, nothing else, and cannot read the Terraform state.
+- **`gh-app-deploy`** for the app repository's `main` branch. It can list, write and delete objects in the site bucket and update the contact function's code, nothing else, and cannot read the Terraform state.
 - **`gh-infra-plan`** for pull requests in the infra repository: read-only, except for the state lock file.
 - **`gh-infra-apply`** for `main` in the infra repository, in a protected `production` environment. It can change IAM only for names starting with `vdd-`, so it cannot edit the CI roles themselves.
 
@@ -95,12 +95,13 @@ GitHub now issues immutable subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`),
 
 Terraform manages AWS and the Cloudflare zone, DNS and rules; Wrangler deploys the Worker script and its route. No resource is managed by both.
 
-**App repository.** Every pull request runs lint and formatting, a type check and build, the Worker's tests in the Workers runtime, Playwright with axe in both themes and languages, and gitleaks. The build also compiles my CV in both languages from one YAML file with Typst, and a check fails it if a phone number or private email address turns up in a PDF. A push to `main` deploys:
+**App repository.** Every pull request runs lint and formatting, a type check and build, the tests of the Worker (in the Workers runtime) and of the contact function, Playwright with axe in both themes and languages, and gitleaks. The build also compiles my CV in both languages from one YAML file with Typst, and a check fails it if a phone number or private email address turns up in a PDF. A push to `main` deploys:
 
-1. Hashed assets go up first and nothing is deleted yet, so pages from the old build still find their files.
-2. The rest goes up with `--delete`.
-3. Wrangler deploys the Worker, and the cache is purged.
-4. A smoke test checks the live domain: all six headers, the 404 page, `405` for a `POST`, `www` and `http` redirects, and that the bucket refuses direct access.
+1. The contact function gets its new code, before the Worker that calls it.
+2. Hashed assets go up next and nothing is deleted yet, so pages from the old build still find their files.
+3. The rest goes up with `--delete`.
+4. Wrangler deploys the Worker, and the cache is purged.
+5. A smoke test checks the live domain: all six headers, the 404 page, `405` for a `POST`, `www` and `http` redirects, that the bucket and the contact function refuse direct access, and that the form's route rejects a made-up Turnstile token. It sends no mail.
 
 **Infra repository.** Every pull request runs `fmt`, `validate`, Trivy, Checkov and gitleaks, and posts the plan as a comment. A merge applies it in the protected environment, one run at a time. The apply refuses any plan that deletes or replaces a resource until a person re-runs it with `allow_destroy`. Scanner exceptions sit next to the code, each with a reason.
 
@@ -116,7 +117,7 @@ The Worker sends a fresh visit to `/` from Germany, Austria, Switzerland, Luxemb
 ## Costs and alarms on a shared account
 
 <TradeOff
-  gained="Cloudflare's free plan carries DNS, TLS, the edge cache and the Worker. On AWS the site only uses S3 today; Lambda and SES start when the form goes live."
+  gained="Cloudflare's free plan carries DNS, TLS, the edge cache and the Worker. On AWS the site uses S3, plus Lambda and SES when someone sends a message."
   price="The AWS account is shared with Sorted, so the budget filters on a cost allocation tag that has to be activated by hand. If it is ever switched off, the budget reads $0 without a warning."
 />
 
@@ -148,6 +149,11 @@ The Worker sends a fresh visit to `/` from Germany, Austria, Switzerland, Luxemb
       area: 'Lambda',
       problem: 'Reserved concurrency for the contact function was rejected',
       fix: 'The account must keep 10 unreserved executions; the function runs unreserved, and Cloudflare rate-limits the route instead',
+    },
+    {
+      area: 'Worker',
+      problem: 'The contact form answered 503 after a green deploy',
+      fix: 'The Turnstile secret had been set from a shell with no input, which stored an empty value without an error; I set it again, and the smoke test now sends a made-up token, so an empty secret fails it',
     },
     {
       area: 'CSP',
@@ -217,9 +223,9 @@ The platform serves a static site built with Astro: English and German pages, ca
       next: 'Check every page in the console, then switch the header to enforcing.',
     },
     {
-      gap: 'The contact form is not live',
-      detail: 'The function, its IAM-signed URL, SES, the rate limit and Turnstile exist; the function still returns a placeholder and the Worker has no route for it.',
-      next: 'Write the function, add the Worker route with Turnstile and a honeypot, and test it end to end.',
+      gap: 'No concurrency cap on the contact function',
+      detail: 'AWS rejected a reservation on this account, so Turnstile and a coarse Cloudflare rate limit are the only brakes, with the budget alert behind them.',
+      next: 'Ask AWS for a higher account concurrency limit, then reserve a low cap.',
     },
     {
       gap: 'One long-lived access key',

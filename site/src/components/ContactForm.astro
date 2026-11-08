@@ -148,8 +148,10 @@ const t = useTranslations(locale);
     }
   }
 
-  /* The address can be longer than a phone is wide. */
+  /* Moves to the next line whole, not split at its hyphen; breaks only if wider than the column. */
   .direct {
+    display: inline-block;
+    max-width: 100%;
     overflow-wrap: anywhere;
   }
 
