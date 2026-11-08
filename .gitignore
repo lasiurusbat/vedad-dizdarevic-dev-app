@@ -76,7 +76,7 @@ tests/e2e/test-results/
 tests/e2e/playwright-report/
 tests/e2e/screenshots/
 
-# Certificates and diplomas: the diploma prints a date of birth. The site links to the issuers'
-# verification pages instead (site/src/credentials.ts).
-cv/reference/4f75a618-*.pdf
-cv/reference/UC-*.pdf
+# Source documents for the CV (contact details) and certificates (the diploma prints a date of
+# birth). Never commit them: the published CV is built from cv/data.yaml, and the site links to the
+# issuers' verification pages instead (site/src/credentials.ts).
+cv/reference/
