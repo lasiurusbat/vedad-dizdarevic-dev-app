@@ -16,6 +16,8 @@ for (const [path, heading, lang] of PAGES) {
     await expect(main).toContainText('Vedad Dizdarevic');
     await expect(main.locator('a[href="mailto:hello@vedad-dizdarevic.dev"]')).toBeVisible();
     await expect(page.locator('meta[name="robots"]')).toHaveAttribute('content', 'noindex');
+    await expect(main).toContainText('Add Rabbit LLC');
+    await expect(main).toContainText('Northern Virginia');
     // The formatter can put a line break between a link and the punctuation after it.
     expect(await main.innerText()).not.toMatch(/ [.,]/);
   });
