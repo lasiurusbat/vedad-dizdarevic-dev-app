@@ -10,3 +10,5 @@ case-studies/
 CLAUDE.md
 site/src/assets/aws-icons/
 .claude/
+# Issued by Google; must stay exactly as it is.
+site/public/googlee75783b48c054b73.html

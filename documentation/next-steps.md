@@ -38,6 +38,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 - Done: descriptions, canonical URLs, sitemap, `robots.txt`, JSON-LD and share images, rendered with Typst from a build-time endpoint so no image library is added. The colours in `site/src/og/card.typ` are copies of the dark tokens: change them together. The endpoint runs `typst`, so opening `/og/...` in `astro dev` needs it installed.
 - **Owner:** LinkedIn Post Inspector in both languages; verify the domain in Search Console and submit `https://vedad-dizdarevic.dev/sitemap-index.xml`.
+- Search Console and Bing Webmaster Tools verify through files: keep `site/public/googlee75783b48c054b73.html` and `site/public/BingSiteAuth.xml` unchanged, or the verification lapses.
 - Lighthouse SEO (the "done when") is not run yet; Lighthouse CI comes in Phase 9.
 
 ## Next (in this order)
