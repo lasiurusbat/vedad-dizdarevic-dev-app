@@ -22,7 +22,7 @@ test('This site: both repositories linked, the gaps listed', async ({ page }) =>
     await expect(a).toHaveAttribute('rel', /noopener/);
   }
   const limits = page.getByRole('table', { name: /Limitations of this site/ });
-  await expect(limits.locator('tbody tr')).toHaveCount(7);
+  await expect(limits.locator('tbody tr')).toHaveCount(6);
   await expect(limits).toContainText('Nothing reports CSP violations to me');
   await expect(limits).toContainText('No concurrency cap on the contact function');
 });

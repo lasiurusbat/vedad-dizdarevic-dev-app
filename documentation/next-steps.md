@@ -4,9 +4,9 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Stopped at: 2026-11-08 (day 7)
 
-**Merged today:** #62–#73 and infra #10; the enforced CSP is the last PR. M3 is done; the contact form is live and delivers real mail. The CSP is enforced. **Next in Phase 9:** Lighthouse CI, then the remaining gates (`html-validate`, link checker, Dependabot, axe and layout coverage), then the legal pages.
+**Merged today:** #62–#73 and infra #10; #74 enforced the CSP; Lighthouse CI is the last PR. M3 is done; the contact form is live and delivers real mail. The CSP is enforced and a real message passed under it. Lighthouse CI and the page-weight budgets are in. **Next in Phase 9:** the remaining gates (`html-validate`, link checker, Dependabot, axe and layout coverage), then the legal pages. Once the `lighthouse` job has run on `main`, add it to the required checks.
 
-**Waiting on the owner:** a VAT ID, if any, for the Impressum (the address is decided); delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
+**Waiting on the owner:** a VAT ID, if any, for the Impressum (the address is decided); securityheaders.com in a browser (it blocks scripted checks); delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
 ### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
@@ -53,7 +53,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 8. Footer links to Impressum and Datenschutz when those pages exist. Add Lighthouse and securityheaders.com results to the `this-site` page in Phase 9.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
-11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget (diagram-page JS budget proposed at 140 KB gzipped; the Sorted page now loads two diagrams, which share one React Flow bundle).
+11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Diagram pages are at 137 of the 140 KB JS budget (2026-11-08), and Sorted at 452 of 500 KB page weight: little room for growth.
 12. **Refresh the billed costs** when November is complete (same method; footnote dates change).
 
 ## Key rotation

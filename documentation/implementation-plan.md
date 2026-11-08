@@ -409,12 +409,12 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 - [x] Check the browser console on every page and in both themes/languages for CSP report-only violations
 - [x] Fix violations (no `'unsafe-inline'`, no new third-party origins without a reason): none found
 - [x] Switch to the enforcing `Content-Security-Policy` header
-- [ ] securityheaders.com: A+; Mozilla Observatory: A+ or close, with any gaps explained
-- [ ] SSL Labs: A+
+- [ ] securityheaders.com: A+ (blocks scripted checks; the owner checks it in a browser); Mozilla Observatory: A+ with 130 points, 12 of 12 tests (2026-11-08)
+- [x] SSL Labs: A+ on all four endpoints (2026-11-08)
 
 ### Quality gates in CI (fail the build)
 
-- [ ] **Lighthouse CI** (mobile profile) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100; resource budgets (e.g. total JS < 20 KB on pages without a diagram, diagram pages ≤ the budget set in the Phase 4 spike, CSS < 30 KB gzipped, page weight < 500 KB excluding the CV)
+- [x] **Lighthouse CI** (mobile profile, CI job `lighthouse`, `tests/e2e/lighthouserc.json`) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. **Budgets** in `tests/e2e/budgets.spec.ts` on every page, after diagrams and images have loaded, because Lighthouse does not see what loads on scroll: JS ≤ 20 KB without a diagram, ≤ 140 KB with one, CSS ≤ 30 KB, page weight ≤ 500 KB, text gzipped, the CV excluded
 - [ ] **axe** via Playwright on every page, zero violations _(started in Phase 3: `tests/e2e` covers `/`, `/de/` and the 404 page; extend it as pages are added)_
 - [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR _(started in Phase 3: the `e2e` CI job uploads the screenshots as an artifact; extend as pages are added)_
 - [ ] **html-validate** and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)

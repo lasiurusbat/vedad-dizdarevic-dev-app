@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monthly AWS budget, with an alert'
     value: '$5'
-outcomesNote: 'Figures from the app and infra repositories as of November 8, 2026. Lighthouse is not in CI yet; see Limitations.'
+outcomesNote: 'Figures from the app and infra repositories as of November 8, 2026.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -95,7 +95,7 @@ GitHub now issues immutable subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`),
 
 Terraform manages AWS and the Cloudflare zone, DNS and rules; Wrangler deploys the Worker script and its route. No resource is managed by both.
 
-**App repository.** Every pull request runs lint and formatting, a type check and build, the tests of the Worker (in the Workers runtime) and of the contact function, Playwright with axe in both themes and languages, and gitleaks. The build also compiles my CV in both languages from one YAML file with Typst, and a check fails it if a phone number or private email address turns up in a PDF. A push to `main` deploys:
+**App repository.** Every pull request runs lint and formatting, a type check and build, the tests of the Worker (in the Workers runtime) and of the contact function, Playwright with axe in both themes and languages, Lighthouse on the mobile profile with thresholds that fail the build, page-weight budgets, and gitleaks. The build also compiles my CV in both languages from one YAML file with Typst, and a check fails it if a phone number or private email address turns up in a PDF. A push to `main` deploys:
 
 1. The contact function gets its new code, before the Worker that calls it.
 2. Hashed assets go up next and nothing is deleted yet, so pages from the old build still find their files.
@@ -231,11 +231,6 @@ The platform serves a static site built with Astro: English and German pages, ca
       gap: 'One long-lived access key',
       detail: 'I rotate the Worker’s key by hand every 90 days; the first rotation is due by February 1, 2027.',
       next: 'Script the rotation in CI through the rotation role that already exists.',
-    },
-    {
-      gap: 'No performance budget in CI',
-      detail: 'Lighthouse and page-weight limits are planned, not yet enforced.',
-      next: 'Add Lighthouse CI on the mobile profile with budgets that fail the build.',
     },
     {
       gap: 'Analytics outside Terraform',
