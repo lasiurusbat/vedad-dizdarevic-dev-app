@@ -57,7 +57,7 @@ const sections = [
         <Credentials locale={locale} />
       </div>
     ) : s.id === 'about' ? (
-      <div class="max-w-measure space-y-4 text-lg">
+      <div class="prose">
         <p>{t.aboutP1}</p>
         <p>
           {aboutP2Before}
@@ -67,7 +67,7 @@ const sections = [
           {aboutP2After}
         </p>
         <p>{t.aboutP3}</p>
-        <p class="text-muted text-base">
+        <p class="text-muted">
           <span class="text-fg font-medium">{t.aboutLanguagesLabel}:</span> {t.aboutLanguages}
         </p>
       </div>

@@ -140,3 +140,18 @@ test('no inline scripts or styles (CSP)', async ({ page }) => {
     expect(inline, path).toEqual({ scripts: 0, styles: 0, styleAttrs: 0 });
   }
 });
+
+test('About reads like the body text of a project page', async ({ page }) => {
+  const style = (selector: string) =>
+    page
+      .locator(selector)
+      .first()
+      .evaluate((el) => {
+        const { fontSize, lineHeight } = getComputedStyle(el);
+        return { fontSize, lineHeight, width: el.getBoundingClientRect().width };
+      });
+  await page.goto('/');
+  const about = await style('#about p');
+  await page.goto('/projects/sorted/');
+  expect(about).toEqual(await style('.prose > p'));
+});
