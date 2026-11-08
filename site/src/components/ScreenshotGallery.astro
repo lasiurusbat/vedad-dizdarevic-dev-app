@@ -9,8 +9,12 @@
  * Light/dark pairs: both are rendered and the theme classes show the active one, like
  * ThemedScreenshot. Images go through Astro's image pipeline (WebP under /_astro/), lazy-loaded.
  *
- * Progressive enhancement: without JavaScript the row still scrolls natively and the buttons stay
- * hidden. CSP: no inline styles or scripts; state is classes and attributes only. Under
+ * Each screenshot links to its full-size WebP. With JavaScript the link opens a lightbox (a native
+ * <dialog>): fitted to the window, with an "actual size" toggle when the image is larger than that.
+ * New-tab clicks keep working, since it stays a real link.
+ *
+ * Progressive enhancement: without JavaScript the row still scrolls natively, the buttons stay
+ * hidden and the links open the image itself. CSP: no inline styles or scripts; state is classes and attributes only. Under
  * prefers-reduced-motion there is no zoom and scrolling is instant.
  */
 import { getImage } from 'astro:assets';
@@ -44,17 +48,27 @@ const sizes = '(min-width: 72rem) 56rem, 80vw';
 
 async function variants(src: ImageMetadata) {
   const images = await Promise.all(widths.map((width) => getImage({ src, width, format: 'webp' })));
+  // Only fetched when someone opens it, so it does not count towards the page weight.
+  const full = await getImage({ src, format: 'webp' });
   return {
     srcset: images.map((i, n) => `${i.src} ${widths[n]}w`).join(', '),
     src: images[1]!.src,
+    full: full.src,
+    width: src.width,
+    height: src.height,
   };
 }
 
 const cards = await Promise.all(
   items.map(async (i) => ({
     ...i,
-    l: await variants(i.light),
-    d: i.dark ? await variants(i.dark) : undefined,
+    // One link per image of a pair: the theme class hides the other, so the href always matches.
+    versions: i.dark
+      ? [
+          { theme: 'only-light', ...(await variants(i.light)) },
+          { theme: 'only-dark', ...(await variants(i.dark)) },
+        ]
+      : [{ theme: undefined, ...(await variants(i.light)) }],
   })),
 );
 ---
@@ -79,42 +93,61 @@ const cards = await Promise.all(
       {cards.map((c) => (
         <li class="item card border-border rounded-lg border">
           {badge && <p class="badge">{badge}</p>}
-          <div class="shot">
-            <div class="pic">
-              <img
-                class:list={[c.d && 'only-light']}
-                src={c.l.src}
-                srcset={c.l.srcset}
-                sizes={sizes}
-                alt={c.alt}
-                width={c.light.width}
-                height={c.light.height}
-                loading="lazy"
-                decoding="async"
-              />
-              {c.d && c.dark && (
-                <img
-                  class="only-dark"
-                  src={c.d.src}
-                  srcset={c.d.srcset}
-                  sizes={sizes}
-                  alt={c.alt}
-                  width={c.dark.width}
-                  height={c.dark.height}
-                  loading="lazy"
-                  decoding="async"
-                />
-              )}
-            </div>
-          </div>
+          {c.versions.map((v) => (
+            <a href={v.full} class:list={['shot-link', v.theme]} data-zoom>
+              <span class="expand" aria-hidden="true">
+                <svg viewBox="0 0 16 16" focusable="false">
+                  <path d="M9.5 2.5h4v4 M13.5 2.5 9 7 M6.5 13.5h-4v-4 M2.5 13.5 7 9"></path>
+                </svg>
+              </span>
+              <div class="shot">
+                <div class="pic">
+                  <img
+                    class:list={[v.theme]}
+                    src={v.src}
+                    srcset={v.srcset}
+                    sizes={sizes}
+                    alt={c.alt}
+                    width={v.width}
+                    height={v.height}
+                    loading="lazy"
+                    decoding="async"
+                  />
+                </div>
+              </div>
+              <span class="sr-only">{t.galleryOpen}</span>
+            </a>
+          ))}
           <div class="body">
-            <p class="font-display text-lg font-medium">{c.title}</p>
+            <p class="font-display text-lg font-medium" data-title>
+              {c.title}
+            </p>
             <p class="text-muted mt-2">{c.text}</p>
           </div>
         </li>
       ))}
     </ul>
   </div>
+
+  {/* The image is created when it opens, so nothing loads until someone asks for it. */}
+  <dialog class="lightbox" aria-label={label} data-lightbox>
+    <div class="bar">
+      <div class="label">
+        <p class="caption" data-caption></p>
+        {badge && <p class="badge">{badge}</p>}
+      </div>
+      <button type="button" class="actual-btn" aria-pressed="false" hidden data-actual>
+        {t.galleryActualSize}
+      </button>
+      <button type="button" class="ctl" aria-label={t.galleryClose} autofocus data-close>
+        <svg viewBox="0 0 16 16" aria-hidden="true" focusable="false">
+          <path d="m4 4 8 8 M12 4l-8 8"></path>
+        </svg>
+      </button>
+    </div>
+    {/* Focusable so keyboard users can scroll an image shown at actual size. */}
+    <div class="stage" role="region" aria-label={label} tabindex="0" data-stage></div>
+  </dialog>
 </figure>
 
 <style>
@@ -224,9 +257,50 @@ const cards = await Promise.all(
     line-height: 1.4;
   }
 
+  .shot-link {
+    position: relative;
+    display: block;
+    margin: 1.75rem 0 0 1.25rem;
+    border-radius: 0.5rem 0 0 0;
+    cursor: zoom-in;
+  }
+
+  /* The card clips what is outside it, so the focus ring stays inside the link. */
+  .shot-link:focus-visible {
+    outline-offset: -2px;
+  }
+
+  /* Always visible, since a touch screen has no hover and no zoom cursor. Outside .shot, so the
+     screenshot's fade does not touch it. */
+  .expand {
+    position: absolute;
+    z-index: 1;
+    top: 0.5rem;
+    left: 0.5rem;
+    display: flex;
+    width: 1.75rem;
+    height: 1.75rem;
+    align-items: center;
+    justify-content: center;
+    border: 1px solid color-mix(in srgb, var(--fg) 20%, transparent);
+    border-radius: 0.5rem;
+    background: color-mix(in srgb, var(--bg) 80%, transparent);
+    backdrop-filter: blur(8px);
+    color: var(--fg);
+  }
+
+  .expand svg {
+    width: 0.875rem;
+    height: 0.875rem;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
   /* The screenshot bleeds off the right edge of the card and fades out towards the bottom. */
   .shot {
-    margin: 1.75rem 0 0 1.25rem;
     mask-image: linear-gradient(to bottom, #000 55%, transparent 98%);
     aspect-ratio: 16 / 10;
     overflow: hidden;
@@ -276,6 +350,109 @@ const cards = await Promise.all(
     flex-direction: column;
     align-items: flex-start;
     padding: 0.5rem 1.5rem 1.25rem;
+  }
+
+  /* The lightbox fills the window; closed, the browser keeps it display: none. */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    width: 100%;
+    max-width: none;
+    height: 100dvh;
+    max-height: none;
+    margin: 0;
+    padding: 0;
+    border: 0;
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  .lightbox[open] {
+    display: flex;
+    flex-direction: column;
+  }
+
+  :global(html:has(.lightbox[open])) {
+    overflow: hidden;
+  }
+
+  .bar {
+    display: flex;
+    flex: none;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.25rem 0.5rem 0.25rem 1rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .label {
+    display: flex;
+    flex: 1;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.75rem;
+    min-width: 0;
+  }
+
+  .caption {
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  /* The screenshot's label stays with it at full size, here beside the caption. */
+  .label .badge {
+    position: static;
+  }
+
+  .actual-btn {
+    flex: none;
+    min-height: 2.75rem;
+    padding: 0 0.875rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.625rem;
+    font-size: var(--text-sm);
+    cursor: pointer;
+  }
+
+  .actual-btn[hidden] {
+    display: none;
+  }
+
+  .actual-btn:hover,
+  .actual-btn[aria-pressed='true'] {
+    background: var(--surface);
+  }
+
+  .stage {
+    display: flex;
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    overscroll-behavior: contain;
+    padding: 1rem;
+  }
+
+  /* Created by the script, hence :global. Auto margins centre it and, unlike centring on the flex
+     container, leave the start of an oversized image reachable by scrolling. */
+  .stage :global(img) {
+    width: auto;
+    max-width: 100%;
+    height: auto;
+    max-height: 100%;
+    margin: auto;
+    object-fit: contain;
+    border-radius: 0.5rem;
+  }
+
+  .stage.zoomable :global(img) {
+    cursor: zoom-in;
+  }
+
+  .stage.actual :global(img) {
+    flex: none;
+    max-width: none;
+    max-height: none;
+    cursor: zoom-out;
   }
 
   /* On wide screens the gallery breaks out of the 70ch text column, up to the page width. */
@@ -333,5 +510,62 @@ const cards = await Promise.all(
     track.addEventListener('scroll', update, { passive: true });
     new ResizeObserver(update).observe(track);
     update();
+
+    const dialog = root.querySelector<HTMLDialogElement>('[data-lightbox]')!;
+    const stage = root.querySelector<HTMLElement>('[data-stage]')!;
+    const caption = root.querySelector<HTMLElement>('[data-caption]')!;
+    const actual = root.querySelector<HTMLButtonElement>('[data-actual]')!;
+
+    const setActual = (on: boolean) => {
+      stage.classList.toggle('actual', on);
+      actual.setAttribute('aria-pressed', String(on));
+      if (!on) stage.scrollTo(0, 0);
+    };
+
+    const open = (link: HTMLAnchorElement) => {
+      const thumb = link.querySelector('img')!;
+      const title = link.closest('li')!.querySelector('[data-title]')!.textContent ?? '';
+      const img = new Image();
+      // The intrinsic size, not the thumbnail's rendered one, so the layout is right before it loads.
+      img.width = Number(thumb.getAttribute('width'));
+      img.height = Number(thumb.getAttribute('height'));
+      img.alt = thumb.alt;
+      img.addEventListener('load', () => {
+        // The toggle only means something if the fitted image is smaller than the real one.
+        const zoomable = img.clientWidth < img.naturalWidth;
+        actual.hidden = !zoomable;
+        stage.classList.toggle('zoomable', zoomable);
+      });
+      img.addEventListener('click', () => {
+        if (stage.classList.contains('zoomable')) setActual(!stage.classList.contains('actual'));
+      });
+      img.src = link.getAttribute('href')!;
+      caption.textContent = title;
+      dialog.setAttribute('aria-label', title);
+      stage.replaceChildren(img);
+      dialog.showModal();
+    };
+
+    for (const link of root.querySelectorAll<HTMLAnchorElement>('[data-zoom]')) {
+      link.addEventListener('click', (e) => {
+        // Leave new-tab and new-window clicks to the browser.
+        if (e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+        e.preventDefault();
+        open(link);
+      });
+    }
+
+    actual.addEventListener('click', () => setActual(!stage.classList.contains('actual')));
+    root.querySelector('[data-close]')!.addEventListener('click', () => dialog.close());
+    // A click beside the image closes it, like the Escape key (which the dialog handles itself).
+    stage.addEventListener('click', (e) => {
+      if (e.target === stage) dialog.close();
+    });
+    dialog.addEventListener('close', () => {
+      stage.replaceChildren();
+      stage.classList.remove('zoomable');
+      setActual(false);
+      actual.hidden = true;
+    });
   }
 </script>
