@@ -1,0 +1,325 @@
+---
+/*
+ * The offer, set out like a status page: the status and how to reach me first, then the two ways to
+ * work together, then a grid of services against projects. A lit dot means the project shows that
+ * service and links to the section that does. Green is for the status only; dots use the accent.
+ *
+ * A dot is a claim: add one only when that section really shows the service (the e2e test checks
+ * that every target exists, not that it is true). A service with no project has an empty row, last.
+ * The email button stays until the contact form exists (Phase 6).
+ *
+ * The grid is a table to screen readers. It is laid out with CSS grid so that on phones the
+ * description can take its own line, and CSS display drops table semantics, hence the explicit roles.
+ */
+import { type Locale, useTranslations } from '../i18n';
+import { caseStudyPath } from '../lib/caseStudies';
+import { CONTACT_EMAIL } from '../site';
+import CTAButton from './CTAButton.astro';
+import LiveDot from './LiveDot.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<div class="not-prose">
+  <div class="panel card border-border rounded-lg border">
+    <div class="status-row">
+      <div class="status">
+        <p class="status-line">
+          <LiveDot />
+          <span class="font-display status-text">{t.hireStatus}</span>
+        </p>
+        <p class="text-muted max-w-measure mt-2">{t.hirePlace}</p>
+      </div>
+      <div class="contact">
+        <CTAButton href={`mailto:${CONTACT_EMAIL}`}>{t.hireCta}</CTAButton>
+        <p class="text-muted text-sm">{CONTACT_EMAIL}</p>
+      </div>
+    </div>
+    <div class="options">
+      {t.hireOptions.map((o) => (
+        <div class="option">
+          <h3 class="option-title text-lg">
+            {o.title}
+            {o.tag && <span class="tag">{o.tag}</span>}
+          </h3>
+          <p class="text-muted mt-1">{o.text}</p>
+        </div>
+      ))}
+    </div>
+  </div>
+
+  <h3 class="mt-12 text-xl">{t.hireServicesTitle}</h3>
+  <p class="text-muted mt-1">{t.hireLegend}</p>
+
+  <div class="grid-table" role="table" aria-label={t.hireServicesTitle}>
+    <div role="rowgroup">
+      <div class="row head" role="row">
+        {/* The cell stays in the grid; only its text is hidden, or the columns would shift. */}
+        <span class="name" role="columnheader">
+          <span class="sr-only">{t.hireServiceColumn}</span>
+        </span>
+        <span class="what" role="columnheader">
+          <span class="sr-only">{t.hireWhatColumn}</span>
+        </span>
+        {t.hireProjects.map((p) => (
+          <span class="col" role="columnheader">
+            <a href={caseStudyPath(locale, p.slug)}>{p.name}</a>
+          </span>
+        ))}
+      </div>
+    </div>
+    <div role="rowgroup">
+      {t.hireServices.map((s) => (
+        <div class="row" role="row">
+          <span class="name font-medium" role="rowheader">
+            {s.title}
+          </span>
+          <span class="what text-muted" role="cell">
+            {s.text}
+          </span>
+          {t.hireProjects.map((p) => {
+            const section = s.proof[p.slug];
+            return (
+              <span class="col" role="cell">
+                {section ? (
+                  <a
+                    class="dot"
+                    href={`${caseStudyPath(locale, p.slug)}#${section}`}
+                    aria-label={`${s.title}: ${t.hireShownIn} ${p.name}`}
+                  />
+                ) : (
+                  <span class="no-dot">
+                    <span class="sr-only">{t.hireNotShown}</span>
+                  </span>
+                )}
+              </span>
+            );
+          })}
+        </div>
+      ))}
+    </div>
+  </div>
+</div>
+
+<style>
+  .status-row {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .status-row {
+      flex-direction: row;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: 3rem;
+      padding: 2rem;
+    }
+  }
+
+  .status {
+    min-width: 0;
+  }
+
+  .status-line {
+    display: flex;
+    align-items: center;
+    gap: 0.875rem;
+    padding-left: 0.25rem;
+  }
+
+  .status-text {
+    font-size: clamp(1.75rem, 1.4rem + 1.4vw, 2.5rem);
+    font-weight: 500;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+  }
+
+  .contact {
+    display: flex;
+    flex: none;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 0.5rem;
+  }
+
+  @media (min-width: 48rem) {
+    .contact {
+      align-items: center;
+    }
+  }
+
+  .options {
+    display: grid;
+    border-top: 1px solid var(--border);
+  }
+
+  .option {
+    padding: 1.25rem 1.5rem;
+  }
+
+  .option + .option {
+    border-top: 1px solid var(--border);
+  }
+
+  @media (min-width: 48rem) {
+    .options {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .option {
+      padding: 1.5rem 2rem;
+    }
+
+    .option + .option {
+      border-top: 0;
+      border-left: 1px solid var(--border);
+    }
+  }
+
+  .option-title {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.25rem 0.625rem;
+  }
+
+  .tag {
+    padding: 0.0625rem 0.5rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 9999px;
+    color: var(--fg);
+    font-family: var(--font-sans);
+    font-size: var(--text-xs);
+    font-weight: 500;
+    line-height: 1.5;
+  }
+
+  /* Phones: name and dots on one line, the description below. */
+  .grid-table {
+    margin-top: 1rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) repeat(3, 3.25rem);
+    column-gap: 0.25rem;
+    align-items: center;
+    padding-block: 0.625rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .what {
+    grid-column: 1 / -1;
+    grid-row: 2;
+    font-size: var(--text-sm);
+  }
+
+  .col {
+    display: flex;
+    justify-content: center;
+    text-align: center;
+  }
+
+  /* The project names read as column headings and go to the case study. */
+  .head .col a {
+    display: flex;
+    min-width: 2.75rem;
+    min-height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    color: var(--fg);
+    font-size: var(--text-xs);
+    line-height: 1.25;
+    text-decoration: underline;
+    text-decoration-color: var(--border-strong);
+    text-underline-offset: 0.2em;
+  }
+
+  .head .col a:hover {
+    text-decoration-color: currentColor;
+  }
+
+  @media (min-width: 48rem) {
+    .row {
+      grid-template-columns: 15rem minmax(0, 1fr) repeat(3, 5.5rem);
+      column-gap: 1rem;
+      padding-block: 0.25rem;
+    }
+
+    .what {
+      grid-column: auto;
+      grid-row: auto;
+      font-size: inherit;
+    }
+
+    .head .col a {
+      font-size: var(--text-sm);
+    }
+  }
+
+  /* The target is the whole 44px square; what shows is the lit dot in its middle. */
+  .dot {
+    display: flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+  }
+
+  .dot::before {
+    content: '';
+    width: 0.75rem;
+    height: 0.75rem;
+    border-radius: 50%;
+    background: var(--accent);
+    box-shadow: 0 0 10px color-mix(in srgb, var(--accent) 60%, transparent);
+    transition:
+      box-shadow 150ms ease,
+      transform 150ms ease;
+  }
+
+  .dot:hover::before {
+    box-shadow:
+      0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent),
+      0 0 14px color-mix(in srgb, var(--accent) 70%, transparent);
+    transform: scale(1.15);
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .dot::before {
+      transition: none;
+    }
+
+    .dot:hover::before {
+      transform: none;
+    }
+  }
+
+  /* An empty position, so the columns still read as columns. */
+  .no-dot {
+    display: flex;
+    width: 2.75rem;
+    height: 2.75rem;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .no-dot::before {
+    content: '';
+    width: 0.25rem;
+    height: 0.25rem;
+    border-radius: 50%;
+    background: var(--border-strong);
+    opacity: 0.5;
+  }
+</style>
