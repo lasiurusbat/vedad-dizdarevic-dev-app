@@ -13,6 +13,7 @@ test('Rain Alert: public repo linked, single images in the gallery', async ({ pa
     'href',
     'https://github.com/lasiurusbat/RainAlert',
   );
+  await expect(source.getByRole('link')).toHaveAttribute('target', '_blank');
   // No light/dark pairs: one image per card, shown in both themes, through the image pipeline.
   const imgs = page.locator('[data-gallery] img');
   await expect(imgs).toHaveCount(2);
