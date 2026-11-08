@@ -392,7 +392,7 @@ Mail to and from the domain works, all three checks pass, and DMARC is at `p=rej
 - [x] Canonical URLs; `hreflang` for `en`, `de` and `x-default`
 - [x] `@astrojs/sitemap` with i18n config; `robots.txt` pointing to the sitemap
 - [x] JSON-LD `Person` on the home page (name, job title, sameAs: GitHub, LinkedIn); `Article` on case study pages (no dates: the frontmatter has none, and they are not required)
-- [ ] Build-time OG images (1200×630) per page and language; `og:*` and `twitter:*` tags
+- [x] Build-time OG images (1200×630) per page and language, rendered with Typst (`site/src/og/card.typ`, `pages/og/[name].png.ts`); `og:*` and `twitter:*` tags
 - [ ] Test the preview with the LinkedIn Post Inspector
 - [ ] Verify the domain in Google Search Console and submit the sitemap
 

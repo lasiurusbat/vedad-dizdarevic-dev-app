@@ -4,6 +4,7 @@ import interLatin from '../../node_modules/@fontsource-variable/inter/files/inte
 import Footer from '../components/Footer.astro';
 import Header from '../components/Header.astro';
 import { alternateUrls, localeUrl, locales, useTranslations, type Locale } from '../i18n';
+import { OWNER, ogImagePath } from '../site';
 
 interface Props {
   title: string;
@@ -19,9 +20,19 @@ interface Props {
   alternates?: Partial<Record<Locale, string>>;
   /** Structured data for search engines, written as a JSON-LD data block. */
   jsonLd?: object;
+  /** The case study's slug: picks its share image and marks the page as an article. */
+  caseStudy?: string;
 }
 
-const { title, description, locale = 'en', translated = true, alternates, jsonLd } = Astro.props;
+const {
+  title,
+  description,
+  locale = 'en',
+  translated = true,
+  alternates,
+  jsonLd,
+  caseStudy,
+} = Astro.props;
 const t = useTranslations(locale);
 const urls: Record<Locale, string> = alternates
   ? { en: alternates.en ?? localeUrl('en'), de: alternates.de ?? localeUrl('de') }
@@ -30,6 +41,9 @@ const urls: Record<Locale, string> = alternates
     : { en: localeUrl('en'), de: localeUrl('de') };
 // Locales that really have this page (for hreflang).
 const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : locales;
+const pageDescription = description ?? t.metaDescription;
+const OG_LOCALES: Record<Locale, string> = { en: 'en_US', de: 'de_DE' };
+const canonical = new URL(Astro.url.pathname, Astro.site);
 // `<` escaped so text in the data can never close the script element.
 const jsonLdText = jsonLd && JSON.stringify(jsonLd).replaceAll('<', '\\u003c');
 ---
@@ -40,8 +54,24 @@ const jsonLdText = jsonLd && JSON.stringify(jsonLd).replaceAll('<', '\\u003c');
     <meta charset="utf-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
-    <meta name="description" content={description ?? t.role} />
-    {translated && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />}
+    <meta name="description" content={pageDescription} />
+    {translated && <link rel="canonical" href={canonical} />}
+    <meta property="og:site_name" content={OWNER} />
+    <meta property="og:type" content={caseStudy ? 'article' : 'website'} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={pageDescription} />
+    {translated && <meta property="og:url" content={canonical} />}
+    <meta property="og:locale" content={OG_LOCALES[locale]} />
+    {translated &&
+      hreflangLocales
+        .filter((l) => l !== locale)
+        .map((l) => <meta property="og:locale:alternate" content={OG_LOCALES[l]} />)}
+    <meta property="og:image" content={new URL(ogImagePath(locale, caseStudy), Astro.site)} />
+    <meta property="og:image:type" content="image/png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content={title} />
+    <meta name="twitter:card" content="summary_large_image" />
     {translated && [
       ...hreflangLocales.map((l) => (
         <link rel="alternate" hreflang={l} href={new URL(urls[l], Astro.site)} />

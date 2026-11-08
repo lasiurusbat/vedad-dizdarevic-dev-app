@@ -19,6 +19,7 @@ const next = await nextCaseStudy('de', slugOf(entry));
   locale="de"
   title={entry.data.title}
   summary={entry.data.summary}
+  slug={slugOf(entry)}
   alternates={alternates}
   illustration={entry.data.illustration}
   next={next}

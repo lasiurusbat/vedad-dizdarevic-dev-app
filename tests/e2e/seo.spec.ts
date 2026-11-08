@@ -49,16 +49,52 @@ test('the sitemap lists each page with its translation, and robots.txt points at
   for (const path of ['/', '/de/', '/projects/sorted/', '/de/projects/sorted/']) {
     expect(paths).toContain(path);
   }
-  expect(paths.some((p) => p.includes('404'))).toBe(false);
+  expect(paths.some((p) => p.includes('404') || p.startsWith('/og/'))).toBe(false);
   expect(xml).toContain(`hreflang="de" href="${SITE}/de/"`);
   const robots = await readFile(new URL('robots.txt', DIST), 'utf8');
   expect(robots).toContain(`Sitemap: ${SITE}/sitemap-index.xml`);
+});
+
+test('every page has share tags and its own 1200 x 630 PNG', async ({ page }) => {
+  const paths = await sitemapPaths();
+  const images = new Set<string>();
+  const content = (selector: string) => page.locator(selector).getAttribute('content');
+  for (const path of paths) {
+    await page.goto(path);
+    expect(await content('meta[property="og:title"]'), path).toBe(await page.title());
+    expect(await content('meta[property="og:description"]'), path).toBe(
+      await content('meta[name="description"]'),
+    );
+    expect(await content('meta[property="og:url"]'), path).toBe(`${SITE}${path}`);
+    expect(await content('meta[property="og:type"]'), path).toBe(
+      path.includes('/projects/') ? 'article' : 'website',
+    );
+    const german = path.startsWith('/de/');
+    expect(await content('meta[property="og:locale"]'), path).toBe(german ? 'de_DE' : 'en_US');
+    expect(await content('meta[property="og:locale:alternate"]'), path).toBe(
+      german ? 'en_US' : 'de_DE',
+    );
+    expect(await content('meta[name="twitter:card"]'), path).toBe('summary_large_image');
+
+    const url = new URL((await content('meta[property="og:image"]'))!);
+    expect(url.origin, path).toBe(SITE);
+    images.add(url.pathname);
+    // Over HTTP, as a crawler gets it; width and height are in the PNG's first chunk.
+    const response = await page.request.get(url.pathname);
+    expect(response.headers()['content-type'], path).toBe('image/png');
+    const png = await response.body();
+    expect(png.subarray(1, 4).toString(), path).toBe('PNG');
+    expect([png.readUInt32BE(16), png.readUInt32BE(20)], path).toEqual([1200, 630]);
+    expect(png.length, path).toBeLessThan(300 * 1024);
+  }
+  expect(images.size).toBe(paths.length);
 });
 
 test('the 404 page claims no canonical URL or translations', async ({ page }) => {
   await page.goto('/404.html');
   await expect(page.locator('link[rel="canonical"]')).toHaveCount(0);
   await expect(page.locator('link[rel="alternate"][hreflang]')).toHaveCount(0);
+  await expect(page.locator('meta[property="og:url"]')).toHaveCount(0);
 });
 
 for (const [path, role] of [
