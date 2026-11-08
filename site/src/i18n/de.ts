@@ -116,8 +116,9 @@ export const de: Messages = {
     },
     {
       title: 'Kubernetes auf AWS EKS',
-      text: 'Orchestrierung containerisierter Workloads auf Amazon EKS.',
+      text: 'Eine Multi-Service-Plattform auf Amazon EKS mit ArgoCD:',
       proof: {},
+      source: { url: 'https://github.com/lasiurusbat/sre-project', label: 'SRE-Project' },
     },
   ],
   contactTitle: 'Kontakt',

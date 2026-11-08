@@ -29,9 +29,13 @@ for (const [path, status, preferred, services, project, cta] of [
     await expect(table.getByRole('rowheader')).toHaveCount(8);
     await expect(table.getByRole('columnheader', { name: project })).toBeVisible();
 
-    // Kubernetes has no project behind it yet: its row must not claim one.
+    // Kubernetes is outside the three case studies: no dots, its repository linked instead.
     const k8s = table.getByRole('row', { name: /Kubernetes/ });
-    await expect(k8s.locator('a')).toHaveCount(0);
+    await expect(k8s.locator('a.dot')).toHaveCount(0);
+    const source = k8s.getByRole('link', { name: /SRE-Project/ });
+    await expect(source).toHaveAttribute('href', 'https://github.com/lasiurusbat/sre-project');
+    await expect(source).toHaveAttribute('target', '_blank');
+    await expect(source).toHaveAttribute('rel', /noopener/);
 
     // Each project heading sits above its own column of dots.
     const heads = await table.getByRole('columnheader').locator('a').all();
