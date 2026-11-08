@@ -163,6 +163,7 @@ export const en = {
   contactErrorInvalid: 'Please check your entries and try again.',
   contactErrorFailed:
     'Your message could not be sent. Please try again, or write to hello@vedad-dizdarevic.dev.',
+  contactPrivacyLink: 'Read the privacy policy.',
   contactPrivacy:
     'Your message reaches me by email, and I use it only to reply. Cloudflare Turnstile checks for spam once you start on the form, which sends Cloudflare technical data such as your IP address.',
 
@@ -208,6 +209,7 @@ export const en = {
 
   footerRights: 'All rights reserved.',
   footerHowBuilt: 'How this site is built',
+  footerPrivacy: 'Privacy policy',
   footerNav: 'Footer',
 
   notFoundTitle: 'Page not found',

@@ -337,7 +337,7 @@ Browser form ──POST /api/contact──▶ Worker ──verify Turnstile─�
 
 - [x] Posts JSON through a small script, with inline success and error states. Hidden without JavaScript, because Turnstile needs it; the email address is the fallback
 - [x] Labels, error messages, success state in EN and DE
-- [ ] Short privacy note linking to the Datenschutz page (the note is live; the link comes with the legal pages)
+- [x] Short privacy note linking to the Datenschutz page (the note is live; the link comes with the legal pages)
 
 ### Done when
 
@@ -409,7 +409,7 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 - [x] Check the browser console on every page and in both themes/languages for CSP report-only violations
 - [x] Fix violations (no `'unsafe-inline'`, no new third-party origins without a reason): none found
 - [x] Switch to the enforcing `Content-Security-Policy` header
-- [ ] securityheaders.com: A+ (blocks scripted checks; the owner checks it in a browser); Mozilla Observatory: A+ with 130 points, 12 of 12 tests (2026-11-08)
+- [x] securityheaders.com: A+ (blocks scripted checks; the owner checked it in a browser on 2026-11-08); Mozilla Observatory: A+ with 130 points, 12 of 12 tests (2026-11-08)
 - [x] SSL Labs: A+ on all four endpoints (2026-11-08)
 
 ### Quality gates in CI (fail the build)
@@ -423,9 +423,9 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 
 ### Legal (Germany)
 
-- [ ] Impressum (EN + DE): name, address, contact; check § 5 DDG requirements
-- [ ] Datenschutzerklärung (EN + DE): hosting (Cloudflare, AWS `eu-central-1`), contact form processing, Cloudflare Web Analytics, Turnstile, no cookies
-- [ ] Both linked from the footer on every page
+- [ ] Impressum (EN + DE): name, address, contact; check § 5 DDG requirements (no VAT ID; needs a serviceable address that is not the owner's home)
+- [x] Datenschutzerklärung (EN + DE): hosting (Cloudflare, AWS `eu-central-1`), contact form processing, Cloudflare Web Analytics, Turnstile, no cookies (name and email only, no postal address yet; wording not legally reviewed)
+- [ ] Both linked from the footer on every page (the policy is; the Impressum follows with its page)
 
 ### Done when
 

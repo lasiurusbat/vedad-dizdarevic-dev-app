@@ -4,9 +4,9 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Stopped at: 2026-11-08 (day 7)
 
-**Merged today:** #62–#73 and infra #10; #74 enforced the CSP; Lighthouse CI is the last PR. M3 is done; the contact form is live and delivers real mail. The CSP is enforced and a real message passed under it. Lighthouse CI and the page-weight budgets are in. **Next in Phase 9:** the remaining gates (`html-validate`, link checker, Dependabot, axe and layout coverage), then the legal pages. Once the `lighthouse` job has run on `main`, add it to the required checks.
+**Merged today:** #62–#73 and infra #10; #74 enforced the CSP; Lighthouse CI is the last PR. M3 is done; the contact form is live and delivers real mail. The CSP is enforced and a real message passed under it. Lighthouse CI and the page-weight budgets are in. The privacy policy is live, the Impressum is not. **Next in Phase 9:** the remaining gates (`html-validate`, link checker, Dependabot, axe and layout coverage). Once the `lighthouse` job has run on `main`, add it to the required checks.
 
-**Waiting on the owner:** a VAT ID, if any, for the Impressum (the address is decided); securityheaders.com in a browser (it blocks scripted checks); delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
+**Waiting on the owner, blocks launch:** a serviceable address for the Impressum that is not the owner's home (for example a business address service). The site is live without an Impressum until then; once there is an address, add `/impressum/` in both languages, the footer link, and the address in the policy's first section. **Also:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; confirming Purelymail's location and the data processing agreements; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
 ### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
@@ -29,7 +29,6 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - Built; see CLAUDE.md. Differences from the plan: the form needs JavaScript (Turnstile does), so there is no plain HTML POST; the email address is the fallback. The `gh-app-deploy` role needed `lambda:UpdateFunctionCode` and `lambda:GetFunctionConfiguration` on `vdd-contact` (infra `bootstrap/`).
 - **Lambda concurrency is not capped** (AWS rejects a reservation on this account), so Turnstile and the coarse rate limit are the only brakes. The AWS budget alert is the backstop.
 - **CSP and Turnstile:** the inline style seen with the test key on 2026-11-08 did not come back in the sweep before enforcing (same day): with the real key on the live domain and our policy enforced, only Cloudflare's own iframe logs `connect-src` errors, under Cloudflare's policy. Those are not ours. When checking this again, tell the iframe's messages apart by their source file, and click the field (the widget renders in a closed shadow root).
-- **Datenschutz:** the form's privacy note has no link yet because the page does not exist. Add it with the legal pages, and describe the form and Turnstile there.
 - **Live, confirmed 2026-11-08:** the owner sent a real message; it arrived at `hello@` and the reply reached the sender. The `this-site` case study is updated.
 - **Worker secrets must be set in a real terminal:** `wrangler secret put` run through `!` (no stdin) stored an empty `TURNSTILE_SECRET_KEY` and reported success, so the form answered 503 after a green deploy. The smoke test now posts a made-up token, which catches this.
 - **DMARC:** that message was the first real SES mail. Confirm it as aligned in a later report before moving to `p=quarantine`.
@@ -48,9 +47,9 @@ Working log for picking up where the last session stopped. Task-level detail sta
 3. ~~Tests for the new pieces~~ done: `tests/e2e/motion.spec.ts` (gallery buttons and edge fades, no-JS fallback, one hero variant per load and never the same twice, blocked sessionStorage, reduced motion) and `tests/e2e/components.spec.ts` (`TechStack`, `ScalingPath`, `DashboardMap`).
 4. ~~RainAlert case study~~ done in EN and DE (#54, #55); the closing band links each case study to the next (#56).
 5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer, #60, header illustration #61), ~~Work with me~~ (`WorkWithMe.astro`, status panel and services grid); About has its languages line (from the CV) and links "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
-6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
+6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. 
 7. ~~Add `e2e` to the required checks on `main`~~ done 2026-11-08.
-8. Footer links to Impressum and Datenschutz when those pages exist. Add Lighthouse and securityheaders.com results to the `this-site` page in Phase 9.
+8. Add Lighthouse and securityheaders.com results to the `this-site` page in Phase 9.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
 11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Diagram pages are at 137 of the 140 KB JS budget (2026-11-08), and Sorted at 452 of 500 KB page weight: little room for growth.

@@ -1,0 +1,143 @@
+---
+import LegalPage from '../../components/LegalPage.astro';
+import { CONTACT_EMAIL, OWNER } from '../../site';
+---
+
+<LegalPage
+  locale="de"
+  title="Datenschutzerklärung"
+  description="Was vedad-dizdarevic.dev mit Ihren Daten macht: Hosting, Kontaktformular, Spamschutz und Statistik ohne Cookies."
+>
+  <p>Stand: 8. November 2026.</p>
+
+  <h2>Verantwortlicher</h2>
+  <p>
+    {OWNER}
+    <br />
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+  </p>
+  <p>
+    Ich bin nicht verpflichtet, einen Datenschutzbeauftragten zu benennen, und habe keinen benannt.
+  </p>
+
+  <h2>Kurz gefasst</h2>
+  <ul>
+    <li>Diese Website setzt keine Cookies und zeigt keine Werbung.</li>
+    <li>
+      Zum Lesen brauchen Sie kein Konto, und die Schriften kommen von dieser Website, nicht von
+      Dritten.
+    </li>
+    <li>Wenn Sie das Kontaktformular nutzen, verwende ich Ihre Angaben nur für die Antwort.</li>
+  </ul>
+
+  <h2>Hosting und Auslieferung</h2>
+  <p>
+    Jede Anfrage läuft über Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA.
+    Cloudflare stellt DNS, Verschlüsselung, Zwischenspeicherung, Schutz vor Angriffen und das
+    Programm bereit, das die Seiten ausliefert. Die Seiten selbst liegen bei Amazon Web Services
+    EMEA SARL, 38 Avenue John F. Kennedy, L-1855 Luxemburg, in der Region Frankfurt.
+  </p>
+  <p>
+    Um eine Seite auszuliefern, verarbeitet Cloudflare Ihre IP-Adresse, den Zeitpunkt, die
+    aufgerufene Adresse und technische Angaben zu Ihrem Browser. Die Systeme von Cloudflare
+    speichern technische Protokolle für begrenzte Zeit. Rechtsgrundlage ist mein berechtigtes
+    Interesse an einer sicheren und zuverlässigen Auslieferung dieser Website (Art. 6 Abs. 1 lit. f
+    DSGVO).
+  </p>
+
+  <h2>Kontaktformular und E-Mail</h2>
+  <p>
+    Das Formular fragt nach Ihrem Namen, Ihrer E-Mail-Adresse, dem Anlass und Ihrer Nachricht. Eine
+    Funktion bei Amazon Web Services in Frankfurt schickt mir diese Angaben per E-Mail über Amazon
+    SES. Mein Postfach liegt bei{' '}
+    <a href="https://purelymail.com/" rel="noopener noreferrer">
+      Purelymail
+    </a>
+    , wo dieselben Angaben auch ankommen, wenn Sie mir direkt schreiben.
+  </p>
+  <p>
+    Ich verwende diese Angaben nur für die Antwort und gebe sie nicht zu anderen Zwecken weiter. Die
+    Protokolle der Funktion enthalten weder Ihren Namen noch Ihre Adresse oder Ihre Nachricht und
+    werden nach 30 Tagen gelöscht. Nachrichten lösche ich, sobald ich sie nicht mehr brauche, sofern
+    keine gesetzliche Pflicht zur Aufbewahrung besteht.
+  </p>
+  <p>
+    Rechtsgrundlage sind vorvertragliche Maßnahmen auf Ihre Anfrage (Art. 6 Abs. 1 lit. b DSGVO), im
+    Übrigen mein berechtigtes Interesse, Ihre Anfrage zu beantworten (Art. 6 Abs. 1 lit. f DSGVO).
+  </p>
+
+  <h2>Spamschutz (Cloudflare Turnstile)</h2>
+  <p>
+    Das Formular ist durch Cloudflare Turnstile geschützt. Es lädt erst, wenn Sie mit dem Formular
+    beginnen. Dann führt es in Ihrem Browser Prüfungen aus, um Menschen von automatisierten
+    Programmen zu unterscheiden, und schickt Cloudflare technische Daten wie Ihre IP-Adresse und
+    Angaben zu Ihrem Browser. Was Sie eingeben, liest es nicht. Einzelheiten stehen im{' '}
+    <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener noreferrer">
+      Turnstile Privacy Addendum
+    </a>
+    .
+  </p>
+  <p>
+    Rechtsgrundlage ist mein berechtigtes Interesse, das Formular vor Spam und Missbrauch zu
+    schützen (Art. 6 Abs. 1 lit. f DSGVO).
+  </p>
+
+  <h2>Statistik (Cloudflare Web Analytics)</h2>
+  <p>
+    Ein Skript von Cloudflare misst Seitenaufrufe und Ladezeiten. Es setzt keine Cookies und
+    verfolgt Sie nicht über andere Websites hinweg. Ich sehe nur Summen, etwa wie oft eine Seite
+    aufgerufen wurde. Ihre IP-Adresse erreicht Cloudflare, wenn das Skript lädt und seine Messwerte
+    sendet.
+  </p>
+  <p>
+    Rechtsgrundlage ist mein berechtigtes Interesse zu wissen, ob die Website genutzt wird und gut
+    funktioniert (Art. 6 Abs. 1 lit. f DSGVO).
+  </p>
+
+  <h2>Was in Ihrem Browser gespeichert wird</h2>
+  <p>
+    Wählen Sie ein helles oder dunkles Design, bleibt Ihre Wahl im lokalen Speicher Ihres Browsers
+    unter <code>theme</code>. Die Startseite legt außerdem <code>hero-arch</code> im
+    Sitzungsspeicher ab, bis Sie den Tab schließen, damit sich ihre Illustration beim nächsten
+    Aufruf unterscheidet. Beides verlässt Ihren Browser nicht und dient nur der Darstellung, die Sie
+    sehen oder gewählt haben (§ 25 Abs. 2 Nr. 2 TDDDG).
+  </p>
+
+  <h2>Übermittlung außerhalb der EU</h2>
+  <p>
+    Cloudflare ist ein US-Unternehmen, Daten können daher in den USA verarbeitet werden. Cloudflare
+    ist nach dem EU-US Data Privacy Framework zertifiziert; zusätzlich gelten
+    Auftragsverarbeitungsverträge mit Standardvertragsklauseln.
+  </p>
+
+  <h2>Links zu anderen Websites</h2>
+  <p>
+    Diese Website verlinkt auf andere Websites wie GitHub und LinkedIn. Sobald Sie diese öffnen,
+    verarbeiten sie Ihre Daten nach ihren eigenen Regeln.
+  </p>
+
+  <h2>Ihre Rechte</h2>
+  <p>
+    Sie haben das Recht auf Auskunft, Berichtigung und Löschung, auf Einschränkung der Verarbeitung
+    und auf Datenübertragbarkeit (Art. 15 bis 20 DSGVO).{' '}
+    <strong>
+      Soweit ich mich auf ein berechtigtes Interesse stütze, können Sie aus Gründen Ihrer besonderen
+      Situation jederzeit widersprechen (Art. 21 DSGVO).
+    </strong>{' '}
+    Schreiben Sie dazu an die oben genannte Adresse.
+  </p>
+  <p>
+    Sie können sich außerdem bei einer Datenschutzaufsichtsbehörde beschweren. Für mich zuständig
+    ist der{' '}
+    <a href="https://datenschutz.hessen.de/" rel="noopener noreferrer">
+      Hessische Beauftragte für Datenschutz und Informationsfreiheit
+    </a>
+    .
+  </p>
+
+  <h2>Müssen Sie Daten angeben?</h2>
+  <p>
+    Nein. Ohne die Angaben im Formular kann ich darüber nicht antworten, Sie können mir aber
+    jederzeit per E-Mail schreiben.
+  </p>
+</LegalPage>

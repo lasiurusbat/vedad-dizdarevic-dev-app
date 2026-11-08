@@ -1,0 +1,23 @@
+---
+import { type Locale } from '../i18n';
+import Base from '../layouts/Base.astro';
+import { OWNER } from '../site';
+
+interface Props {
+  locale: Locale;
+  title: string;
+  description: string;
+}
+
+const { locale, title, description } = Astro.props;
+---
+
+{/* Noindex: nobody needs to find a legal page through search. */}
+<Base title={`${title} | ${OWNER}`} description={description} locale={locale} noindex>
+  <article class="max-w-page px-gutter py-section mx-auto">
+    <div class="prose legal max-w-measure">
+      <h1>{title}</h1>
+      <slot />
+    </div>
+  </article>
+</Base>

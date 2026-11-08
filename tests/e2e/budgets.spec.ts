@@ -16,6 +16,7 @@ const PAGES = [
   '/',
   '/de/',
   '/404.html',
+  '/de/datenschutz/',
   '/projects/sorted/',
   '/de/projects/sorted/',
   '/projects/rainalert/',

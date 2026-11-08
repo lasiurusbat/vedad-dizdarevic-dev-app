@@ -146,6 +146,7 @@ export const de: Messages = {
   contactErrorInvalid: 'Bitte prüfen Sie Ihre Eingaben und versuchen Sie es erneut.',
   contactErrorFailed:
     'Ihre Nachricht konnte nicht gesendet werden. Bitte versuchen Sie es erneut oder schreiben Sie an hello@vedad-dizdarevic.dev.',
+  contactPrivacyLink: 'Zur Datenschutzerklärung.',
   contactPrivacy:
     'Ihre Nachricht erreicht mich per E-Mail, und ich nutze sie nur für die Antwort. Cloudflare Turnstile prüft auf Spam, sobald Sie mit dem Formular beginnen, und erhält dabei technische Daten wie Ihre IP-Adresse.',
 
@@ -191,6 +192,7 @@ export const de: Messages = {
 
   footerRights: 'Alle Rechte vorbehalten.',
   footerHowBuilt: 'Wie diese Website gebaut ist',
+  footerPrivacy: 'Datenschutz',
   footerNav: 'Fußzeile',
 
   notFoundTitle: 'Seite nicht gefunden',
