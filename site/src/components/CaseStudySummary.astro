@@ -54,8 +54,8 @@ const cells: { label: string; value: string; url?: string }[] = [
             <dt class="text-muted">{c.label}</dt>
             <dd>
               {c.url ? (
-                <a href={c.url} rel="noopener noreferrer" class="underline">
-                  {c.value}
+                <a href={c.url} target="_blank" rel="noopener noreferrer" class="underline">
+                  {c.value} <span class="sr-only">{t.opensNewTab}</span>
                 </a>
               ) : (
                 c.value
