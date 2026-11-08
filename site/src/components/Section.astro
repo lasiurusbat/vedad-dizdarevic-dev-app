@@ -2,7 +2,7 @@
 interface Props {
   id: string;
   title: string;
-  /** Light bloom under the divider; only the first section after the hero has it. */
+  /** Light bloom under the divider; the first section and Contact have it. */
   bloom?: boolean;
 }
 
@@ -26,8 +26,8 @@ const { id, title, bloom = false } = Astro.props;
 
 <style>
   /* Divider between sections: a hairline across the page that fades at both ends. The first
-     section after the hero also gets a soft bloom spilling downwards from the line: opaque
-     above, light below, for depth. Decorative pseudo-elements, behind the content. */
+     section and Contact also get a soft bloom spilling downwards from the line: opaque above,
+     light below, for depth. Decorative pseudo-elements, behind the content. */
   .section {
     position: relative;
     isolation: isolate;
