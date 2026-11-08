@@ -393,8 +393,8 @@ Mail to and from the domain works, all three checks pass, and DMARC is at `p=rej
 - [x] `@astrojs/sitemap` with i18n config; `robots.txt` pointing to the sitemap
 - [x] JSON-LD `Person` on the home page (name, job title, sameAs: GitHub, LinkedIn); `Article` on case study pages (no dates: the frontmatter has none, and they are not required)
 - [x] Build-time OG images (1200×630) per page and language, rendered with Typst (`site/src/og/card.typ`, `pages/og/[name].png.ts`); `og:*` and `twitter:*` tags
-- [ ] Test the preview with the LinkedIn Post Inspector
-- [ ] Verify the domain in Google Search Console and submit the sitemap
+- [x] Test the preview with the LinkedIn Post Inspector
+- [x] Verify the domain in Google Search Console and submit the sitemap (also Bing Webmaster Tools)
 
 ### Done when
 
@@ -406,9 +406,9 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 
 ### Security headers
 
-- [ ] Check the browser console on every page and in both themes/languages for CSP report-only violations
-- [ ] Fix violations (no `'unsafe-inline'`, no new third-party origins without a reason)
-- [ ] Switch to the enforcing `Content-Security-Policy` header
+- [x] Check the browser console on every page and in both themes/languages for CSP report-only violations
+- [x] Fix violations (no `'unsafe-inline'`, no new third-party origins without a reason): none found
+- [x] Switch to the enforcing `Content-Security-Policy` header
 - [ ] securityheaders.com: A+; Mozilla Observatory: A+ or close, with any gaps explained
 - [ ] SSL Labs: A+
 

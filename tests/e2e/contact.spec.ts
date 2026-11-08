@@ -8,7 +8,7 @@ import { useTheme } from './theme-state';
  * Worker and Lambda do with a submission is tested in worker/test and lambda/contact/test.
  */
 
-const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
+const CSP = SECURITY_HEADERS['Content-Security-Policy']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 

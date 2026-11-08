@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { SECURITY_HEADERS } from '../../worker/src/headers';
 
 // axe in both themes and the page structure: case-studies.spec.ts.
-const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
+const CSP = SECURITY_HEADERS['Content-Security-Policy']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 
@@ -23,7 +23,7 @@ test('This site: both repositories linked, the gaps listed', async ({ page }) =>
   }
   const limits = page.getByRole('table', { name: /Limitations of this site/ });
   await expect(limits.locator('tbody tr')).toHaveCount(7);
-  await expect(limits).toContainText('The CSP is report-only');
+  await expect(limits).toContainText('Nothing reports CSP violations to me');
   await expect(limits).toContainText('No concurrency cap on the contact function');
 });
 

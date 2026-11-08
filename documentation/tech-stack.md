@@ -118,7 +118,7 @@ Set in one place, the Worker, and asserted in CI. Nothing is duplicated in the C
 | X-Content-Type-Options | `nosniff` |
 | X-Frame-Options | `DENY` |
 
-Rollout: ship the CSP as `Content-Security-Policy-Report-Only` first, then enforce. Target: A+ on securityheaders.com and Mozilla Observatory.
+The CSP shipped as `Content-Security-Policy-Report-Only` first and has been enforced since Phase 9. Target: A+ on securityheaders.com and Mozilla Observatory.
 
 ## Email
 

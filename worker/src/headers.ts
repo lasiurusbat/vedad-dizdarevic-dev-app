@@ -1,7 +1,6 @@
 import type { CacheClass } from './paths';
 
-// Rollout: report-only first; flip to `Content-Security-Policy` once the browser
-// console shows no violations on every page (see tech-stack.md, Security headers).
+// Enforced since Phase 9. Cloudflare's challenge runs in its own iframe, under its own policy.
 const CSP = [
   "default-src 'none'",
   "script-src 'self' https://static.cloudflareinsights.com https://challenges.cloudflare.com",
@@ -18,7 +17,7 @@ const CSP = [
 ].join('; ');
 
 export const SECURITY_HEADERS: Record<string, string> = {
-  'Content-Security-Policy-Report-Only': CSP,
+  'Content-Security-Policy': CSP,
   'Permissions-Policy':
     'camera=(), microphone=(), geolocation=(), payment=(), usb=(), browsing-topics=()',
   'Referrer-Policy': 'strict-origin-when-cross-origin',

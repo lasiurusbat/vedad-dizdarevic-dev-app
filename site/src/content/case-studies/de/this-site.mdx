@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monatliches AWS-Budget, mit Alarm'
     value: '5 $'
-outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 8. November 2026. Lighthouse läuft noch nicht in der CI, und die Content Security Policy ist noch im Report-only-Modus; siehe Grenzen.'
+outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 8. November 2026. Lighthouse läuft noch nicht in der CI; siehe Grenzen.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -69,7 +69,7 @@ Header setzt nur der Worker; weder das Cloudflare-Dashboard noch das Framework f
 
 - **Kein `'unsafe-inline'`.** Styles und Skripte kommen vom eigenen Origin. Der Build schreibt keine Inline-Styles, und ein E2E-Test zählt `style`-Attribute.
 - **Diagramme unter der Produktions-Policy.** Framework-Islands erzeugen Inline-Skripte, deshalb laden die Diagramme über ein einfaches Modul-Skript, sobald sie ins Bild scrollen. Ein Test lädt sie mit der Produktions-CSP und schlägt bei jedem Verstoß fehl.
-- **Erst Report-only.** Die Policy läuft im Report-only-Modus, bis jede Seite in der Browser-Konsole sauber ist; sie durchzusetzen ist eine Änderung in einer Zeile.
+- **Erst Report-only, dann durchgesetzt.** Die Policy lief im Report-only-Modus, bis jede Seite in beiden Themes und Sprachen sauber war und das echte Turnstile-Widget darunter ausprobiert war. Sie durchzusetzen war eine Änderung in einer Zeile.
 
 ## Keine gespeicherten Schlüssel in der CI
 
@@ -218,9 +218,9 @@ Die Plattform liefert eine statische Website aus, gebaut mit Astro: englische un
   label="Grenzen des Setups dieser Website und der nächste Schritt für jede"
   items={[
     {
-      gap: 'Die CSP ist nur Report-only',
-      detail: 'Verstöße erscheinen in der Browser-Konsole, werden aber nicht blockiert, und es gibt keinen Report-Endpunkt.',
-      next: 'Jede Seite in der Konsole prüfen, dann den Header auf Durchsetzen umstellen.',
+      gap: 'CSP-Verstöße werden mir nicht gemeldet',
+      detail: 'Der Browser blockiert sie, aber ohne Report-Endpunkt erfahre ich davon nur durch die Tests oder eine kaputte Seite.',
+      next: 'Einen kleinen Report-Endpunkt im Worker ergänzen, mit Rate-Limit.',
     },
     {
       gap: 'Keine Obergrenze für die Parallelität der Kontaktfunktion',

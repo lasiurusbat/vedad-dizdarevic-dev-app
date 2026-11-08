@@ -2,7 +2,7 @@ import { expect, test } from '@playwright/test';
 import { SECURITY_HEADERS } from '../../worker/src/headers';
 
 // axe in both themes and the page structure: case-studies.spec.ts.
-const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
+const CSP = SECURITY_HEADERS['Content-Security-Policy']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 

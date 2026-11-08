@@ -5,7 +5,7 @@ import { useTheme } from './theme-state';
 
 /* The screenshot gallery's full-size view: each image is a link, opened in a native <dialog>. */
 
-const CSP = SECURITY_HEADERS['Content-Security-Policy-Report-Only']!.split('; ')
+const CSP = SECURITY_HEADERS['Content-Security-Policy']!.split('; ')
   .filter((d) => d !== 'upgrade-insecure-requests')
   .join('; ');
 

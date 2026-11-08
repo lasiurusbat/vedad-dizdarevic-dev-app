@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monthly AWS budget, with an alert'
     value: '$5'
-outcomesNote: 'Figures from the app and infra repositories as of November 8, 2026. Lighthouse is not in CI yet, and the Content Security Policy is still report-only; see Limitations.'
+outcomesNote: 'Figures from the app and infra repositories as of November 8, 2026. Lighthouse is not in CI yet; see Limitations.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -69,7 +69,7 @@ Only the Worker sets headers; neither the Cloudflare dashboard nor the framework
 
 - **No `'unsafe-inline'`.** Styles and scripts come from the site's own origin. The build writes no inline styles, and an e2e test counts `style` attributes.
 - **Diagrams under the production policy.** Framework islands emit inline scripts, so the diagrams mount through a plain module script when they scroll into view. A test loads them with the production CSP and fails on any violation.
-- **Report-only first.** The policy ships in report-only mode until every page is clean in the browser console; enforcing it is a one-line change.
+- **Report-only first, then enforced.** The policy ran in report-only mode until every page was clean in both themes and languages, and the real Turnstile widget had been tried under it. Enforcing it was a one-line change.
 
 ## No stored keys in CI
 
@@ -218,9 +218,9 @@ The platform serves a static site built with Astro: English and German pages, ca
   label="Limitations of this site's setup and the next step for each"
   items={[
     {
-      gap: 'The CSP is report-only',
-      detail: 'Violations are reported in the browser console but not blocked, and there is no report endpoint.',
-      next: 'Check every page in the console, then switch the header to enforcing.',
+      gap: 'Nothing reports CSP violations to me',
+      detail: 'The browser blocks them, but with no report endpoint I only learn of one from the tests or from a broken page.',
+      next: 'Add a small report endpoint to the Worker, with a rate limit.',
     },
     {
       gap: 'No concurrency cap on the contact function',
