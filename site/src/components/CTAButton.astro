@@ -1,4 +1,6 @@
 ---
+import { getLocale, useTranslations } from '../i18n';
+
 interface Props {
   href: string;
   variant?: 'primary' | 'secondary';
@@ -9,9 +11,12 @@ interface Props {
   size?: 'md' | 'sm';
   /** Saves the file (the CV) instead of opening it. */
   download?: boolean;
+  /** Another site: opens in a new tab and says so to screen readers. */
+  external?: boolean;
 }
 
-const { href, variant = 'primary', size = 'md', download } = Astro.props;
+const { href, variant = 'primary', size = 'md', download, external } = Astro.props;
+const t = useTranslations(getLocale(Astro.currentLocale));
 const face = `btn btn-${variant}`;
 ---
 
@@ -22,8 +27,15 @@ const face = `btn btn-${variant}`;
     </span>
   </a>
 ) : (
-  <a href={href} download={download} class={`${face} min-h-11 px-5 py-2 no-underline`}>
+  <a
+    href={href}
+    download={download}
+    target={external ? '_blank' : undefined}
+    rel={external ? 'noopener noreferrer' : undefined}
+    class={`${face} min-h-11 px-5 py-2 no-underline`}
+  >
     <slot />
+    {external && <span class="sr-only"> {t.opensNewTab}</span>}
   </a>
 )}
 

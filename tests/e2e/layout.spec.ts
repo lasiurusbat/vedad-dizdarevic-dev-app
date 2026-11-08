@@ -166,3 +166,22 @@ test('the first section and Contact have a light bloom under their divider', asy
   expect(await bloom('contact')).toContain('radial-gradient');
   expect(await bloom('about')).toBe('none');
 });
+
+test('GitHub and LinkedIn open in a new tab wherever they appear, and say so', async ({ page }) => {
+  for (const [path, note] of [
+    ['/', 'opens in a new tab'],
+    ['/de/', 'öffnet in einem neuen Tab'],
+  ] as const) {
+    await page.goto(path);
+    const links = page.locator(
+      'a[href="https://github.com/lasiurusbat"], a[href^="https://www.linkedin.com/in/"]',
+    );
+    // Header bar, phone menu, hero and footer.
+    await expect(links).toHaveCount(8);
+    for (const link of await links.all()) {
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', /noopener/);
+      await expect(link).toContainText(note);
+    }
+  }
+});

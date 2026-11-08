@@ -52,8 +52,8 @@ for (const p of pages) {
       const contact = hero.getByRole('link', { name: p.contact, exact: true });
       await expect(contact).toBeVisible();
       await expect(contact).toHaveAttribute('href', p.contactHref);
-      for (const name of ['GitHub', 'LinkedIn']) {
-        const link = hero.getByRole('link', { name, exact: true });
+      for (const name of [/^GitHub /, /^LinkedIn /]) {
+        const link = hero.getByRole('link', { name });
         await expect(link).toBeVisible();
         await expect(link).toHaveAttribute('href', /^https:\/\//);
       }
