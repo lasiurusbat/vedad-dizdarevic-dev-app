@@ -14,3 +14,4 @@ export const OWNER = 'Vedad Dizdarevic';
  * button only renders when this is set, so there is never a dead link.
  */
 export const CV_URL: string | null = null;
+export const CONTACT_EMAIL = 'hello@vedad-dizdarevic.dev';

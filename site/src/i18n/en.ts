@@ -1,3 +1,21 @@
+/** A case study that the Work with me grid has a column for. */
+type HireSlug = 'sorted' | 'rainalert' | 'this-site';
+interface HireProject {
+  slug: HireSlug;
+  name: string;
+}
+interface HireOption {
+  title: string;
+  tag?: string;
+  text: string;
+}
+interface HireService {
+  title: string;
+  text: string;
+  /** Section anchor per project, in this language. No entry: the project does not show it. */
+  proof: Partial<Record<HireSlug, string>>;
+}
+
 export const en = {
   siteTitle: 'Vedad Dizdarevic',
   role: 'Cloud & DevOps Engineer',
@@ -33,6 +51,89 @@ export const en = {
   aboutLanguagesLabel: 'Languages',
   aboutLanguages: 'Bosnian/Serbian/Croatian (native), English and German (fluent)',
   hireTitle: 'Work with me',
+  hireStatus: 'Available now',
+  hirePlace:
+    'Based in the Frankfurt area. Hybrid with up to 3 days on site, or remote across the EU. I hold an EU work permit.',
+  hireCta: 'Email me',
+  hireOptions: [
+    {
+      title: 'Full-time',
+      tag: 'Preferred',
+      text: 'A full-time role in cloud and DevOps engineering.',
+    },
+    {
+      title: 'Freelance',
+      text: 'Fixed-scope projects, ongoing part-time work or full-time contracts.',
+    },
+  ] as HireOption[],
+  hireServicesTitle: 'What I can do for your team',
+  hireLegend: 'Each dot links to the part of a case study that shows it.',
+  hireServiceColumn: 'Service',
+  hireWhatColumn: 'What it covers',
+  hireShownIn: 'shown in',
+  hireNotShown: 'Not in this project',
+  hireProjects: [
+    { slug: 'sorted', name: 'Sorted' },
+    { slug: 'rainalert', name: 'Rain Alert' },
+    { slug: 'this-site', name: 'This site' },
+  ] as HireProject[],
+  hireServices: [
+    {
+      title: 'AWS architecture',
+      text: 'New platforms and reviews of existing ones.',
+      proof: { sorted: 'architecture', 'this-site': 'a-private-bucket-behind-a-worker' },
+    },
+    {
+      title: 'Infrastructure as code',
+      text: 'Terraform, including hand-built setups brought under it.',
+      proof: {
+        sorted: 'one-module-every-environment',
+        'this-site': 'two-repositories-two-pipelines',
+      },
+    },
+    {
+      title: 'CI/CD pipelines',
+      text: 'Keyless deploys through OIDC, from a git push to a checked release.',
+      proof: {
+        sorted: 'keyless-delivery',
+        rainalert: 'a-release-is-a-git-tag',
+        'this-site': 'no-stored-keys-in-ci',
+      },
+    },
+    {
+      title: 'Containers on ECS and Fargate',
+      text: 'Fargate services, with Spot where a restart is acceptable.',
+      proof: { sorted: 'cost-per-environment' },
+    },
+    {
+      title: 'Monitoring and alerting',
+      text: 'Grafana and CloudWatch dashboards, alerts and runbooks.',
+      proof: {
+        sorted: 'monitoring',
+        rainalert: 'free-tiers-that-fail-well',
+        'this-site': 'costs-and-alarms-on-a-shared-account',
+      },
+    },
+    {
+      title: 'Security hardening',
+      text: 'Least-privilege access, private networks and security headers.',
+      proof: {
+        sorted: 'a-perimeter-by-construction',
+        rainalert: 'fail-closed',
+        'this-site': 'security-headers-in-one-place',
+      },
+    },
+    {
+      title: 'AWS cost reduction',
+      text: "Sorted's dev costs an estimated 64% less, from the AWS bill.",
+      proof: { sorted: 'cost-per-environment' },
+    },
+    {
+      title: 'Kubernetes on AWS EKS',
+      text: 'Orchestrating containerised workloads on Amazon EKS.',
+      proof: {},
+    },
+  ] as HireService[],
   contactTitle: 'Contact',
 
   certsTitle: 'Certifications',
@@ -84,4 +185,7 @@ export const en = {
   backHome: 'Back to the home page',
 };
 
-export type Messages = { [K in keyof typeof en]: string };
+// Widens each string literal to string; the few structured values (Work with me) keep their shape.
+export type Messages = {
+  [K in keyof typeof en]: (typeof en)[K] extends string ? string : (typeof en)[K];
+};

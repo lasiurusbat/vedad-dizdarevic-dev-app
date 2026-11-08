@@ -68,8 +68,13 @@ for (const p of pages) {
 
   test(`every header and hero anchor on ${p.path} has a target section`, async ({ page }) => {
     await page.goto(p.path);
+    // Links to a section of another page are checked where they are made (work-with-me.spec.ts).
     const hashes = await page.$$eval('a[href*="#"]', (links) =>
-      links.map((a) => new URL((a as HTMLAnchorElement).href).hash).filter((h) => h.length > 1),
+      links
+        .map((a) => new URL((a as HTMLAnchorElement).href))
+        .filter((u) => u.pathname === location.pathname)
+        .map((u) => u.hash)
+        .filter((h) => h.length > 1),
     );
     expect(hashes.length).toBeGreaterThan(0);
     for (const hash of new Set(hashes)) {
