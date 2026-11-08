@@ -155,3 +155,14 @@ test('About reads like the body text of a project page', async ({ page }) => {
   await page.goto('/projects/sorted/');
   expect(about).toEqual(await style('.prose > p'));
 });
+
+test('the first section and Contact have a light bloom under their divider', async ({ page }) => {
+  await page.goto('/');
+  const bloom = (id: string) =>
+    page
+      .locator(`#${id}`)
+      .evaluate((section) => getComputedStyle(section, '::after').backgroundImage);
+  expect(await bloom('work')).toContain('radial-gradient');
+  expect(await bloom('contact')).toContain('radial-gradient');
+  expect(await bloom('about')).toBe('none');
+});
