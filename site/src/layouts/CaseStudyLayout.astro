@@ -11,6 +11,8 @@ interface Props {
   locale: Locale;
   title: string;
   summary: string;
+  /** Picks the page's share image. */
+  slug: string;
   /** Where translations of this case study live; see Base. */
   alternates?: Partial<Record<Locale, string>>;
   /** Symbolic art beside the title on wide screens; none when unset. */
@@ -19,7 +21,7 @@ interface Props {
   next?: { title: string; href: string };
 }
 
-const { locale, title, summary, alternates, illustration, next } = Astro.props;
+const { locale, title, summary, slug, alternates, illustration, next } = Astro.props;
 const t = useTranslations(locale);
 ---
 
@@ -28,7 +30,8 @@ const t = useTranslations(locale);
   description={summary}
   locale={locale}
   alternates={alternates}
-  jsonLd={articleLd(locale, title, summary, Astro.url.pathname)}
+  caseStudy={slug}
+  jsonLd={articleLd(locale, title, summary, Astro.url.pathname, slug)}
 >
   <article class="max-w-page px-gutter py-section mx-auto">
     <a

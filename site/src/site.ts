@@ -21,4 +21,6 @@ export const TURNSTILE_SITE_KEY: string =
 
 /** The CV in a language. Built from cv/data.yaml by cv/build.sh as part of the site build. */
 export const cvUrl = (locale: 'en' | 'de') => `/cv/Vedad_Dizdarevic_CV_${locale.toUpperCase()}.pdf`;
+/** The share image of a page: a case study by its slug, otherwise the home page's. */
+export const ogImagePath = (locale: 'en' | 'de', slug = 'home') => `/og/${slug}-${locale}.png`;
 export const CONTACT_EMAIL = 'hello@vedad-dizdarevic.dev';

@@ -125,6 +125,16 @@ test('robots.txt points at a sitemap that is served', async () => {
   assert.match(await sitemap.text(), /<sitemapindex/);
 });
 
+test('the home page names a share image that is served', async () => {
+  const html = await (await get(base)).text();
+  const url = html.match(/<meta property="og:image" content="([^"]+)"/)?.[1];
+  assert.ok(url, 'no og:image on the home page');
+  const image = await get(new URL(new URL(url).pathname, base));
+  assert.equal(image.status, 200);
+  assert.equal(image.headers.get('content-type'), 'image/png');
+  await image.body?.cancel();
+});
+
 test('www redirects to the apex with 301', async () => {
   const url = new URL(base);
   url.hostname = `www.${base.hostname}`;

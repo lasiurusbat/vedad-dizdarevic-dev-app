@@ -2,9 +2,11 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-07 (day 6)
+## Stopped at: 2026-11-08 (day 7)
 
-**Merged today:** #56–#61. Open: **#62** (`feat/about-sorted-link`), the About link to Sorted plus these end-of-session docs. Merge it first next session.
+**Merged today:** #62–#71 and infra #10; the share images PR follows. M3 is done; the contact form is live and delivers real mail. **Start next with Phase 9 hardening**, beginning with the inline style Turnstile applies under the enforced CSP (see "contact form" below).
+
+**Waiting on the owner:** the LinkedIn preview test and Search Console (see "SEO" below); Impressum details (the legal pages and launch depend on them); `e2e` in the required checks; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
 ### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
@@ -15,8 +17,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **How this site is built (#60):** built as a third case study, `this-site` (EN, DE; the owner chose this over a standalone page or a home section). Diagram `site-platform` (Requests, Contact and alerts (planned, dashed), Deploys), six decision ledgers, problem log, tech stack, seven Limitations. Every claim is from the app and infra repos; the copy was checked against the copywriting skill's AI-tells list. Footer link "How this site is built" on every page. `ProblemLog` code chips now wrap (a long OIDC subject made the page scroll sideways at 360px).
 - **Header illustration (#61):** `SiteIllustration.astro` (`illustration: 'headers'`), chosen from three options and refined by the owner: a response leaves the locked bucket, stops in the Worker gate (which lights briefly), then leaves for the browser, lighting the six header chips; the browser frame shows the six smoke-test checks ticking in order.
 - **Lesson:** the project skills in `app/.claude/skills/` (copywriting, frontend-design) only load when Claude Code is started from `app/`. Start sessions there.
-- **Open questions on Work with me (2026-11-08):** the exact wording of "EU work permit" and whether to add "no sponsorship needed"; the Kubernetes row has no project behind it (a small EKS project would give it a dot); the formal "Ihr" in German; "Available now" needs changing once the owner accepts something.
-- **Open question for the owner:** the untracked `case-studies/cs_rainalert/` folder (raw screenshots): commit it, or add it to `.git/info/exclude` like `Sorted-architecture.md`?
+- **Open questions on Work with me (2026-11-08):** the exact wording of "EU work permit" and whether to add "no sponsorship needed"; the formal "Ihr" in German; "Available now" needs changing once the owner accepts something.
 
 ### 2026-11-08: history rewrite and CV
 
@@ -35,8 +36,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ### 2026-11-08: SEO (Phase 8)
 
-- Done: descriptions, canonical URLs, sitemap, `robots.txt`, JSON-LD. Next PR: OG images, planned with Typst (already pinned, with fonts) from a build-time endpoint, so no image library is added.
-- **Owner, after OG images:** LinkedIn Post Inspector in both languages; verify the domain in Search Console and submit `https://vedad-dizdarevic.dev/sitemap-index.xml`.
+- Done: descriptions, canonical URLs, sitemap, `robots.txt`, JSON-LD and share images, rendered with Typst from a build-time endpoint so no image library is added. The colours in `site/src/og/card.typ` are copies of the dark tokens: change them together. The endpoint runs `typst`, so opening `/og/...` in `astro dev` needs it installed.
+- **Owner:** LinkedIn Post Inspector in both languages; verify the domain in Search Console and submit `https://vedad-dizdarevic.dev/sitemap-index.xml`.
 - Lighthouse SEO (the "done when") is not run yet; Lighthouse CI comes in Phase 9.
 
 ## Next (in this order)
@@ -48,7 +49,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer, #60, header illustration #61), ~~Work with me~~ (`WorkWithMe.astro`, status panel and services grid); About has its languages line (from the CV) and links "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
 6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
 7. **Owner:** add `e2e` to the required checks on `main`.
-8. Header CV link comes with Phase 5; footer links to Impressum and Datenschutz when those pages exist. Add the Typst CV to the `this-site` page once Phase 5 is done, and its Lighthouse and securityheaders.com results in Phase 9.
+8. Footer links to Impressum and Datenschutz when those pages exist. Add Lighthouse and securityheaders.com results to the `this-site` page in Phase 9.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
 11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Phase 9: set the page-weight budget (diagram-page JS budget proposed at 140 KB gzipped; the Sorted page now loads two diagrams, which share one React Flow bundle).
@@ -57,13 +58,14 @@ Working log for picking up where the last session stopped. Task-level detail sta
 ## Key rotation
 
 - The `vdd-worker` access key (ends in `...OI3S`) was created on **2026-11-03** and set as Worker secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
-- **Rotate by 2027-02-01** (90 days): create a second key in IAM, `wrangler secret put` both values, check the smoke test, then delete the old key. IAM allows two keys per user, so this needs no downtime.
+- **Rotate by 2027-02-01** (90 days): create a second key in IAM, `wrangler secret put` both values in a real terminal (through `!` it stores an empty value), check the smoke test, then delete the old key. IAM allows two keys per user, so this needs no downtime.
 
 ## Small loose ends
 
 - **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
 - The Sorted page states costs as estimates and says failover and backup restores are designed but not drilled. Update only when the owner confirms a drill happened. The owner approved publishing that the deploy role is an administrator (2026-11-04).
-- Local-only files: `.claude/` and `case-studies/Sorted-architecture.md` stay out of git (listed in `.git/info/exclude`, owner's decision 2026-11-06).
+- Local-only files: `.claude/`, `case-studies/Sorted-architecture.md` and `case-studies/cs_rainalert/` stay out of git (listed in `.git/info/exclude`, owner's decisions 2026-11-06 and 2026-11-08). A fresh clone needs those lines added again.
+- At 320px the header's theme button makes the page about 31px too wide. The site targets 360px and up; fix it if the header changes.
 - A preview server may still be running on port 4199 (`tests/e2e/serve.mjs` serving `site/dist`): `pkill -f "serve[.]mjs"`.
 - Old local branches whose PRs are merged can be deleted (`git branch --merged origin/main`); `feat/sorted-diagram` has one local commit that duplicates #27 and can go too.
 - e2e runs rebuild `site/dist` with `SHOW_DRAFTS=1`; rebuild without it before using `astro preview` to judge the production page.
