@@ -155,3 +155,22 @@ test('About reads like the body text of a project page', async ({ page }) => {
   await page.goto('/projects/sorted/');
   expect(about).toEqual(await style('.prose > p'));
 });
+
+test('GitHub and LinkedIn open in a new tab wherever they appear, and say so', async ({ page }) => {
+  for (const [path, note] of [
+    ['/', 'opens in a new tab'],
+    ['/de/', 'öffnet in einem neuen Tab'],
+  ] as const) {
+    await page.goto(path);
+    const links = page.locator(
+      'a[href="https://github.com/lasiurusbat"], a[href^="https://www.linkedin.com/in/"]',
+    );
+    // Header bar, phone menu, hero and footer.
+    await expect(links).toHaveCount(8);
+    for (const link of await links.all()) {
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', /noopener/);
+      await expect(link).toContainText(note);
+    }
+  }
+});
