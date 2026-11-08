@@ -2,9 +2,11 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-08 (day 7)
+## Stopped at: 2026-11-09 (end of the session begun on 2026-11-08, day 7)
 
-**Merged today:** #62–#73 and infra #10; #74 enforced the CSP; Lighthouse CI is the last PR. M3 is done; the contact form is live and delivers real mail. The CSP is enforced and a real message passed under it. Lighthouse CI and the page-weight budgets are in. The privacy policy is live, the Impressum is not. **Next in Phase 9:** the remaining gates (`html-validate`, link checker, Dependabot, axe and layout coverage). Once the `lighthouse` job has run on `main`, add it to the required checks.
+**Merged:** #62–#80 and infra #10. No other PRs are open in either repo. M3 is done. The contact form is live and delivers real mail, also under the enforced CSP. Phase 8's build work is done. The privacy policy is live; the Impressum is not.
+
+**Start next with the rest of Phase 9, in small PRs:** `html-validate`; the link checker (internal links on PRs, external links weekly); Dependabot for npm, Actions and Terraform providers; wider axe and layout coverage (every page; check what already covers this first). `lighthouse` has passed on `main` since #75: propose adding it to the required checks. Then Phase 10.
 
 **Waiting on the owner, blocks launch:** a serviceable address for the Impressum that is not the owner's home (for example a business address service). The site is live without an Impressum until then; once there is an address, add `/impressum/` in both languages, the footer link, and the address in the policy's first section. **Also:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; the data processing agreements for Cloudflare and AWS; a safeguard for mail stored at Purelymail in the USA (Add Rabbit LLC, servers in AWS us-east-1): the policy states the fact but names no legal mechanism, because none is confirmed, so get a DPA with standard contractual clauses from Purelymail or move the mailbox to an EU provider; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
@@ -38,7 +40,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - Done: descriptions, canonical URLs, sitemap, `robots.txt`, JSON-LD and share images, rendered with Typst from a build-time endpoint so no image library is added. The colours in `site/src/og/card.typ` are copies of the dark tokens: change them together. The endpoint runs `typst`, so opening `/og/...` in `astro dev` needs it installed.
 - Done by the owner on 2026-11-08: LinkedIn Post Inspector, Search Console and Bing verified, sitemap submitted. Check Search Console for errors in a few days.
 - Search Console and Bing Webmaster Tools verify through files: keep `site/public/googlee75783b48c054b73.html` and `site/public/BingSiteAuth.xml` unchanged, or the verification lapses.
-- Lighthouse SEO (the "done when") is not run yet; Lighthouse CI comes in Phase 9.
+- Lighthouse SEO is 100 in CI (since #75). Left of the "done when": Search Console reporting no errors, which takes days.
 
 ## Next (in this order)
 
@@ -49,7 +51,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer, #60, header illustration #61), ~~Work with me~~ (`WorkWithMe.astro`, status panel and services grid); About has its languages line (from the CV) and links "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
 6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. 
 7. ~~Add `e2e` to the required checks on `main`~~ done 2026-11-08.
-8. Add Lighthouse and securityheaders.com results to the `this-site` page in Phase 9.
+8. Add the Lighthouse, Observatory, SSL Labs and securityheaders.com results to the `this-site` page (all A+; Lighthouse 97–99 and 100s), if the owner wants them there.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
 11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Diagram pages are at 137 of the 140 KB JS budget (2026-11-08), and Sorted at 452 of 500 KB page weight: little room for growth.

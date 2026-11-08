@@ -17,8 +17,8 @@ The timeline view of [implementation-plan.md](implementation-plan.md): milestone
 | M1 | **Foundation** | 0, 1 | End of D3 (W1); done 2026-11-02 | Accounts with MFA, decisions closed, app and infra repos with protected `main`, `terraform plan` running in the infra repo's CI through OIDC | Done |
 | M2 | **Live skeleton** | 2 | End of D6 (W2) | Placeholder served at `https://vedad-dizdarevic.dev` via Cloudflare → Worker → private S3, deployed on merge, smoke test green, CSP in report-only | Done 2026-11-03 (infra pipeline gaps still open) |
 | M3 | **Content complete** | 3, 4, 5 | End of D16 (W4) | All sections live in EN; hero / work with me / contact in DE; two case studies with diagrams; EN + DE CV PDFs built from Typst | Done 2026-11-08 |
-| M4 | **Feature complete** | 6, 7, 8 | End of D19 (W4) | Contact form delivers real mail; SPF/DKIM/DMARC passing; sitemap, `hreflang`, JSON-LD, OG images | In progress (contact form live 2026-11-08; DMARC ramp and Phase 8 open) |
-| M5 | **Launch-ready** | 9, 10 | End of D22 (W5) | CSP enforced; Lighthouse / axe / Playwright gates required on `main`; legal pages live; alerts tested; runbook written | Not started |
+| M4 | **Feature complete** | 6, 7, 8 | End of D19 (W4) | Contact form delivers real mail; SPF/DKIM/DMARC passing; sitemap, `hreflang`, JSON-LD, OG images | In progress (contact form live, Phase 8 built, 2026-11-08; open: DMARC ramp, Search Console reporting no errors) |
+| M5 | **Launch-ready** | 9, 10 | End of D22 (W5) | CSP enforced; Lighthouse / axe / Playwright gates required on `main`; legal pages live; alerts tested; runbook written | In progress (CSP enforced, Lighthouse CI and budgets in, privacy policy live; the Impressum waits for an address) |
 | M6 | **Launch** | 11 | D23 (W5) | Launch checklist complete, DMARC at `p=reject`, link on LinkedIn / GitHub / CV | Not started |
 
 ## Schedule

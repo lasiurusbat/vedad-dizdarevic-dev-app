@@ -398,7 +398,7 @@ Mail to and from the domain works, all three checks pass, and DMARC is at `p=rej
 
 ### Done when
 
-Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in both languages, and Search Console reports no errors.
+Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in both languages, and Search Console reports no errors. _Status 2026-11-09: the first two are met; Search Console still has to report._
 
 ---
 
