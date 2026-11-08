@@ -1,12 +1,16 @@
 ---
+import { getLocale, useTranslations } from '../i18n';
+
 interface Props {
   href: string;
   class?: string;
 }
 
 const { href, class: className = '' } = Astro.props;
+const t = useTranslations(getLocale(Astro.currentLocale));
 ---
 
-<a href={href} rel="noopener noreferrer" class={className}>
+<a href={href} target="_blank" rel="noopener noreferrer" class={className}>
   <slot />
+  <span class="sr-only"> {t.opensNewTab}</span>
 </a>

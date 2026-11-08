@@ -57,6 +57,22 @@ test('the footer links the policy everywhere, in the language of the page', asyn
   }
 });
 
+for (const [path, note] of [
+  ['/datenschutz/', 'opens in a new tab'],
+  ['/de/datenschutz/', 'öffnet in einem neuen Tab'],
+] as const) {
+  test(`${path}: every link to another site opens in a new tab and says so`, async ({ page }) => {
+    await page.goto(path);
+    const links = page.locator('main a[href^="https://"]');
+    await expect(links).toHaveCount(3);
+    for (const link of await links.all()) {
+      await expect(link).toHaveAttribute('target', '_blank');
+      await expect(link).toHaveAttribute('rel', /noopener/);
+      await expect(link).toContainText(note);
+    }
+  });
+}
+
 test('the two versions of the policy point at each other', async ({ page }) => {
   await page.goto('/datenschutz/');
   await expect(page.locator('link[rel="alternate"][hreflang="de"]')).toHaveAttribute(
