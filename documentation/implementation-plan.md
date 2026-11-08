@@ -289,7 +289,7 @@ Can run alongside Phases 3–4.
 - [ ] CI: compile both languages, fail the build on errors, copy outputs to `site/public/cv/` as `Vedad_Dizdarevic_CV_EN.pdf` and `Vedad_Dizdarevic_CV_DE.pdf`
 - [ ] Site links the CV in the current page language
 - [ ] Optional: site's skills/experience read `cv/data.yaml` (Astro can import YAML via a loader)
-- [ ] Remove `cv/reference/` once both PDFs are approved
+- [x] `cv/reference/` is local only (git-ignored since 2026-11-08); delete the local copies once both PDFs are approved
 
 ### Done when
 
