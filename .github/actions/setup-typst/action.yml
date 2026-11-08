@@ -1,0 +1,16 @@
+name: Set up Typst
+description: Installs the pinned Typst release, verified by checksum. The site build needs it for the CV.
+
+runs:
+  using: composite
+  steps:
+    - shell: bash
+      env:
+        VERSION: '0.15.1'
+        SHA256: a6d077d0a95eed5a2eba715b2dae06be954f624ccbf85758a03f389ded33118c
+      run: |
+        cd "$RUNNER_TEMP"
+        curl -sSfLo typst.tar.xz "https://github.com/typst/typst/releases/download/v$VERSION/typst-x86_64-unknown-linux-musl.tar.xz"
+        echo "$SHA256  typst.tar.xz" | sha256sum -c -
+        tar -xf typst.tar.xz
+        echo "$RUNNER_TEMP/typst-x86_64-unknown-linux-musl" >> "$GITHUB_PATH"

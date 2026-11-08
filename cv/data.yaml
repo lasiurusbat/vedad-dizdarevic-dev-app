@@ -1,0 +1,231 @@
+# The CV's content, in both languages. Built by cv/template.typ into site/public/cv/.
+#
+# PUBLIC: this file and the PDFs are published. No phone number, street address, date of birth or
+# private email address here (cv/check.sh fails the build if it finds one in a PDF). Copies sent
+# directly to one recipient can add them by hand.
+#
+# Facts come from the owner's CV (October 2026) and the case studies on the site. Keep the Sorted
+# availability wording in line with its case study: Multi-AZ is designed, not running.
+
+name: Vedad Dizdarević
+role: { en: Cloud & DevOps Engineer, de: Cloud- & DevOps-Engineer }
+updated: { en: Last update November 2026, de: Letzte Aktualisierung November 2026 }
+
+contact:
+  - text: { en: 'Frankfurt area, Germany', de: 'Raum Frankfurt, Deutschland' }
+  - { text: hello@vedad-dizdarevic.dev, url: 'mailto:hello@vedad-dizdarevic.dev' }
+  - { text: vedad-dizdarevic.dev, url: 'https://vedad-dizdarevic.dev' }
+  - { text: github.com/lasiurusbat, url: 'https://github.com/lasiurusbat' }
+  - {
+      text: linkedin.com/in/vedad-dizdarevic-b154305,
+      url: 'https://www.linkedin.com/in/vedad-dizdarevic-b154305/',
+    }
+
+availability:
+  en: 'Available now. Full-time preferred, freelance also possible. Hybrid in the Frankfurt area (up to 3 days on site) or remote across the EU. EU work permit.'
+  de: 'Ab sofort verfügbar. Festanstellung bevorzugt, freiberuflich auch möglich. Hybrid im Raum Frankfurt (bis zu 3 Tage vor Ort) oder remote in der EU. EU-Arbeitserlaubnis.'
+
+labels:
+  profile: { en: Profile, de: Profil }
+  skills: { en: Technical skills, de: Technische Fähigkeiten }
+  projects: { en: Projects, de: Projekte }
+  education: { en: Certifications and education, de: Zertifizierungen und Ausbildung }
+  experience:
+    {
+      en: Professional experience in 3D and CGI production,
+      de: Berufserfahrung in der 3D-/CGI-Produktion,
+    }
+  languages: { en: Languages, de: Sprachen }
+
+profile:
+  en: 'Cloud/DevOps engineer coming from a decade of technical production work in 3D/CGI pipelines. Designed, built and deployed Sorted (live at sorted.onl), a multi-tenant SaaS on AWS ECS Fargate, with all infrastructure in Terraform and tag-driven releases through GitHub Actions and OIDC. Holds a DevOps Engineer diploma from DataScientest and further hands-on project experience with Kubernetes (EKS, ArgoCD/GitOps) and GitLab CI/CD. Currently preparing for the AWS Certified Solutions Architect – Associate exam. Brings strong troubleshooting discipline, pipeline thinking and a decade of Agile (Scrum/Kanban) production workflows.'
+  de: 'Cloud-/DevOps-Engineer nach einem Jahrzehnt technischer Produktionsarbeit in 3D-/CGI-Pipelines. Konzeption, Entwicklung und Deployment von Sorted (live unter sorted.onl), einer mandantenfähigen SaaS-Anwendung auf AWS ECS Fargate, mit der gesamten Infrastruktur in Terraform und Tag-basierten Releases über GitHub Actions und OIDC. DevOps-Engineer-Diplom von DataScientest (heute Liora) sowie praktische Projekterfahrung mit Kubernetes (EKS, ArgoCD/GitOps) und GitLab CI/CD. Bereitet sich derzeit auf die Prüfung zum AWS Certified Solutions Architect – Associate vor. Bringt ausgeprägte Problemlösungskompetenz, Pipeline-Denken und ein Jahrzehnt Erfahrung in agilen (Scrum/Kanban) Produktionsabläufen mit.'
+
+skills:
+  - label: { en: Cloud (AWS), de: Cloud (AWS) }
+    items:
+      en: 'ECS/Fargate, ECR, RDS, ALB, VPC, IAM (OIDC, least privilege), SES, SNS, S3, KMS, Secrets Manager, CloudWatch, Elastic Beanstalk, EventBridge, EKS'
+      de: 'ECS/Fargate, ECR, RDS, ALB, VPC, IAM (OIDC, Least Privilege), SES, SNS, S3, KMS, Secrets Manager, CloudWatch, Elastic Beanstalk, EventBridge, EKS'
+  - label: { en: Infrastructure as Code, de: Infrastructure as Code }
+    items:
+      en: 'Terraform (modules, multi-environment, multi-region, S3 remote state, Terraform tests)'
+      de: 'Terraform (Module, Multi-Environment, Multi-Region, S3-Remote-State, Terraform-Tests)'
+  - label: { en: Containers & Orchestration, de: Container & Orchestrierung }
+    items:
+      en: 'Docker (multi-stage builds), Docker Compose, nginx, Kubernetes (EKS), ArgoCD (GitOps)'
+      de: 'Docker (Multi-Stage-Builds), Docker Compose, nginx, Kubernetes (EKS), ArgoCD (GitOps)'
+  - label: { en: CI/CD, de: CI/CD }
+    items:
+      en: 'GitHub Actions (release tagging, OIDC to AWS, build matrix, manual deploy job), GitLab CI/CD'
+      de: 'GitHub Actions (Release-Tagging, OIDC zu AWS, Build-Matrix, manueller Deploy-Job), GitLab CI/CD'
+  - label: { en: Languages & Frameworks, de: Programmiersprachen & Frameworks }
+    items:
+      en: 'Python, FastAPI, SQLAlchemy, Bash, TypeScript, Node.js/Bun, Express, React'
+      de: 'Python, FastAPI, SQLAlchemy, Bash, TypeScript, Node.js/Bun, Express, React'
+  - label: { en: Databases, de: Datenbanken }
+    items:
+      en: 'PostgreSQL (RDS, Prisma), MongoDB (NoSQL)'
+      de: 'PostgreSQL (RDS, Prisma), MongoDB (NoSQL)'
+  - label: { en: Monitoring & Observability, de: Monitoring & Observability }
+    items:
+      en: 'Prometheus, Grafana, Splunk, Fluent Bit, CloudWatch Logs, Sentry'
+      de: 'Prometheus, Grafana, Splunk, Fluent Bit, CloudWatch Logs, Sentry'
+  - label: { en: Version Control, de: Versionsverwaltung }
+    items: { en: 'Git, GitHub, GitLab', de: 'Git, GitHub, GitLab' }
+  - label: { en: Methodologies & Tools, de: Methoden & Tools }
+    items:
+      en: 'Agile (Scrum & Kanban), Jira, Stripe (billing webhooks)'
+      de: 'Agile (Scrum & Kanban), Jira, Stripe (Billing-Webhooks)'
+  - label: { en: Operating Systems, de: Betriebssysteme }
+    items:
+      en: 'Linux Administration (certified), WSL2/Ubuntu, Windows'
+      de: 'Linux-Administration (zertifiziert), WSL2/Ubuntu, Windows'
+
+projects:
+  - title:
+      {
+        en: Sorted — Multi-Tenant SaaS on AWS (ECS Fargate),
+        de: Sorted — Mandantenfähige SaaS auf AWS (ECS Fargate),
+      }
+    link: { text: sorted.onl, url: 'https://sorted.onl' }
+    bullets:
+      en:
+        - 'Built the infrastructure in Terraform as one module with separate dev and prod environments and S3 remote state: VPC with private subnets, ALB, ECS Fargate, RDS PostgreSQL, ECR, Secrets Manager and CloudWatch Logs.'
+        - 'Designed prod for availability: Multi-AZ RDS and a NAT gateway per AZ are Terraform flags, with deletion protection and rolling deployments that start the new task before the old one stops.'
+        - 'Built a release pipeline: pushing a git tag runs GitHub Actions (typecheck, lint, unit tests), builds both Docker images with OCI labels and version/commit build args, and pushes immutable-tag images to ECR through OIDC with no stored AWS keys. Deploying means setting the image tag and applying Terraform (manual deploy job).'
+        - 'Added infrastructure CI: terraform fmt, validate, shellcheck and Terraform tests on every PR.'
+        - 'Set up email on AWS: SES inbound (receipt rule, KMS-encrypted S3, SNS webhooks) and outbound (configuration set, delivery events), with an ECS task role instead of API keys.'
+        - 'Containerized the app (multi-stage Dockerfile, nginx + Bun task, Docker Compose locally, migrations on start).'
+        - 'Application: React, Express, TypeScript, Prisma/PostgreSQL with row-level-security multi-tenancy, Stripe billing, pg-boss jobs, Sentry, guarded OpenAI features; 2,400+ Playwright e2e tests and 3,600+ unit tests.'
+      de:
+        - 'Aufbau der Infrastruktur in Terraform als ein Modul mit getrennten Dev- und Prod-Umgebungen und S3-Remote-State: VPC mit privaten Subnetzen, ALB, ECS Fargate, RDS PostgreSQL, ECR, Secrets Manager und CloudWatch Logs.'
+        - 'Prod auf Verfügbarkeit ausgelegt: Multi-AZ-RDS und ein NAT-Gateway pro AZ sind Terraform-Flags, dazu Löschschutz und Rolling Deployments, bei denen der neue Task startet, bevor der alte stoppt.'
+        - 'Aufbau einer Release-Pipeline: Ein Git-Tag startet GitHub Actions (Typecheck, Lint, Unit-Tests), baut beide Docker-Images mit OCI-Labels sowie Versions-/Commit-Build-Args und pusht Images mit unveränderlichen Tags per OIDC nach ECR, ohne gespeicherte AWS-Schlüssel. Deployment heißt: Image-Tag setzen und Terraform anwenden (manueller Deploy-Job).'
+        - 'Infrastruktur-CI: terraform fmt, validate, shellcheck und Terraform-Tests bei jedem PR.'
+        - 'E-Mail auf AWS: SES eingehend (Receipt Rule, KMS-verschlüsselter S3-Bucket, SNS-Webhooks) und ausgehend (Configuration Set, Zustellereignisse), mit ECS-Task-Rolle statt API-Schlüsseln.'
+        - 'Containerisierung der Anwendung (Multi-Stage-Dockerfile, nginx + Bun-Task, Docker Compose lokal, Migrationen beim Start).'
+        - 'Anwendung: React, Express, TypeScript, Prisma/PostgreSQL mit Row-Level-Security-Mandantentrennung, Stripe-Billing, pg-boss-Jobs, Sentry, abgesicherte OpenAI-Funktionen; über 2.400 Playwright-E2E-Tests und über 3.600 Unit-Tests.'
+  - title:
+      {
+        en: Rain Alert — Tag-Driven Releases on Free Tiers,
+        de: Rain Alert — Tag-basierte Releases auf kostenlosen Tarifen,
+      }
+    link: { text: rainalert.live, url: 'https://rainalert.live/' }
+    bullets:
+      en:
+        - 'Built a release pipeline: pushing a git tag builds one Docker image, tests it inside the container, ships that same image to Render through Docker Hub and confirms the new version on the live site, with no manual steps after the tag.'
+        - 'Hardened delivery so that pull requests, including those from forks and Dependabot, can never push an image or deploy; a server-side cache and a budgeted fallback API cover the rate limits of the free weather APIs.'
+      de:
+        - 'Aufbau einer Release-Pipeline: Ein Git-Tag baut ein Docker-Image, testet es im Container, liefert genau dieses Image über Docker Hub an Render aus und prüft die neue Version auf der Live-Website, ohne manuelle Schritte nach dem Tag.'
+        - 'Absicherung der Auslieferung: Pull Requests, auch von Forks und Dependabot, können nie ein Image pushen oder deployen; ein serverseitiger Cache und eine Fallback-API mit Budget fangen die Rate-Limits der kostenlosen Wetter-APIs ab.'
+  - title:
+      {
+        en: This Portfolio — Static Site as a Small Production Platform,
+        de: Dieses Portfolio — Statische Website als kleine Produktionsplattform,
+      }
+    link: { text: vedad-dizdarevic.dev, url: 'https://vedad-dizdarevic.dev' }
+    bullets:
+      en:
+        - 'Runs a private S3 bucket behind a Cloudflare Worker, with AWS and Cloudflare in Terraform and three OIDC roles, each trusted for one repository, instead of stored keys in CI.'
+        - 'Sets six security headers on every response and checks them on the live domain after each deploy; this CV is built from YAML with Typst in the same pipeline.'
+      de:
+        - 'Betrieb eines privaten S3-Buckets hinter einem Cloudflare Worker, mit AWS und Cloudflare in Terraform und drei OIDC-Rollen, jede für ein Repository, statt gespeicherter Schlüssel in der CI.'
+        - 'Sechs Security-Header auf jeder Antwort, nach jedem Deploy auf der Live-Domain geprüft; dieser Lebenslauf entsteht in derselben Pipeline mit Typst aus YAML.'
+  - title:
+      {
+        en: Ads-Platform — Full-Stack AWS Deployment,
+        de: Ads-Platform — Vollständiges AWS-Deployment,
+      }
+    link:
+      {
+        text: github.com/lasiurusbat/Ads-Platform,
+        url: 'https://github.com/lasiurusbat/Ads-Platform',
+      }
+    bullets:
+      en:
+        - 'Containerized a FastAPI/PostgreSQL application with Docker Compose, including networking and healthchecks.'
+        - 'Deployed a three-tier AWS architecture (ALB → ECS Fargate → RDS) with Terraform: VPC, security groups, IAM execution/task roles.'
+        - 'Built a GitLab CI/CD pipeline for build, test and deployment; configured Grafana alerting for RDS connections and tuned it to cut false positives.'
+      de:
+        - 'Containerisierung einer FastAPI-/PostgreSQL-Anwendung mit Docker Compose, inklusive Netzwerk und Healthchecks.'
+        - 'Dreistufige AWS-Architektur (ALB → ECS Fargate → RDS) mit Terraform: VPC, Security Groups, IAM-Ausführungs-/Task-Rollen.'
+        - 'GitLab-CI/CD-Pipeline für Build, Test und Deployment; Grafana-Alerting für RDS-Verbindungen, angepasst zur Reduzierung von Fehlalarmen.'
+  - title:
+      {
+        en: SRE-Project — Kubernetes GitOps Platform (EKS),
+        de: SRE-Project — Kubernetes-GitOps-Plattform (EKS),
+      }
+    link:
+      {
+        text: github.com/lasiurusbat/sre-project,
+        url: 'https://github.com/lasiurusbat/sre-project',
+      }
+    bullets:
+      en:
+        - 'Ran a multi-service platform on AWS EKS with ArgoCD for GitOps delivery (Ghost with MySQL), plus Prometheus, Grafana, Splunk and Fluent Bit for observability.'
+        - 'Fixed an EBS CSI driver IRSA misconfiguration (OIDC provider ID mismatch, stale trust policies) and ArgoCD sync failures (wrong target branches, Bitnami registry migration).'
+      de:
+        - 'Betrieb einer Multi-Service-Plattform auf AWS EKS mit ArgoCD für GitOps-Delivery (Ghost mit MySQL) sowie Prometheus, Grafana, Splunk und Fluent Bit für Observability.'
+        - 'Behebung einer fehlerhaften EBS-CSI-Driver-IRSA-Konfiguration (falsche OIDC-Provider-ID, veraltete Trust Policies) und von ArgoCD-Sync-Fehlern (falsche Ziel-Branches, Bitnami-Registry-Migration).'
+  - title:
+      { en: Additional Infrastructure & CI/CD Work, de: Weitere Infrastruktur- & CI/CD-Arbeiten }
+    link: { text: gitlab.com/lasiurusbat/cars-api, url: 'https://gitlab.com/lasiurusbat/cars-api' }
+    bullets:
+      en:
+        - 'Multi-region Terraform project (SNS, S3 backend with native state locking, reusable modules, provider aliasing).'
+        - 'GitLab pipelines for a Spring Boot app on Elastic Beanstalk (with IAM policies) and a Gatsby site (build, test, deploy, smoke-test).'
+      de:
+        - 'Multi-Region-Terraform-Projekt (SNS, S3-Backend mit nativem State-Locking, wiederverwendbare Module, Provider-Aliasing).'
+        - 'GitLab-Pipelines für eine Spring-Boot-Anwendung auf Elastic Beanstalk (inkl. IAM-Policies) und eine Gatsby-Website (Build, Test, Deploy, Smoke-Test).'
+
+education:
+  en:
+    - 'DevOps Engineer Diploma — DataScientest (now Liora), issued July 2024'
+    - 'AWS Certified Solutions Architect – Associate — In Progress'
+    - 'Certifications (DataScientest / Liora, 2024): GitLab · Docker (Docker, Vagrant) · Linux Administration · Python · Bash and Linux · NoSQL Databases (MongoDB)'
+    - 'Bachelor of Fine Arts — Product Design, Academy of Fine Arts Sarajevo, 2013–2017'
+  de:
+    - 'DevOps Engineer Diplom — DataScientest (heute Liora), ausgestellt Juli 2024'
+    - 'AWS Certified Solutions Architect – Associate — in Vorbereitung'
+    - 'Zertifizierungen (DataScientest / Liora, 2024): GitLab · Docker (Docker, Vagrant) · Linux-Administration · Python · Bash und Linux · NoSQL-Datenbanken (MongoDB)'
+    - 'Bachelor of Fine Arts — Produktdesign, Akademie der Schönen Künste Sarajevo, 2013–2017'
+
+languages:
+  en: 'Bosnian/Serbian/Croatian (native), English (fluent), German (fluent)'
+  de: 'Bosnisch/Serbisch/Kroatisch (Muttersprache), Englisch (fließend), Deutsch (fließend)'
+
+experience:
+  - role: Senior 3D Artist
+    company: showroom+
+    dates: { en: Jul 2024 – Aug 2026, de: Jul 2024 – Aug 2026 }
+    text:
+      en: 'Led 3D environment and asset production within cross-functional pipelines, working in Scrum sprint cycles with Jira-tracked tasks — directly transferable to sprint-based DevOps/engineering workflows.'
+      de: 'Verantwortlich für 3D-Umgebungs- und Asset-Produktion in interdisziplinären Pipelines, Arbeit in Scrum-Sprints mit Jira-Ticket-Tracking — direkt übertragbar auf sprintbasierte DevOps-/Engineering-Workflows.'
+  - role: Senior Unreal Artist
+    company: Journee
+    dates: { en: Jul 2023 – Dec 2023, de: Jul 2023 – Dez 2023 }
+    text:
+      en: 'Designed and maintained efficient, reusable meshes, materials, landscapes, and Blueprints, supporting real-time content pipelines — experience directly applicable to build/pipeline optimization and reusable infrastructure module design.'
+      de: 'Gestaltung und Pflege effizienter, wiederverwendbarer Meshes, Materialien, Landschaften und Blueprints zur Unterstützung von Echtzeit-Content-Pipelines — Erfahrung, die sich direkt auf Build-/Pipeline-Optimierung und die Gestaltung wiederverwendbarer Infrastruktur-Module übertragen lässt.'
+  - role: Senior 3D Artist / Cinematic Artist
+    company: GritWorld GmbH
+    dates: { en: Feb 2021 – Jun 2023, de: Feb 2021 – Jun 2023 }
+    text:
+      en: 'Produced cinematic sequences using in-house tooling (GritGene) alongside industry-standard DCC software within a Kanban-managed production pipeline, troubleshooting complex multi-tool technical workflows — comparable to integrating multiple tools across a CI/CD or infrastructure stack.'
+      de: 'Produktion filmischer Sequenzen mit hausinternem Tooling (GritGene) sowie branchenüblicher DCC-Software im Rahmen einer Kanban-gesteuerten Produktionspipeline; Fehlerbehebung in komplexen Multi-Tool-Workflows — vergleichbar mit der Integration mehrerer Tools in einem CI/CD- oder Infrastruktur-Stack.'
+  - role: Senior Designer
+    company: E.STYLE LMC
+    dates: { en: Sep 2018 – Mar 2020, de: Sep 2018 – Mär 2020 }
+    text:
+      en: 'Delivered hard-surface modeling and design work under production deadlines, managing multiple concurrent deliverables.'
+      de: 'Umsetzung von Hard-Surface-Modeling und Designarbeiten unter Produktionsfristen, Steuerung mehrerer paralleler Liefergegenstände.'
+  - role: 3D Artist
+    company: FOREO International
+    dates: { en: May 2018 – Sep 2018, de: Mai 2018 – Sep 2018 }
+    text:
+      en: 'Handled end-to-end asset production — modeling, texturing, animation, lighting, rendering, and postproduction — for commercials and product imagery, reflecting ownership across a full technical pipeline.'
+      de: 'Verantwortlich für die vollständige Asset-Produktion — Modeling, Texturing, Animation, Lighting, Rendering und Postproduktion — für Werbespots und Produktbilder; zeigt Eigenverantwortung über eine gesamte technische Pipeline.'
+
+earlier:
+  en: 'Earlier: Freelance 3D/2D artist and graphic designer (Sarajevo), producing TV and print advertising for regional clients including BH Telecom and Sarajevo Tobacco Factory, plus architectural visualization work.'
+  de: 'Zuvor: Freiberuflicher 3D-/2D-Künstler und Grafikdesigner (Sarajevo), Produktion von TV- und Printwerbung für regionale Kunden, u. a. BH Telecom und die Sarajevoer Tabakfabrik, sowie Arbeiten im Bereich Architekturvisualisierung.'

@@ -1,5 +1,5 @@
 ---
-import { CV_URL, GITHUB_URL, LINKEDIN_URL } from '../site';
+import { cvUrl, GITHUB_URL, LINKEDIN_URL } from '../site';
 import { type Locale, localeUrl, useTranslations } from '../i18n';
 import CTAButton from './CTAButton.astro';
 import HeroArchitecture from './HeroArchitecture.astro';
@@ -31,11 +31,9 @@ const t = useTranslations(locale);
       <p class="positioning max-w-measure text-muted">{t.heroPositioning}</p>
       <div class="flex flex-wrap gap-3">
         <CTAButton href={`${localeUrl(locale)}#contact`}>{t.navContact}</CTAButton>
-        {CV_URL && (
-          <CTAButton href={CV_URL} variant="secondary">
-            {t.ctaCv}
-          </CTAButton>
-        )}
+        <CTAButton href={cvUrl(locale)} variant="secondary" download>
+          {t.ctaCv}
+        </CTAButton>
         <CTAButton href={GITHUB_URL} variant="secondary">
           {t.github}
         </CTAButton>

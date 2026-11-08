@@ -9,9 +9,6 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/in/vedad-dizdarevic-b15430
 export const LANGUAGE_NAMES = { en: 'English', de: 'Deutsch' } as const;
 export const OWNER = 'Vedad Dizdarevic';
 
-/**
- * URL of the downloadable CV. `null` until the Typst CV exists (Phase 5); the hero's "Download CV"
- * button only renders when this is set, so there is never a dead link.
- */
-export const CV_URL: string | null = null;
+/** The CV in a language. Built from cv/data.yaml by cv/build.sh as part of the site build. */
+export const cvUrl = (locale: 'en' | 'de') => `/cv/Vedad_Dizdarevic_CV_${locale.toUpperCase()}.pdf`;
 export const CONTACT_EMAIL = 'hello@vedad-dizdarevic.dev';

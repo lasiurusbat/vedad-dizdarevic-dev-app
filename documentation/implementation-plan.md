@@ -281,13 +281,13 @@ Can run alongside Phases 3–4.
 
 ### Tasks
 
-- [ ] Define `cv/data.yaml` schema: personal info, summary, experience, projects, skills, education (including the DevOps diploma), languages; each text field with `en` and `de`
-- [ ] Port content from `cv/reference/Vedad_Dizdarevic_CV_{EN,DE}_1026.pdf` into `data.yaml`
-- [ ] `cv/template.typ`: reads the YAML, takes `lang` as an input (`typst compile --input lang=de`)
-- [ ] Match or improve the layout of the reference PDFs; fonts committed in `cv/fonts/` and passed via `--font-path`
-- [ ] PDF metadata: title, author, language
-- [ ] CI: compile both languages, fail the build on errors, copy outputs to `site/public/cv/` as `Vedad_Dizdarevic_CV_EN.pdf` and `Vedad_Dizdarevic_CV_DE.pdf`
-- [ ] Site links the CV in the current page language
+- [x] Define `cv/data.yaml` schema: personal info, summary, experience, projects, skills, education (including the DevOps diploma), languages; each text field with `en` and `de`
+- [x] Port content from `cv/reference/Vedad_Dizdarevic_CV_{EN,DE}_1026.pdf` into `data.yaml`
+- [x] `cv/template.typ`: reads the YAML, takes `lang` as an input (`typst compile --input lang=de`)
+- [x] Match or improve the layout of the reference PDFs; fonts committed in `cv/fonts/` and passed via `--font-path`
+- [x] PDF metadata: title, author, language
+- [x] CI: compile both languages, fail the build on errors, copy outputs to `site/public/cv/` as `Vedad_Dizdarevic_CV_EN.pdf` and `Vedad_Dizdarevic_CV_DE.pdf`
+- [x] Site links the CV in the current page language
 - [ ] Optional: site's skills/experience read `cv/data.yaml` (Astro can import YAML via a loader)
 - [x] `cv/reference/` is local only (git-ignored since 2026-11-08); delete the local copies once both PDFs are approved
 

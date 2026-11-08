@@ -38,8 +38,15 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-typst
       - run: pnpm --filter @vdd/site check
+      # Also builds the CV (cv/build.sh).
       - run: pnpm --filter @vdd/site build
+      - name: check the CV
+        run: |
+          sudo apt-get update -qq
+          sudo apt-get install -y --no-install-recommends poppler-utils
+          cv/check.sh
 
   worker:
     runs-on: ubuntu-latest
@@ -66,6 +73,7 @@ jobs:
           node-version-file: .nvmrc
           cache: pnpm
       - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-typst
       - run: pnpm --filter @vdd/e2e exec playwright install --with-deps chromium
       # Builds the site, serves site/dist, then runs layout, a11y and menu checks.
       - run: pnpm --filter @vdd/e2e test

@@ -7,9 +7,11 @@ interface Props {
    * itself stays 44px tall so the touch target does not shrink.
    */
   size?: 'md' | 'sm';
+  /** Saves the file (the CV) instead of opening it. */
+  download?: boolean;
 }
 
-const { href, variant = 'primary', size = 'md' } = Astro.props;
+const { href, variant = 'primary', size = 'md', download } = Astro.props;
 const face = `btn btn-${variant}`;
 ---
 
@@ -20,7 +22,7 @@ const face = `btn btn-${variant}`;
     </span>
   </a>
 ) : (
-  <a href={href} class={`${face} min-h-11 px-5 py-2 no-underline`}>
+  <a href={href} download={download} class={`${face} min-h-11 px-5 py-2 no-underline`}>
     <slot />
   </a>
 )}

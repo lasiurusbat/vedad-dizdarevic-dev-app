@@ -80,3 +80,6 @@ tests/e2e/screenshots/
 # birth). Never commit them: the published CV is built from cv/data.yaml, and the site links to the
 # issuers' verification pages instead (site/src/credentials.ts).
 cv/reference/
+
+# Built from cv/data.yaml by cv/build.sh, as part of the site build.
+site/public/cv/

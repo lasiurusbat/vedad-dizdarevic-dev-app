@@ -18,6 +18,11 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **Open questions on Work with me (2026-11-08):** the exact wording of "EU work permit" and whether to add "no sponsorship needed"; the Kubernetes row has no project behind it (a small EKS project would give it a dot); the formal "Ihr" in German; "Available now" needs changing once the owner accepts something.
 - **Open question for the owner:** the untracked `case-studies/cs_rainalert/` folder (raw screenshots): commit it, or add it to `.git/info/exclude` like `Sorted-architecture.md`?
 
+### 2026-11-08: history rewrite and CV
+
+- **CV PDFs and the Gmail address were removed from history** in both repos (#66, `git-filter-repo`, force-pushed by the owner). **GitHub Support ticket #4972996 is open**: old commit URLs and PR refs still expose the PDFs until it closes. Don't rewrite or force-push either repo while it is open. Afterwards, check that the old commit URL for `cv/Vedad_Dizdarevic_CV_EN_1026.pdf` at `c5af52d` stops working.
+- **Phase 5 (CV):** built; see CLAUDE.md. Delete the local `cv/reference/` and `../cv-reference-backup/` once the owner is happy with the new PDFs.
+
 ## Next (in this order)
 
 1. ~~Sorted page restructure~~ done (#40, #46, #48, #49, #50).
@@ -26,7 +31,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 4. ~~RainAlert case study~~ done in EN and DE (#54, #55); the closing band links each case study to the next (#56).
 5. Rest of Phase 4: ~~Skills groups~~ (#58), ~~How this site is built~~ (the `this-site` case study, linked from the footer, #60, header illustration #61), ~~Work with me~~ (`WorkWithMe.astro`, status panel and services grid); About has its languages line (from the CV) and links "Sorted" to its case study. Optional: on tablets, narrow the hero sentence to the headline's width.
 6. **Check the icon and logo usage terms** (AWS icons, GitHub Invertocat, Cloudflare logo, all unmodified; decide whether an attribution line is needed). Add a static fallback image for the Sorted diagrams in the no-JS case. Phase 0 inputs still open: Impressum details (needed by D20).
-7. **Owner:** add `e2e` to the required checks on `main`; fix the two Grafana panels noted above.
+7. **Owner:** add `e2e` to the required checks on `main`.
 8. Header CV link comes with Phase 5; footer links to Impressum and Datenschutz when those pages exist. Add the Typst CV to the `this-site` page once Phase 5 is done, and its Lighthouse and securityheaders.com results in Phase 9.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.

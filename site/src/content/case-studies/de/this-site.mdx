@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monatliches AWS-Budget, mit Alarm'
     value: '5 $'
-outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 7. November 2026. Kontaktformular, CV-Build und Lighthouse in der CI sind noch nicht gebaut, und die Content Security Policy ist noch im Report-only-Modus; siehe Grenzen.'
+outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 7. November 2026. Kontaktformular und Lighthouse in der CI sind noch nicht gebaut, und die Content Security Policy ist noch im Report-only-Modus; siehe Grenzen.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -95,7 +95,7 @@ GitHub vergibt inzwischen unveränderliche Subjects (`repo:<owner>@<ownerId>/<re
 
 Terraform verwaltet AWS sowie Zone, DNS und Regeln bei Cloudflare; Wrangler deployt das Worker-Skript und seine Route. Keine Ressource wird von beiden verwaltet.
 
-**App-Repository.** Jeder Pull Request durchläuft Lint und Formatierung, Typprüfung und Build, die Tests des Workers in der Workers-Laufzeit, Playwright mit axe in beiden Themes und Sprachen sowie gitleaks. Ein Push auf `main` deployt:
+**App-Repository.** Jeder Pull Request durchläuft Lint und Formatierung, Typprüfung und Build, die Tests des Workers in der Workers-Laufzeit, Playwright mit axe in beiden Themes und Sprachen sowie gitleaks. Der Build erzeugt außerdem meinen Lebenslauf in beiden Sprachen mit Typst aus einer YAML-Datei, und eine Prüfung schlägt fehl, wenn eine Telefonnummer oder private E-Mail-Adresse in einem PDF auftaucht. Ein Push auf `main` deployt:
 
 1. Gehashte Assets gehen zuerst hoch, und noch wird nichts gelöscht, damit Seiten aus dem alten Build ihre Dateien weiter finden.
 2. Der Rest geht mit `--delete` hoch.

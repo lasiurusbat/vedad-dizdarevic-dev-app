@@ -21,6 +21,7 @@ export const de: Messages = {
   navAbout: 'Über mich',
   navHire: 'Zusammenarbeit',
   navContact: 'Kontakt',
+  navCv: 'Lebenslauf',
   github: 'GitHub',
   linkedin: 'LinkedIn',
 
