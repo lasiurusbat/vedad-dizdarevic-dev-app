@@ -22,6 +22,8 @@ export const en = {
   siteTitle: 'Vedad Dizdarevic',
   role: 'Cloud & DevOps Engineer',
   availability: 'Open to full-time roles and freelance work.',
+  metaDescription:
+    'Cloud and DevOps engineer in the Frankfurt area, open to full-time roles and freelance work. Case studies on AWS, Terraform and CI/CD, including a live SaaS platform I built and run alone.',
   heroPositioning:
     'Building scalable, production-ready cloud platforms through Infrastructure as Code, platform architecture, containerization, and Kubernetes orchestration.',
   ctaCv: 'Download CV',

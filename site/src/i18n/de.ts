@@ -5,6 +5,8 @@ export const de: Messages = {
   siteTitle: 'Vedad Dizdarevic',
   role: 'Cloud- & DevOps-Engineer',
   availability: 'Offen für Festanstellung und freiberufliche Projekte.',
+  metaDescription:
+    'Cloud- und DevOps-Engineer im Raum Frankfurt, offen für Festanstellung und freiberufliche Projekte. Fallstudien zu AWS, Terraform und CI/CD, darunter eine live betriebene SaaS-Plattform, die ich allein aufgebaut habe und betreibe.',
   heroPositioning:
     'Skalierbare, produktionsreife Cloud-Plattformen mit Infrastructure as Code, Plattformarchitektur, Containerisierung und Kubernetes-Orchestrierung.',
   ctaCv: 'Lebenslauf herunterladen',

@@ -115,6 +115,16 @@ test('the contact Lambda refuses unsigned calls', async () => {
   assert.equal(response.status, 403);
 });
 
+test('robots.txt points at a sitemap that is served', async () => {
+  const robots = await get(new URL('/robots.txt', base));
+  assert.equal(robots.status, 200);
+  const url = (await robots.text()).match(/^Sitemap: (\S+)$/m)?.[1];
+  assert.ok(url, 'no Sitemap line in robots.txt');
+  const sitemap = await get(new URL(new URL(url).pathname, base));
+  assert.equal(sitemap.status, 200);
+  assert.match(await sitemap.text(), /<sitemapindex/);
+});
+
 test('www redirects to the apex with 301', async () => {
   const url = new URL(base);
   url.hostname = `www.${base.hostname}`;

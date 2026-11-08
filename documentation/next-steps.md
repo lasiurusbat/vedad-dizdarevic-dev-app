@@ -33,6 +33,12 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **Worker secrets must be set in a real terminal:** `wrangler secret put` run through `!` (no stdin) stored an empty `TURNSTILE_SECRET_KEY` and reported success, so the form answered 503 after a green deploy. The smoke test now posts a made-up token, which catches this.
 - **DMARC:** that message was the first real SES mail. Confirm it as aligned in a later report before moving to `p=quarantine`.
 
+### 2026-11-08: SEO (Phase 8)
+
+- Done: descriptions, canonical URLs, sitemap, `robots.txt`, JSON-LD. Next PR: OG images, planned with Typst (already pinned, with fonts) from a build-time endpoint, so no image library is added.
+- **Owner, after OG images:** LinkedIn Post Inspector in both languages; verify the domain in Search Console and submit `https://vedad-dizdarevic.dev/sitemap-index.xml`.
+- Lighthouse SEO (the "done when") is not run yet; Lighthouse CI comes in Phase 9.
+
 ## Next (in this order)
 
 1. ~~Sorted page restructure~~ done (#40, #46, #48, #49, #50).

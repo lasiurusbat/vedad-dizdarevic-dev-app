@@ -131,7 +131,9 @@ test('no inline scripts or styles (CSP)', async ({ page }) => {
   for (const path of ['/', '/de/', '/404.html']) {
     await page.goto(path);
     const inline = await page.evaluate(() => ({
-      scripts: [...document.scripts].filter((s) => !s.src).length,
+      // JSON-LD is a data block: never run, so the CSP does not apply (seo.spec.ts checks that).
+      scripts: [...document.scripts].filter((s) => !s.src && s.type !== 'application/ld+json')
+        .length,
       styles: document.querySelectorAll('style').length,
       styleAttrs: document.querySelectorAll('[style]').length,
     }));

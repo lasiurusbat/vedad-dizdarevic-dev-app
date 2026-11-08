@@ -1,2 +1,4 @@
 User-agent: *
 Allow: /
+
+Sitemap: https://vedad-dizdarevic.dev/sitemap-index.xml
