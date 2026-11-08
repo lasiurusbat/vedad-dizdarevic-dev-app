@@ -14,6 +14,13 @@ test('This site: both repositories linked, the gaps listed', async ({ page }) =>
       main.locator(`a[href="https://github.com/lasiurusbat/${repo}"]`).first(),
     ).toBeVisible();
   }
+  // Every repository link, in the fact sheet and in the text, opens in a new tab.
+  const repoLinks = main.locator('a[href^="https://github.com/lasiurusbat/vedad-dizdarevic-dev-"]');
+  await expect(repoLinks).toHaveCount(3);
+  for (const a of await repoLinks.all()) {
+    await expect(a).toHaveAttribute('target', '_blank');
+    await expect(a).toHaveAttribute('rel', /noopener/);
+  }
   const limits = page.getByRole('table', { name: /Limitations of this site/ });
   await expect(limits.locator('tbody tr')).toHaveCount(7);
   await expect(limits).toContainText('The CSP is report-only');
