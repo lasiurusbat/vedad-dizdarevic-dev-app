@@ -1,0 +1,16 @@
+{
+  "name": "@vdd/contact",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "build": "esbuild src/index.ts --bundle --platform=node --target=node24 --format=esm --external:@aws-sdk/* --outfile=dist/index.mjs",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run"
+  },
+  "devDependencies": {
+    "@aws-sdk/client-sesv2": "^3.0.0",
+    "@types/node": "^24.0.0",
+    "esbuild": "^0.27.0",
+    "vitest": "^5.1.0"
+  }
+}

@@ -8,6 +8,8 @@ const env: Env = {
   AWS_REGION: 'eu-central-1',
   AWS_ACCESS_KEY_ID: 'AKIATEST',
   AWS_SECRET_ACCESS_KEY: 'secret',
+  CONTACT_FUNCTION_URL: 'https://abc.lambda-url.eu-central-1.on.aws/',
+  TURNSTILE_SECRET_KEY: 'turnstile-secret',
 };
 
 type Objects = Record<string, { body: string; type: string }>;

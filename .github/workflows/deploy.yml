@@ -38,6 +38,15 @@ jobs:
           role-to-assume: ${{ vars.AWS_DEPLOY_ROLE_ARN }}
           aws-region: ${{ vars.AWS_REGION }}
 
+      # Before the Worker, so the new route never calls the placeholder or an older contract.
+      - name: Deploy contact Lambda
+        run: |
+          pnpm --filter @vdd/contact build
+          (cd lambda/contact/dist && zip -q contact.zip index.mjs)
+          aws lambda update-function-code --function-name vdd-contact \
+            --zip-file fileb://lambda/contact/dist/contact.zip --output text --query LastUpdateStatus
+          aws lambda wait function-updated --function-name vdd-contact
+
       # Hashed assets first and never deleted: cached HTML from the previous deploy still
       # points at the old ones.
       - name: Upload hashed assets

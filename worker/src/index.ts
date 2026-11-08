@@ -1,13 +1,11 @@
 import { AwsClient } from 'aws4fetch';
+import { type ContactEnv, handleContact } from './contact';
 import { BROWSER_CACHE, EDGE_TTL_SECONDS, withSecurityHeaders } from './headers';
 import { GERMAN_HOME, wantsGermanHome } from './locale';
 import { cacheClass, resolvePath } from './paths';
 
-export interface Env {
+export interface Env extends ContactEnv {
   SITE_BUCKET: string;
-  AWS_REGION: string;
-  AWS_ACCESS_KEY_ID: string;
-  AWS_SECRET_ACCESS_KEY: string;
 }
 
 const PASS_THROUGH = ['Content-Type', 'Content-Length', 'ETag', 'Last-Modified'];
@@ -108,9 +106,10 @@ function methodNotAllowed(): Response {
 
 export default {
   async fetch(request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+    const url = new URL(request.url);
+    if (url.pathname === '/api/contact') return handleContact(request, env);
     if (request.method !== 'GET' && request.method !== 'HEAD') return methodNotAllowed();
 
-    const url = new URL(request.url);
     if (wantsGermanHome(request, url)) return germanHomeRedirect(url);
 
     const target = resolvePath(url.pathname);

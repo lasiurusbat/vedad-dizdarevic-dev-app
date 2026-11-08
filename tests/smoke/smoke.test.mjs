@@ -4,6 +4,7 @@
 //   AWS_REGION   default eu-central-1
 import assert from 'node:assert/strict';
 import { randomUUID } from 'node:crypto';
+import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 
 const base = new URL(process.env.BASE_URL ?? 'https://vedad-dizdarevic.dev');
@@ -61,6 +62,37 @@ test('POST / is rejected with 405', async () => {
   const response = await get(base, { method: 'POST' });
   assert.equal(response.status, 405);
   assert.equal(response.headers.get('allow'), 'GET, HEAD');
+});
+
+test('GET /api/contact is rejected with 405', async () => {
+  const response = await get(new URL('/api/contact', base));
+  assert.equal(response.status, 405);
+});
+
+test('POST /api/contact from another site is rejected before anything runs', async () => {
+  const response = await get(new URL('/api/contact', base), {
+    method: 'POST',
+    headers: { Origin: 'https://example.com', 'Content-Type': 'application/json' },
+    body: '{}',
+  });
+  assert.equal(response.status, 403);
+});
+
+test('POST /api/contact without a Turnstile token is rejected and sends nothing', async () => {
+  const response = await get(new URL('/api/contact', base), {
+    method: 'POST',
+    headers: { Origin: base.origin, 'Content-Type': 'application/json' },
+    body: JSON.stringify({ name: 'Smoke', email: 'smoke@example.com', message: 'Smoke test.' }),
+  });
+  assert.equal(response.status, 403);
+});
+
+test('the contact Lambda refuses unsigned calls', async () => {
+  const config = await readFile(new URL('../../worker/wrangler.toml', import.meta.url), 'utf8');
+  const url = config.match(/^CONTACT_FUNCTION_URL = "(.+)"$/m)?.[1];
+  assert.ok(url, 'CONTACT_FUNCTION_URL not found in wrangler.toml');
+  const response = await fetch(url, { method: 'POST', body: '{}' });
+  assert.equal(response.status, 403);
 });
 
 test('www redirects to the apex with 301', async () => {

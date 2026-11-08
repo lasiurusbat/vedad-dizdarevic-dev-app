@@ -10,11 +10,13 @@ preview_urls = false
 pattern = "vedad-dizdarevic.dev/*"
 zone_name = "vedad-dizdarevic.dev"
 
-# Non-secret config. Secrets (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY) are set
-# with `wrangler secret put` and never live in this file.
+# Non-secret config. Secrets (AWS_ACCESS_KEY_ID, AWS_SECRET_ACCESS_KEY, TURNSTILE_SECRET_KEY) are
+# set with `wrangler secret put` and never live in this file. The function URL is not secret:
+# AWS_IAM auth rejects unsigned calls (the smoke test checks that).
 [vars]
 SITE_BUCKET = "vdd-site-769814228024"
 AWS_REGION = "eu-central-1"
+CONTACT_FUNCTION_URL = "https://q3jwif5wteq6zy6ye5s5skgpya0ipfeq.lambda-url.eu-central-1.on.aws/"
 
 [observability]
 enabled = true
