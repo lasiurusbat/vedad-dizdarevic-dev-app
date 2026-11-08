@@ -36,6 +36,89 @@ export const de: Messages = {
   aboutLanguagesLabel: 'Sprachen',
   aboutLanguages: 'Bosnisch/Serbisch/Kroatisch (Muttersprache), Englisch und Deutsch (fließend)',
   hireTitle: 'Zusammenarbeit',
+  hireStatus: 'Ab sofort verfügbar',
+  hirePlace:
+    'Im Raum Frankfurt. Hybrid mit bis zu 3 Tagen vor Ort oder remote in der EU. Ich habe eine EU-Arbeitserlaubnis.',
+  hireCta: 'E-Mail schreiben',
+  hireOptions: [
+    {
+      title: 'Festanstellung',
+      tag: 'Bevorzugt',
+      text: 'Eine Vollzeitstelle im Cloud- und DevOps-Engineering.',
+    },
+    {
+      title: 'Freiberuflich',
+      text: 'Projekte mit festem Umfang, laufende Teilzeit oder Vollzeit-Verträge.',
+    },
+  ],
+  hireServicesTitle: 'Was ich für Ihr Team tun kann',
+  hireLegend: 'Jeder Punkt führt zu der Stelle in der Fallstudie, die es zeigt.',
+  hireServiceColumn: 'Leistung',
+  hireWhatColumn: 'Was dazugehört',
+  hireShownIn: 'zu sehen bei',
+  hireNotShown: 'Nicht in diesem Projekt',
+  hireProjects: [
+    { slug: 'sorted', name: 'Sorted' },
+    { slug: 'rainalert', name: 'Rain Alert' },
+    { slug: 'this-site', name: 'Diese Website' },
+  ],
+  hireServices: [
+    {
+      title: 'AWS-Architektur',
+      text: 'Neue Plattformen und Reviews bestehender.',
+      proof: { sorted: 'architektur', 'this-site': 'ein-privater-bucket-hinter-einem-worker' },
+    },
+    {
+      title: 'Infrastructure as Code',
+      text: 'Terraform, auch für von Hand gebaute Umgebungen.',
+      proof: {
+        sorted: 'ein-modul-für-jede-umgebung',
+        'this-site': 'zwei-repositories-zwei-pipelines',
+      },
+    },
+    {
+      title: 'CI/CD-Pipelines',
+      text: 'Deploys ohne gespeicherte Schlüssel über OIDC, vom Git-Push bis zum geprüften Release.',
+      proof: {
+        sorted: 'deployment-ohne-schlüssel',
+        rainalert: 'ein-release-ist-ein-git-tag',
+        'this-site': 'keine-gespeicherten-schlüssel-in-der-ci',
+      },
+    },
+    {
+      title: 'Container auf ECS und Fargate',
+      text: 'Fargate-Services, mit Spot, wo ein Neustart vertretbar ist.',
+      proof: { sorted: 'kosten-pro-umgebung' },
+    },
+    {
+      title: 'Monitoring und Alerting',
+      text: 'Dashboards, Alerts und Runbooks mit Grafana und CloudWatch.',
+      proof: {
+        sorted: 'monitoring',
+        rainalert: 'kostenlose-tarife-die-gut-ausfallen',
+        'this-site': 'kosten-und-alarme-auf-einem-geteilten-konto',
+      },
+    },
+    {
+      title: 'Security-Härtung',
+      text: 'Zugriffe nach Least Privilege, private Netze und Security-Header.',
+      proof: {
+        sorted: 'perimeter-durch-konstruktion',
+        rainalert: 'im-zweifel-geschlossen',
+        'this-site': 'security-header-an-einer-stelle',
+      },
+    },
+    {
+      title: 'AWS-Kosten senken',
+      text: 'Dev von Sorted: schätzungsweise 64 % weniger, aus der AWS-Rechnung.',
+      proof: { sorted: 'kosten-pro-umgebung' },
+    },
+    {
+      title: 'Kubernetes auf AWS EKS',
+      text: 'Orchestrierung containerisierter Workloads auf Amazon EKS.',
+      proof: {},
+    },
+  ],
   contactTitle: 'Kontakt',
 
   certsTitle: 'Zertifizierungen',

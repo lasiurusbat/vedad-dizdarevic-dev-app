@@ -6,6 +6,7 @@ import Credentials from './Credentials.astro';
 import Hero from './Hero.astro';
 import Section from './Section.astro';
 import SkillGroup from './SkillGroup.astro';
+import WorkWithMe from './WorkWithMe.astro';
 import { skillGroups, text } from '../skills';
 
 interface Props {
@@ -69,6 +70,8 @@ const sections = [
           <span class="text-fg font-medium">{t.aboutLanguagesLabel}:</span> {t.aboutLanguages}
         </p>
       </div>
+    ) : s.id === 'hire' ? (
+      <WorkWithMe locale={locale} />
     ) : (
       <p class="text-muted">{t.comingSoon}</p>
     )}
