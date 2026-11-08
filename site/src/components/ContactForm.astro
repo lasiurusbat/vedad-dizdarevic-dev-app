@@ -7,7 +7,7 @@
  * reading the page contacts nobody else. CSP: no inline styles or scripts; state is `hidden`,
  * attributes and classes. Limits here mirror lambda/contact/src/validate.ts, which has the last word.
  */
-import { type Locale, useTranslations } from '../i18n';
+import { type Locale, localeUrl, useTranslations } from '../i18n';
 import { CONTACT_EMAIL, TURNSTILE_SITE_KEY } from '../site';
 
 interface Props {
@@ -130,7 +130,12 @@ const t = useTranslations(locale);
       <p class="status" role="status" tabindex="-1" hidden data-status></p>
     </div>
 
-    <p class="text-muted text-sm">{t.contactPrivacy}</p>
+    <p class="text-muted text-sm">
+      {t.contactPrivacy}{' '}
+      <a class="underline" href={localeUrl(locale, 'datenschutz/')}>
+        {t.contactPrivacyLink}
+      </a>
+    </p>
   </form>
 </div>
 

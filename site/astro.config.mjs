@@ -9,7 +9,11 @@ export default defineConfig({
   integrations: [
     mdx(),
     // Lists each page with its translation; the 404 page is left out by the integration.
-    sitemap({ i18n: { defaultLocale: 'en', locales: { en: 'en', de: 'de' } } }),
+    sitemap({
+      i18n: { defaultLocale: 'en', locales: { en: 'en', de: 'de' } },
+      // Legal pages are noindex.
+      filter: (page) => !/\/(impressum|datenschutz)\/$/.test(page),
+    }),
   ],
   trailingSlash: 'always',
   // `/` is English, `/de/` is German. Pages for German live in src/pages/de/.

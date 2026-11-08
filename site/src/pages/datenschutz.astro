@@ -1,0 +1,137 @@
+---
+import LegalPage from '../components/LegalPage.astro';
+import { CONTACT_EMAIL, OWNER } from '../site';
+---
+
+<LegalPage
+  locale="en"
+  title="Privacy policy"
+  description="What vedad-dizdarevic.dev does with your data: hosting, the contact form, spam protection and cookieless statistics."
+>
+  <p>
+    Last updated: November 8, 2026. This is a translation for convenience. The{' '}
+    <a href="/de/datenschutz/">German version</a> applies.
+  </p>
+
+  <h2>Who is responsible</h2>
+  <p>
+    {OWNER}
+    <br />
+    <a href={`mailto:${CONTACT_EMAIL}`}>{CONTACT_EMAIL}</a>
+  </p>
+  <p>I am not required to appoint a data protection officer and have not done so.</p>
+
+  <h2>In short</h2>
+  <ul>
+    <li>This site sets no cookies and shows no advertising.</li>
+    <li>Reading it needs no account, and fonts come from this site, not from a third party.</li>
+    <li>If you use the contact form, I use your details only to reply.</li>
+  </ul>
+
+  <h2>Hosting and delivery</h2>
+  <p>
+    Every request passes through Cloudflare, Inc., 101 Townsend St, San Francisco, CA 94107, USA,
+    which provides DNS, encryption, caching, protection against attacks and the program that serves
+    the pages. The pages themselves are stored at Amazon Web Services EMEA SARL, 38 Avenue John F.
+    Kennedy, L-1855 Luxembourg, in the Frankfurt region.
+  </p>
+  <p>
+    To deliver a page, Cloudflare processes your IP address, the time, the address requested, and
+    your browser's technical details. Cloudflare's systems keep technical logs for a limited time.
+    The legal basis is my legitimate interest in delivering this site securely and reliably (Art.
+    6(1)(f) GDPR).
+  </p>
+
+  <h2>Contact form and email</h2>
+  <p>
+    The form asks for your name, your email address, what your message is about, and the message. A
+    function at Amazon Web Services in Frankfurt sends them to me by email through Amazon SES. My
+    mailbox is hosted by{' '}
+    <a href="https://purelymail.com/" rel="noopener noreferrer">
+      Purelymail
+    </a>
+    , which receives the same information if you write to me directly.
+  </p>
+  <p>
+    I use this information only to reply, and I do not pass it on for any other purpose. The
+    function's logs contain neither your name, your address nor your message, and are deleted after
+    30 days. I delete messages when they are no longer needed, unless a legal duty requires me to
+    keep them.
+  </p>
+  <p>
+    The legal basis is steps towards a possible contract at your request (Art. 6(1)(b) GDPR), and
+    otherwise my legitimate interest in answering your enquiry (Art. 6(1)(f) GDPR).
+  </p>
+
+  <h2>Spam protection (Cloudflare Turnstile)</h2>
+  <p>
+    The form is protected by Cloudflare Turnstile. It loads only once you start on the form. It then
+    runs checks in your browser to tell people from automated programs, and sends Cloudflare
+    technical data such as your IP address and browser details. It does not read what you type.
+    Details are in the{' '}
+    <a href="https://www.cloudflare.com/turnstile-privacy-policy/" rel="noopener noreferrer">
+      Turnstile Privacy Addendum
+    </a>
+    .
+  </p>
+  <p>
+    The legal basis is my legitimate interest in keeping the form free of spam and abuse (Art.
+    6(1)(f) GDPR).
+  </p>
+
+  <h2>Statistics (Cloudflare Web Analytics)</h2>
+  <p>
+    A script from Cloudflare measures page views and loading times. It sets no cookies and does not
+    follow you from site to site. I see only totals, such as how often a page was viewed. Your IP
+    address reaches Cloudflare when the script loads and reports.
+  </p>
+  <p>
+    The legal basis is my legitimate interest in knowing whether the site is used and works well
+    (Art. 6(1)(f) GDPR).
+  </p>
+
+  <h2>What is stored in your browser</h2>
+  <p>
+    If you choose a light or dark theme, your choice is kept in your browser's local storage under{' '}
+    <code>theme</code>. The home page also keeps <code>hero-arch</code> in session storage until you
+    close the tab, so its illustration differs on your next visit. Neither leaves your browser. They
+    serve only the display you see or asked for (§ 25(2) no. 2 TDDDG).
+  </p>
+
+  <h2>Transfers outside the EU</h2>
+  <p>
+    Cloudflare is a US company, so data may be processed in the USA. Cloudflare is certified under
+    the EU-US Data Privacy Framework, and data processing agreements with standard contractual
+    clauses also apply.
+  </p>
+
+  <h2>Links to other sites</h2>
+  <p>
+    This site links to other sites such as GitHub and LinkedIn. They process your data under their
+    own policies once you open them.
+  </p>
+
+  <h2>Your rights</h2>
+  <p>
+    You have the right to access your data and to have it corrected or deleted, to restrict its
+    processing, and to receive it in a portable format (Art. 15 to 20 GDPR).{' '}
+    <strong>
+      Where I rely on legitimate interest, you may object at any time for reasons arising from your
+      situation (Art. 21 GDPR).
+    </strong>{' '}
+    To do any of this, write to the address above.
+  </p>
+  <p>
+    You may also complain to a data protection authority. Mine is the{' '}
+    <a href="https://datenschutz.hessen.de/" rel="noopener noreferrer">
+      Hessian Commissioner for Data Protection and Freedom of Information
+    </a>
+    .
+  </p>
+
+  <h2>Do you have to provide data?</h2>
+  <p>
+    No. Without the form's details I cannot reply through it, but you can always write to me by
+    email instead.
+  </p>
+</LegalPage>

@@ -361,3 +361,16 @@
     left: calc(-1 * var(--plate-cell));
   }
 }
+
+/* Legal pages are read, not shown off: plain headings, without the case studies' plates. */
+.prose.legal > h2 {
+  margin-top: 2.5rem;
+  margin-bottom: 0.75rem;
+  padding-top: 0;
+  font-size: 1.25rem;
+}
+
+.prose.legal > h2::before,
+.prose.legal > h2::after {
+  content: none;
+}

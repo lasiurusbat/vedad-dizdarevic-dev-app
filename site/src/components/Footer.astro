@@ -1,6 +1,6 @@
 ---
 import { GITHUB_URL, LINKEDIN_URL, OWNER } from '../site';
-import { type Locale, useTranslations } from '../i18n';
+import { type Locale, localeUrl, useTranslations } from '../i18n';
 import { caseStudyPath } from '../lib/caseStudies';
 import ExternalLink from './ExternalLink.astro';
 
@@ -24,6 +24,12 @@ const year = new Date().getFullYear();
         class="text-fg inline-flex min-h-11 items-center underline"
       >
         {t.footerHowBuilt}
+      </a>
+      <a
+        href={localeUrl(locale, 'datenschutz/')}
+        class="text-fg inline-flex min-h-11 items-center underline"
+      >
+        {t.footerPrivacy}
       </a>
       <ExternalLink href={GITHUB_URL} class="text-fg inline-flex min-h-11 items-center underline">
         {t.github}

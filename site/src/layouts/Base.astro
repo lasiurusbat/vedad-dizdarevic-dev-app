@@ -22,6 +22,8 @@ interface Props {
   jsonLd?: object;
   /** The case study's slug: picks its share image and marks the page as an article. */
   caseStudy?: string;
+  /** Keep this page out of search results. */
+  noindex?: boolean;
 }
 
 const {
@@ -32,6 +34,7 @@ const {
   alternates,
   jsonLd,
   caseStudy,
+  noindex,
 } = Astro.props;
 const t = useTranslations(locale);
 const urls: Record<Locale, string> = alternates
@@ -55,6 +58,7 @@ const jsonLdText = jsonLd && JSON.stringify(jsonLd).replaceAll('<', '\\u003c');
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={pageDescription} />
+    {noindex && <meta name="robots" content="noindex" />}
     {translated && <link rel="canonical" href={canonical} />}
     <meta property="og:site_name" content={OWNER} />
     <meta property="og:type" content={caseStudy ? 'article' : 'website'} />
