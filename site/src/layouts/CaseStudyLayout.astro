@@ -4,6 +4,7 @@ import CaseIllustration, { type IllustrationVariant } from '../components/CaseIl
 import RainIllustration, { type RainVariant } from '../components/RainIllustration.astro';
 import SiteIllustration, { type SiteVariant } from '../components/SiteIllustration.astro';
 import CTAButton from '../components/CTAButton.astro';
+import { articleLd } from '../lib/structuredData';
 import Base from './Base.astro';
 
 interface Props {
@@ -27,6 +28,7 @@ const t = useTranslations(locale);
   description={summary}
   locale={locale}
   alternates={alternates}
+  jsonLd={articleLd(locale, title, summary, Astro.url.pathname)}
 >
   <article class="max-w-page px-gutter py-section mx-auto">
     <a

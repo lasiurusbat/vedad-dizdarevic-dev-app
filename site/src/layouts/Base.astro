@@ -17,9 +17,11 @@ interface Props {
    * hreflang. Default: every locale at the same path.
    */
   alternates?: Partial<Record<Locale, string>>;
+  /** Structured data for search engines, written as a JSON-LD data block. */
+  jsonLd?: object;
 }
 
-const { title, description, locale = 'en', translated = true, alternates } = Astro.props;
+const { title, description, locale = 'en', translated = true, alternates, jsonLd } = Astro.props;
 const t = useTranslations(locale);
 const urls: Record<Locale, string> = alternates
   ? { en: alternates.en ?? localeUrl('en'), de: alternates.de ?? localeUrl('de') }
@@ -28,6 +30,8 @@ const urls: Record<Locale, string> = alternates
     : { en: localeUrl('en'), de: localeUrl('de') };
 // Locales that really have this page (for hreflang).
 const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : locales;
+// `<` escaped so text in the data can never close the script element.
+const jsonLdText = jsonLd && JSON.stringify(jsonLd).replaceAll('<', '\\u003c');
 ---
 
 <!doctype html>
@@ -37,6 +41,7 @@ const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : loca
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>{title}</title>
     <meta name="description" content={description ?? t.role} />
+    {translated && <link rel="canonical" href={new URL(Astro.url.pathname, Astro.site)} />}
     {translated && [
       ...hreflangLocales.map((l) => (
         <link rel="alternate" hreflang={l} href={new URL(urls[l], Astro.site)} />
@@ -47,6 +52,7 @@ const hreflangLocales = alternates ? locales.filter((l) => alternates[l]) : loca
         href={new URL(urls[hreflangLocales[0] ?? 'en'], Astro.site)}
       />,
     ]}
+    {jsonLdText && <script is:inline type="application/ld+json" set:html={jsonLdText} />}
     <link rel="preload" href={interLatin} as="font" type="font/woff2" crossorigin />
     <link rel="icon" href="/favicon.ico" sizes="32x32" />
     <link rel="icon" href="/favicon.svg" type="image/svg+xml" />

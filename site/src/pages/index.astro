@@ -2,10 +2,16 @@
 import Home from '../components/Home.astro';
 import { useTranslations } from '../i18n';
 import Base from '../layouts/Base.astro';
+import { personLd } from '../lib/structuredData';
 
 const t = useTranslations('en');
 ---
 
-<Base title={`${t.siteTitle} | ${t.role}`} locale="en">
+<Base
+  title={`${t.siteTitle} | ${t.role}`}
+  description={t.metaDescription}
+  locale="en"
+  jsonLd={{ '@context': 'https://schema.org', ...personLd('en') }}
+>
   <Home locale="en" />
 </Base>
