@@ -335,7 +335,7 @@ Browser form ──POST /api/contact──▶ Worker ──verify Turnstile─�
 
 ### Form (site)
 
-- [ ] Works as a normal HTML form POST (progressive enhancement); small script for inline success/error states
+- [x] Posts JSON through a small script, with inline success and error states. Hidden without JavaScript, because Turnstile needs it; the email address is the fallback
 - [ ] Labels, error messages, success state in EN and DE
 - [ ] Short privacy note linking to the Datenschutz page
 

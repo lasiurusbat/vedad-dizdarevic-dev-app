@@ -61,6 +61,11 @@ jobs:
       - run: pnpm install --frozen-lockfile
       - run: pnpm --filter @vdd/worker typecheck
       - run: pnpm --filter @vdd/worker test
+      - name: contact Lambda
+        run: |
+          pnpm --filter @vdd/contact typecheck
+          pnpm --filter @vdd/contact test
+          pnpm --filter @vdd/contact build
 
   e2e:
     runs-on: ubuntu-latest

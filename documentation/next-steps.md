@@ -23,6 +23,14 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **CV PDFs and the Gmail address were removed from history** in both repos (#66, `git-filter-repo`, force-pushed by the owner). **GitHub Support ticket #4972996 is open**: old commit URLs and PR refs still expose the PDFs until it closes. Don't rewrite or force-push either repo while it is open. Afterwards, check that the old commit URL for `cv/Vedad_Dizdarevic_CV_EN_1026.pdf` at `c5af52d` stops working.
 - **Phase 5 (CV):** built; see CLAUDE.md. Delete the local `cv/reference/` and `../cv-reference-backup/` once the owner is happy with the new PDFs.
 
+### 2026-11-08: contact form (Phase 6)
+
+- Built; see CLAUDE.md. Differences from the plan: the form needs JavaScript (Turnstile does), so there is no plain HTML POST; the email address is the fallback. The `gh-app-deploy` role needed `lambda:UpdateFunctionCode` and `lambda:GetFunctionConfiguration` on `vdd-contact` (infra `bootstrap/`).
+- **Lambda concurrency is not capped** (AWS rejects a reservation on this account), so Turnstile and the coarse rate limit are the only brakes. The AWS budget alert is the backstop.
+- **For Phase 9, before enforcing the CSP:** the real Turnstile script applies an inline style that `style-src 'self'` blocks (seen with Cloudflare's test key under the enforced policy on 2026-11-08). The form still got a token and worked, but check a visible challenge, then decide (a hash may be unstable across Turnstile updates; `api.js` must not be self-hosted).
+- **Datenschutz:** the form's privacy note has no link yet because the page does not exist. Add it with the legal pages, and describe the form and Turnstile there.
+- Once live: update the `this-site` case study (EN, DE): `outcomesNote`, the Limitations row "The contact form is not live" (`this-site.spec.ts` checks it) and the planned, dashed edges of the `site-platform` diagram.
+
 ## Next (in this order)
 
 1. ~~Sorted page restructure~~ done (#40, #46, #48, #49, #50).

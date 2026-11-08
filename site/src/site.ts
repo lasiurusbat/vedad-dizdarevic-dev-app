@@ -9,6 +9,16 @@ export const LINKEDIN_URL = 'https://www.linkedin.com/in/vedad-dizdarevic-b15430
 export const LANGUAGE_NAMES = { en: 'English', de: 'Deutsch' } as const;
 export const OWNER = 'Vedad Dizdarevic';
 
+/**
+ * Turnstile site key: public by design (Terraform output `turnstile_site_key`). `astro dev` uses
+ * Cloudflare's always-pass test key, because the real one only works on the live domain. The
+ * production build must never fall back to the test key, which would pass everything.
+ */
+const TURNSTILE_LIVE_KEY = '0x4AAAAAAFxPwm9i2F3KvORZ';
+export const TURNSTILE_SITE_KEY: string =
+  import.meta.env.PUBLIC_TURNSTILE_SITE_KEY ??
+  (import.meta.env.DEV ? '1x00000000000000000000AA' : TURNSTILE_LIVE_KEY);
+
 /** The CV in a language. Built from cv/data.yaml by cv/build.sh as part of the site build. */
 export const cvUrl = (locale: 'en' | 'de') => `/cv/Vedad_Dizdarevic_CV_${locale.toUpperCase()}.pdf`;
 export const CONTACT_EMAIL = 'hello@vedad-dizdarevic.dev';

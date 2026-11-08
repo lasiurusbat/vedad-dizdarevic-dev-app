@@ -2,6 +2,7 @@
 import { type Locale, useTranslations } from '../i18n';
 import { caseStudyPath, getCaseStudies, slugOf } from '../lib/caseStudies';
 import CaseStudyCard from './CaseStudyCard.astro';
+import ContactForm from './ContactForm.astro';
 import Credentials from './Credentials.astro';
 import Hero from './Hero.astro';
 import Section from './Section.astro';
@@ -72,6 +73,8 @@ const sections = [
       </div>
     ) : s.id === 'hire' ? (
       <WorkWithMe locale={locale} />
+    ) : s.id === 'contact' ? (
+      <ContactForm locale={locale} />
     ) : (
       <p class="text-muted">{t.comingSoon}</p>
     )}

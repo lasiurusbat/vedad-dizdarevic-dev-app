@@ -1,0 +1,489 @@
+---
+/*
+ * The contact form. Posts JSON to /api/contact; the Worker checks Turnstile, the Lambda sends.
+ *
+ * Needs JavaScript, because Turnstile does: the form stays hidden without it, and the email address
+ * beside it always works. Turnstile (a third party) loads only once someone starts on the form, so
+ * reading the page contacts nobody else. CSP: no inline styles or scripts; state is `hidden`,
+ * attributes and classes. Limits here mirror lambda/contact/src/validate.ts, which has the last word.
+ */
+import { type Locale, useTranslations } from '../i18n';
+import { CONTACT_EMAIL, TURNSTILE_SITE_KEY } from '../site';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<div class="contact not-prose">
+  <div class="intro">
+    <p class="max-w-measure text-lg">{t.contactIntro}</p>
+    <p class="text-muted mt-4">
+      {t.contactDirect}{' '}
+      <a class="direct underline" href={`mailto:${CONTACT_EMAIL}`}>
+        {CONTACT_EMAIL}
+      </a>
+    </p>
+    <noscript>
+      <p class="text-muted mt-4">{t.contactNoScript}</p>
+    </noscript>
+  </div>
+
+  <form
+    class="form card border-border rounded-lg border"
+    novalidate
+    hidden
+    data-contact
+    data-sitekey={TURNSTILE_SITE_KEY}
+    data-language={locale}
+    data-sending={t.contactSending}
+    data-success={t.contactSuccess}
+    data-error-verification={t.contactErrorVerification}
+    data-error-invalid={t.contactErrorInvalid}
+    data-error-failed={t.contactErrorFailed}
+  >
+    <fieldset class="field">
+      <legend class="label">{t.contactTypeLabel}</legend>
+      <div class="types">
+        {t.contactTypes.map((type, i) => (
+          <label class="type">
+            <input type="radio" name="type" value={type.value} checked={i === 0} />
+            <span>{type.label}</span>
+          </label>
+        ))}
+      </div>
+    </fieldset>
+
+    <div class="field">
+      <label class="label" for="contact-name">
+        {t.contactName}
+      </label>
+      <input
+        class="input"
+        id="contact-name"
+        name="name"
+        type="text"
+        autocomplete="name"
+        maxlength="100"
+        required
+        aria-describedby="contact-name-error"
+      />
+      <p class="error" id="contact-name-error" hidden>
+        {t.contactErrorName}
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="label" for="contact-email">
+        {t.contactEmail}
+      </label>
+      <input
+        class="input"
+        id="contact-email"
+        name="email"
+        type="email"
+        autocomplete="email"
+        maxlength="254"
+        required
+        aria-describedby="contact-email-error"
+      />
+      <p class="error" id="contact-email-error" hidden>
+        {t.contactErrorEmail}
+      </p>
+    </div>
+
+    <div class="field">
+      <label class="label" for="contact-message">
+        {t.contactMessage}
+      </label>
+      <textarea
+        class="input"
+        id="contact-message"
+        name="message"
+        rows="6"
+        maxlength="5000"
+        required
+        aria-describedby="contact-message-error"
+      ></textarea>
+      <p class="error" id="contact-message-error" hidden>
+        {t.contactErrorMessage}
+      </p>
+    </div>
+
+    {/* The honeypot: off-screen for people and skipped by the keyboard, tempting for bots. */}
+    <div class="trap" aria-hidden="true">
+      <label>
+        Website
+        <input name="website" type="text" tabindex="-1" autocomplete="off" />
+      </label>
+    </div>
+
+    <div class="widget" data-widget></div>
+
+    <div class="actions">
+      <button class="btn-send" type="submit" data-submit>
+        {t.contactSend}
+      </button>
+      <p class="status" role="status" tabindex="-1" hidden data-status></p>
+    </div>
+
+    <p class="text-muted text-sm">{t.contactPrivacy}</p>
+  </form>
+</div>
+
+<style>
+  .contact {
+    display: grid;
+    gap: 2rem;
+  }
+
+  @media (min-width: 64rem) {
+    .contact {
+      grid-template-columns: minmax(0, 2fr) minmax(0, 3fr);
+      gap: 3rem;
+      align-items: start;
+    }
+  }
+
+  /* The address can be longer than a phone is wide. */
+  .direct {
+    overflow-wrap: anywhere;
+  }
+
+  .form {
+    display: flex;
+    flex-direction: column;
+    gap: 1.25rem;
+    padding: 1.5rem;
+  }
+
+  .form[hidden] {
+    display: none;
+  }
+
+  @media (min-width: 48rem) {
+    .form {
+      padding: 2rem;
+    }
+  }
+
+  .field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.375rem;
+    min-width: 0;
+    border: 0;
+  }
+
+  .label {
+    padding: 0;
+    font-size: var(--text-sm);
+    font-weight: 500;
+  }
+
+  .input {
+    width: 100%;
+    min-height: 2.75rem;
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.625rem;
+    background: var(--bg);
+    color: var(--fg);
+  }
+
+  textarea.input {
+    display: block;
+    min-height: 9rem;
+    resize: vertical;
+  }
+
+  .input[aria-invalid='true'] {
+    border-color: var(--error);
+  }
+
+  .error {
+    color: var(--error);
+    font-size: var(--text-sm);
+  }
+
+  .form {
+    --error: light-dark(#a3282c, #f0a5a7);
+    --ok: light-dark(#2a6f4b, #7fd3a5);
+  }
+
+  .types {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 0.125rem;
+  }
+
+  /* Radio buttons shown as pills; the input stays real, so keyboards and screen readers just work. */
+  .type {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0 0.875rem;
+    border: 1px solid var(--border-strong);
+    border-radius: 0.625rem;
+    cursor: pointer;
+    font-size: var(--text-sm);
+  }
+
+  .type:has(input:checked) {
+    border-color: var(--accent);
+    background: var(--surface);
+  }
+
+  .type input {
+    accent-color: var(--accent);
+  }
+
+  .trap {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip-path: inset(50%);
+    white-space: nowrap;
+  }
+
+  /* Empty until Turnstile needs a person to do something. */
+  .widget:empty {
+    display: none;
+  }
+
+  .actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 0.75rem 1rem;
+  }
+
+  /* Same finish as the primary CTAButton, which is a link and cannot be a submit button. */
+  .btn-send {
+    min-height: 2.75rem;
+    padding: 0.5rem 1.25rem;
+    border: 1px solid light-dark(#2c5260, #4f8597);
+    border-radius: 0.625rem;
+    background: linear-gradient(
+      to bottom,
+      light-dark(#467787, #22414d),
+      light-dark(#376272, #172e37)
+    );
+    box-shadow:
+      inset 0 1px 0 rgb(255 255 255 / 0.12),
+      0 0 12px color-mix(in srgb, var(--accent) 30%, transparent);
+    color: #fff;
+    cursor: pointer;
+    font-weight: 500;
+  }
+
+  .btn-send:disabled {
+    cursor: progress;
+    opacity: 0.7;
+  }
+
+  .status {
+    flex: 1 1 14rem;
+    font-size: var(--text-sm);
+  }
+
+  .status.is-ok {
+    color: var(--ok);
+    font-weight: 500;
+  }
+
+  .status.is-error {
+    color: var(--error);
+  }
+</style>
+
+<script>
+  interface TurnstileApi {
+    render(
+      el: HTMLElement,
+      options: {
+        sitekey: string;
+        action: string;
+        theme: 'light' | 'dark';
+        language: string;
+        appearance: 'interaction-only';
+        size: 'flexible';
+        callback(token: string): void;
+        'error-callback'(): void;
+        'expired-callback'(): void;
+      },
+    ): string;
+    reset(id: string): void;
+  }
+  type TurnstileWindow = Window & { turnstile?: TurnstileApi };
+
+  const SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
+  // Long enough for a person to solve a challenge, should Turnstile ask for one.
+  const TOKEN_WAIT_MS = 60_000;
+  const EMAIL = /^[^\s@<>()[\]",;:\\]+@[^\s@<>()[\]",;:\\]+\.[^\s@<>()[\]",;:\\.]{2,}$/;
+
+  const form = document.querySelector<HTMLFormElement>('[data-contact]');
+
+  if (form) {
+    const { dataset } = form;
+    const widget = form.querySelector<HTMLElement>('[data-widget]')!;
+    const status = form.querySelector<HTMLElement>('[data-status]')!;
+    const submit = form.querySelector<HTMLButtonElement>('[data-submit]')!;
+    form.hidden = false;
+
+    let api: Promise<TurnstileApi> | undefined;
+    let widgetId: string | undefined;
+    let token = '';
+    let onToken: ((value: string) => void) | undefined;
+
+    const loadApi = () =>
+      (api ??= new Promise<TurnstileApi>((resolve, reject) => {
+        const script = document.createElement('script');
+        script.src = SCRIPT;
+        script.async = true;
+        script.onload = () => {
+          const loaded = (window as TurnstileWindow).turnstile;
+          if (loaded) resolve(loaded);
+          else reject(new Error('Turnstile did not load'));
+        };
+        script.onerror = () => reject(new Error('Turnstile did not load'));
+        document.head.append(script);
+      }));
+
+    /** Loads and renders once, on the first sign that someone is using the form. */
+    const startWidget = async () => {
+      const turnstile = await loadApi();
+      widgetId ??= turnstile.render(widget, {
+        sitekey: dataset.sitekey!,
+        action: 'contact',
+        theme: document.documentElement.dataset.theme === 'light' ? 'light' : 'dark',
+        language: dataset.language!,
+        appearance: 'interaction-only',
+        size: 'flexible',
+        callback: (value) => {
+          token = value;
+          onToken?.(value);
+        },
+        'error-callback': () => {
+          token = '';
+        },
+        'expired-callback': () => {
+          token = '';
+        },
+      });
+    };
+
+    /** Tokens work once: a new one is needed after every attempt. */
+    const resetWidget = async () => {
+      token = '';
+      if (widgetId !== undefined) (await loadApi()).reset(widgetId);
+    };
+
+    const waitForToken = () =>
+      new Promise<string>((resolve, reject) => {
+        if (token) return resolve(token);
+        const timer = setTimeout(() => reject(new Error('No token')), TOKEN_WAIT_MS);
+        onToken = (value) => {
+          clearTimeout(timer);
+          resolve(value);
+        };
+      });
+
+    form.addEventListener('focusin', () => void startWidget().catch(() => {}), { once: true });
+
+    const show = (message: string, kind?: 'ok' | 'error') => {
+      status.hidden = false;
+      status.textContent = message;
+      status.classList.toggle('is-ok', kind === 'ok');
+      status.classList.toggle('is-error', kind === 'error');
+    };
+
+    const setInvalid = (input: HTMLInputElement | HTMLTextAreaElement, invalid: boolean) => {
+      input.setAttribute('aria-invalid', String(invalid));
+      form.querySelector<HTMLElement>(`#${input.id}-error`)!.hidden = !invalid;
+    };
+
+    const fields = {
+      name: form.elements.namedItem('name') as HTMLInputElement,
+      email: form.elements.namedItem('email') as HTMLInputElement,
+      message: form.elements.namedItem('message') as HTMLTextAreaElement,
+    };
+    const checks: [HTMLInputElement | HTMLTextAreaElement, (value: string) => boolean][] = [
+      [fields.name, (v) => v.length > 0],
+      [fields.email, (v) => EMAIL.test(v)],
+      [fields.message, (v) => v.length >= 10],
+    ];
+
+    /** Marks every field; focus goes to the first problem. */
+    const validate = () => {
+      let first: HTMLElement | undefined;
+      for (const [input, check] of checks) {
+        const ok = check(input.value.trim());
+        setInvalid(input, !ok);
+        if (!ok) first ??= input;
+      }
+      first?.focus();
+      return !first;
+    };
+
+    // Once marked, a field clears as soon as it is right, not on the next submit.
+    for (const [input, check] of checks) {
+      input.addEventListener('input', () => {
+        if (input.getAttribute('aria-invalid') === 'true' && check(input.value.trim())) {
+          setInvalid(input, false);
+        }
+      });
+    }
+
+    const errorFor = (httpStatus: number) => {
+      if (httpStatus === 403) return dataset.errorVerification!;
+      if (httpStatus === 400) return dataset.errorInvalid!;
+      return dataset.errorFailed!;
+    };
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      status.hidden = true;
+      if (!validate()) return;
+
+      submit.disabled = true;
+      show(dataset.sending!);
+      try {
+        await startWidget();
+        const body = {
+          type: new FormData(form).get('type'),
+          name: fields.name.value,
+          email: fields.email.value,
+          message: fields.message.value,
+          language: dataset.language,
+          website: (form.elements.namedItem('website') as HTMLInputElement).value,
+          token: await waitForToken(),
+        };
+        const response = await fetch('/api/contact', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(body),
+        });
+        if (response.ok) {
+          form.reset();
+          show(dataset.success!, 'ok');
+        } else {
+          show(errorFor(response.status), 'error');
+        }
+      } catch {
+        // Turnstile blocked or unreachable, or no network: nothing was sent.
+        show(dataset.errorFailed!, 'error');
+      } finally {
+        submit.disabled = false;
+        status.focus();
+        void resetWidget().catch(() => {});
+      }
+    });
+  }
+</script>
