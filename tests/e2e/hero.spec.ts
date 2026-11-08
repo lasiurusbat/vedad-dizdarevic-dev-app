@@ -60,9 +60,6 @@ for (const p of pages) {
       for (const box of await hero.getByRole('link').all()) {
         expect((await box.boundingBox())?.height ?? 0).toBeGreaterThanOrEqual(44);
       }
-
-      // No dead "Download CV" button before a CV exists (CV_URL in site/src/site.ts).
-      await expect(hero.getByRole('link', { name: /download cv|lebenslauf/i })).toHaveCount(0);
     });
   }
 

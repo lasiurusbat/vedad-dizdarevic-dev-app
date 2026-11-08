@@ -1,5 +1,5 @@
 ---
-import { GITHUB_URL, LINKEDIN_URL } from '../site';
+import { cvUrl, GITHUB_URL, LINKEDIN_URL } from '../site';
 import { type Locale, localeUrl, useTranslations } from '../i18n';
 import CTAButton from './CTAButton.astro';
 import ExternalLink from './ExternalLink.astro';
@@ -47,6 +47,9 @@ const barLink =
             {s.label}
           </a>
         ))}
+        <a href={cvUrl(locale)} download class={barLink}>
+          {t.navCv}
+        </a>
         <ExternalLink href={GITHUB_URL} class={barLink}>
           {t.github}
         </ExternalLink>
@@ -78,6 +81,9 @@ const barLink =
           ))}
           <a href={contact} class={link}>
             {t.navContact}
+          </a>
+          <a href={cvUrl(locale)} download class={link}>
+            {t.navCv}
           </a>
           <ExternalLink href={GITHUB_URL} class={link}>
             {t.github}

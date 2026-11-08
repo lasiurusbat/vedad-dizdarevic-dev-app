@@ -36,6 +36,7 @@ export const en = {
   navAbout: 'About',
   navHire: 'Work with me',
   navContact: 'Contact',
+  navCv: 'CV',
   github: 'GitHub',
   linkedin: 'LinkedIn',
 

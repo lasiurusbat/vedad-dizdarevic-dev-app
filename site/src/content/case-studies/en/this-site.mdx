@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monthly AWS budget, with an alert'
     value: '$5'
-outcomesNote: 'Figures from the app and infra repositories as of November 7, 2026. The contact form, the CV build and Lighthouse in CI are not built yet, and the Content Security Policy is still report-only; see Limitations.'
+outcomesNote: 'Figures from the app and infra repositories as of November 7, 2026. The contact form and Lighthouse in CI are not built yet, and the Content Security Policy is still report-only; see Limitations.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -95,7 +95,7 @@ GitHub now issues immutable subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`),
 
 Terraform manages AWS and the Cloudflare zone, DNS and rules; Wrangler deploys the Worker script and its route. No resource is managed by both.
 
-**App repository.** Every pull request runs lint and formatting, a type check and build, the Worker's tests in the Workers runtime, Playwright with axe in both themes and languages, and gitleaks. A push to `main` deploys:
+**App repository.** Every pull request runs lint and formatting, a type check and build, the Worker's tests in the Workers runtime, Playwright with axe in both themes and languages, and gitleaks. The build also compiles my CV in both languages from one YAML file with Typst, and a check fails it if a phone number or private email address turns up in a PDF. A push to `main` deploys:
 
 1. Hashed assets go up first and nothing is deleted yet, so pages from the old build still find their files.
 2. The rest goes up with `--delete`.
