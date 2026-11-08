@@ -92,6 +92,29 @@ jobs:
             tests/e2e/playwright-report
           if-no-files-found: ignore
 
+  lighthouse:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@v5
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v5
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-typst
+      - run: pnpm --filter @vdd/site build
+      # Mobile profile, three runs per page: scores below the thresholds fail the build.
+      - run: pnpm --filter @vdd/e2e lighthouse
+      - name: upload the reports
+        if: always()
+        uses: actions/upload-artifact@v5
+        with:
+          name: lighthouse-reports
+          path: tests/e2e/lighthouse-report
+          if-no-files-found: ignore
+
   secrets:
     runs-on: ubuntu-latest
     timeout-minutes: 10

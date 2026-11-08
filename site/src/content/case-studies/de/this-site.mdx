@@ -19,7 +19,7 @@ outcomes:
     value: '3'
   - label: 'Monatliches AWS-Budget, mit Alarm'
     value: '5 $'
-outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 8. November 2026. Lighthouse läuft noch nicht in der CI; siehe Grenzen.'
+outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 8. November 2026.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -95,7 +95,7 @@ GitHub vergibt inzwischen unveränderliche Subjects (`repo:<owner>@<ownerId>/<re
 
 Terraform verwaltet AWS sowie Zone, DNS und Regeln bei Cloudflare; Wrangler deployt das Worker-Skript und seine Route. Keine Ressource wird von beiden verwaltet.
 
-**App-Repository.** Jeder Pull Request durchläuft Lint und Formatierung, Typprüfung und Build, die Tests des Workers (in der Workers-Laufzeit) und der Kontaktfunktion, Playwright mit axe in beiden Themes und Sprachen sowie gitleaks. Der Build erzeugt außerdem meinen Lebenslauf in beiden Sprachen mit Typst aus einer YAML-Datei, und eine Prüfung schlägt fehl, wenn eine Telefonnummer oder private E-Mail-Adresse in einem PDF auftaucht. Ein Push auf `main` deployt:
+**App-Repository.** Jeder Pull Request durchläuft Lint und Formatierung, Typprüfung und Build, die Tests des Workers (in der Workers-Laufzeit) und der Kontaktfunktion, Playwright mit axe in beiden Themes und Sprachen, Lighthouse im Mobilprofil mit Schwellenwerten, die den Build scheitern lassen, Budgets für das Seitengewicht sowie gitleaks. Der Build erzeugt außerdem meinen Lebenslauf in beiden Sprachen mit Typst aus einer YAML-Datei, und eine Prüfung schlägt fehl, wenn eine Telefonnummer oder private E-Mail-Adresse in einem PDF auftaucht. Ein Push auf `main` deployt:
 
 1. Die Kontaktfunktion bekommt ihren neuen Code, noch vor dem Worker, der sie aufruft.
 2. Danach gehen gehashte Assets hoch, und noch wird nichts gelöscht, damit Seiten aus dem alten Build ihre Dateien weiter finden.
@@ -231,11 +231,6 @@ Die Plattform liefert eine statische Website aus, gebaut mit Astro: englische un
       gap: 'Ein langlebiger Zugriffsschlüssel',
       detail: 'Ich rotiere den Schlüssel des Workers alle 90 Tage von Hand; die erste Rotation ist bis zum 1. Februar 2027 fällig.',
       next: 'Die Rotation in der CI automatisieren, über die bereits vorhandene Rotationsrolle.',
-    },
-    {
-      gap: 'Kein Performance-Budget in der CI',
-      detail: 'Lighthouse und Grenzen für das Seitengewicht sind geplant, aber noch nicht durchgesetzt.',
-      next: 'Lighthouse CI im Mobilprofil ergänzen, mit Budgets, die den Build scheitern lassen.',
     },
     {
       gap: 'Analytics außerhalb von Terraform',
