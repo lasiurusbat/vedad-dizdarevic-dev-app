@@ -14,6 +14,8 @@ interface HireService {
   text: string;
   /** Section anchor per project, in this language. No entry: the project does not show it. */
   proof: Partial<Record<HireSlug, string>>;
+  /** Evidence outside the three case studies: a repository, linked after the text. */
+  source?: { url: string; label: string };
 }
 
 export const en = {
@@ -130,8 +132,9 @@ export const en = {
     },
     {
       title: 'Kubernetes on AWS EKS',
-      text: 'Orchestrating containerised workloads on Amazon EKS.',
+      text: 'A multi-service platform on Amazon EKS with ArgoCD:',
       proof: {},
+      source: { url: 'https://github.com/lasiurusbat/sre-project', label: 'SRE-Project' },
     },
   ] as HireService[],
   contactTitle: 'Contact',

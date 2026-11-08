@@ -5,7 +5,8 @@
  * service and links to the section that does. Green is for the status only; dots use the accent.
  *
  * A dot is a claim: add one only when that section really shows the service (the e2e test checks
- * that every target exists, not that it is true). A service with no project has an empty row, last.
+ * that every target exists, not that it is true). A service shown only outside the three case
+ * studies (Kubernetes) has no dots and links its repository in the text instead; it comes last.
  * The email button stays until the contact form exists (Phase 6).
  *
  * The grid is a table to screen readers. It is laid out with CSS grid so that on phones the
@@ -80,7 +81,18 @@ const t = useTranslations(locale);
             {s.title}
           </span>
           <span class="what text-muted" role="cell">
-            {s.text}
+            {s.text}{' '}
+            {s.source && (
+              <a
+                class="source underline"
+                href={s.source.url}
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                {s.source.label}
+                <span class="sr-only"> {t.opensNewTab}</span>
+              </a>
+            )}
           </span>
           {t.hireProjects.map((p) => {
             const section = s.proof[p.slug];
@@ -303,6 +315,13 @@ const t = useTranslations(locale);
     .dot:hover::before {
       transform: none;
     }
+  }
+
+  /* An inline link with a 44px touch target. */
+  .source {
+    display: inline-flex;
+    min-height: 2.75rem;
+    align-items: center;
   }
 
   /* An empty position, so the columns still read as columns. */
