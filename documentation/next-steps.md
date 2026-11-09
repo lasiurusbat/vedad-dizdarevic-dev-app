@@ -16,6 +16,12 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 **Decided 2026-11-09:** no Impressum (the owner has no serviceable address besides home and will not publish it), the geo-redirect to `/de/` stays, and Purelymail's US servers are accepted: the policy states the fact and names no mechanism. The Cloudflare paragraph now says Cloudflare's standard DPA applies (#101); AWS is not named in the policy. The Better Stack `/de/` keyword monitor (keyword `Datenschutz`, the German footer link) was created on 2026-11-09. **Waiting on the owner:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
+### Late 2026-11-09: About redesign and its tests
+
+- **About (#110, merged):** `About.astro` replaces the four-paragraph block: one lead sentence, two short paragraphs (the second links Sorted via `{sorted}`), and an "At a glance" definition list (`aboutFacts`, EN and DE) beside the text from `md` up. The old `aboutP3` and `aboutLanguages` keys are gone. `hero.spec.ts` and `layout.spec.ts` were adjusted (languages value without its label; the body-text parity check uses the second paragraph and no longer compares width).
+- **Tests (#111, open when the session stopped; check it first):** `tests/unit/about-copy.test.mjs` (`node --test "tests/unit/*.test.mjs"`, a step in the `site` CI job, the first unit tests in the repo) and `tests/e2e/about.spec.ts`. The line-length test found 94 (EN) and 86 (DE) characters per line, so the column is capped at `max-w-[54ch]!` (the `!` is needed: the global `.prose` rule, 70ch, is unlayered). The case-study prose still runs at 70ch (about 94 characters); decide whether to narrow it too.
+- **Gotcha:** the e2e suite serves the existing `site/dist`; rebuild with `pnpm --filter @vdd/site build` before running it.
+
 ### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
 - **Next-case link (#56):** the closing band of every case study ends with "Next case study", in display order and wrapping round (`nextCaseStudy()` in `lib/caseStudies.ts`). The loop is now Sorted → Rain Alert → this site → Sorted.
