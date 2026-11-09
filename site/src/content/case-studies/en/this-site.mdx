@@ -16,10 +16,10 @@ outcomes:
   - label: 'Security headers on every response, checked after each deploy'
     value: '6'
   - label: 'OIDC roles, each trusted for one repository'
-    value: '3'
+    value: '4'
   - label: 'Monthly AWS budget, with an alert'
     value: '$5'
-outcomesNote: 'Figures from the app and infra repositories as of November 8, 2026.'
+outcomesNote: 'Figures from the app and infra repositories as of November 9, 2026.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -47,7 +47,7 @@ Three paths run through the site: requests, deploys, and the contact form with i
 
 <TradeOff
   gained="The bucket is never public, traffic is HTTPS from the browser to S3, and the edge logic is versioned, tested code."
-  price="The Worker cannot use OIDC to reach AWS, so it holds the one long-lived access key in the setup. I rotate it by hand every 90 days."
+  price="The Worker cannot use OIDC to reach AWS, so it holds the one long-lived access key in the setup. A weekly workflow replaces it once it is 80 days old."
 />
 
 A public S3 website endpoint speaks plain HTTP to its origin, and CloudFront would put a second CDN behind Cloudflare. A Worker runs the edge logic on Cloudflare's free plan.
@@ -84,6 +84,8 @@ GitHub Actions assumes AWS roles through OIDC. A small bootstrap stack, applied 
 - **`gh-infra-plan`** for pull requests in the infra repository: read-only, except for the state lock file.
 - **`gh-infra-apply`** for `main` in the infra repository, in a protected `production` environment. It can change IAM only for names starting with `vdd-`, so it cannot edit the CI roles themselves.
 
+A fourth role, **`vdd-key-rotation`**, is created with the rest of the infrastructure and trusts the app repository's `main` branch. It can list, create, update and delete the access keys of one IAM user, the Worker's, and nothing else. A weekly workflow uses it to replace that key once it is 80 days old: it creates the new key, checks that it can read the site bucket, sets the Worker's secrets, runs the smoke test and only then deletes the old key.
+
 GitHub now issues immutable subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`), so the roles trust the numeric owner and repository IDs. A new repository that reuses the name gets a new ID and no access.
 
 ## Two repositories, two pipelines
@@ -102,6 +104,7 @@ Terraform manages AWS and the Cloudflare zone, DNS and rules; Wrangler deploys t
 3. The rest goes up with `--delete`.
 4. Wrangler deploys the Worker, and the cache is purged.
 5. A smoke test checks the live domain: all six headers, the 404 page, `405` for a `POST`, `www` and `http` redirects, that the bucket and the contact function refuse direct access, and that the form's route rejects a made-up Turnstile token. It sends no mail.
+6. Last, hashed assets that left the build more than 30 days ago are pruned. The bucket is versioned, so a wrong delete can be restored.
 
 **Infra repository.** Every pull request runs `fmt`, `validate`, Trivy, Checkov and gitleaks, and posts the plan as a comment. A merge applies it in the protected environment, one run at a time. The apply refuses any plan that deletes or replaces a resource until a person re-runs it with `allow_destroy`. Scanner exceptions sit next to the code, each with a reason.
 
@@ -114,6 +117,15 @@ Terraform manages AWS and the Cloudflare zone, DNS and rules; Wrangler deploys t
 
 The Worker sends a fresh visit to `/` from Germany, Austria, Switzerland, Luxembourg or Liechtenstein to `/de/` with an uncached `302`. It leaves deep links, clicks within the site and URLs with `?lang=` alone. The language switch links to `/?lang=en`, so a click on English always lands on English. Crawlers, which mostly come from the US, index the English home page.
 
+## A CV built from data
+
+<TradeOff
+  gained="One data file in English and German produces both PDFs on every build, so the CV on the site cannot drift from its source, and a check keeps private details out."
+  price="The site build needs Typst. CI installs a pinned version, and a laptop without it cannot build the site."
+/>
+
+The CV is a YAML file plus a Typst template. The site build compiles an English and a German PDF into the published files. A check fails the build if a PDF has the wrong page count, no document title or tagging, or a phone number, a private mail provider or a date of birth in its text. The same tool renders the share images that link previews show, from a build-time endpoint, so the site adds no image library.
+
 ## Costs and alarms on a shared account
 
 <TradeOff
@@ -122,9 +134,17 @@ The Worker sends a fresh visit to `/` from Germany, Austria, Switzerland, Luxemb
 />
 
 - **A $5 monthly budget** with an alert at 100% of actual and of forecast spend, scoped to this project's `Project` tag.
-- **CloudWatch alarms** on Lambda errors and throttles and on the SES bounce and complaint rates, sent through SNS to my inbox.
-- **An uptime monitor** on the home page from outside AWS and Cloudflare.
+- **CloudWatch alarms** on Lambda errors, throttles and invocations (more than 30 an hour) and on the SES bounce and complaint rates, sent through SNS to my inbox.
+- **Uptime monitors** on the English and German home pages from outside AWS and Cloudflare; the German one also checks for a keyword.
 - **Mail authentication.** SPF, DKIM for both the mailbox provider and SES, and DMARC with reports, all as Terraform-managed DNS records.
+
+## What the checks report
+
+The build fails below these thresholds. The Lighthouse scores come from the latest run on `main` (November 9, 2026).
+
+- **Lighthouse, mobile profile, in CI.** Performance 97 to 99, and 100 for Accessibility, Best Practices and SEO, on the English home page, the German home page and the Sorted case study (three runs each). It runs against the built site, not the live domain. The build fails below 95 for Performance and below 100 for the others.
+- **Page-weight budgets, per page.** JavaScript up to 20 KB without a diagram and 140 KB with one, CSS up to 30 KB, 500 KB in total, text counted gzipped.
+- **External scanners.** On November 8, 2026 I checked the live domain by hand: securityheaders.com A+, Mozilla Observatory A+ (130 points, 12 of 12 tests) and SSL Labs A+ on all four endpoints. These are one-off checks, not part of the pipeline.
 
 ## Problems I hit
 
@@ -229,8 +249,8 @@ The platform serves a static site built with Astro: English and German pages, ca
     },
     {
       gap: 'One long-lived access key',
-      detail: 'I rotate the Worker’s key by hand every 90 days; the first rotation is due by February 1, 2027.',
-      next: 'Script the rotation in CI through the rotation role that already exists.',
+      detail: 'It lives only in the Worker’s secrets, and a weekly workflow replaces it at 80 days. A leaked key would still work until the next rotation.',
+      next: 'Remove the key altogether if the Worker can get short-lived credentials instead.',
     },
     {
       gap: 'The apply role is broad within its services',

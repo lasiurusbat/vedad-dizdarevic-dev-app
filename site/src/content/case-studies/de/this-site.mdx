@@ -16,10 +16,10 @@ outcomes:
   - label: 'Security-Header auf jeder Antwort, nach jedem Deploy geprüft'
     value: '6'
   - label: 'OIDC-Rollen, jede für ein Repository'
-    value: '3'
+    value: '4'
   - label: 'Monatliches AWS-Budget, mit Alarm'
     value: '5 $'
-outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 8. November 2026.'
+outcomesNote: 'Zahlen aus dem App- und dem Infra-Repository, Stand 9. November 2026.'
 repoUrl: 'https://github.com/lasiurusbat/vedad-dizdarevic-dev-app'
 illustration: 'headers'
 order: 30
@@ -47,7 +47,7 @@ Drei Pfade laufen durch die Website: Anfragen, Deploys und das Kontaktformular m
 
 <TradeOff
   gained="Der Bucket ist nie öffentlich, der Verkehr läuft per HTTPS vom Browser bis S3, und die Edge-Logik ist versionierter, getesteter Code."
-  price="Der Worker kann AWS nicht per OIDC erreichen. Er hält deshalb den einzigen langlebigen Zugriffsschlüssel im Setup. Ich rotiere ihn alle 90 Tage von Hand."
+  price="Der Worker kann AWS nicht per OIDC erreichen. Er hält deshalb den einzigen langlebigen Zugriffsschlüssel im Setup. Ein wöchentlicher Workflow ersetzt ihn, sobald er 80 Tage alt ist."
 />
 
 Ein öffentlicher S3-Website-Endpunkt spricht unverschlüsseltes HTTP mit seinem Origin, und CloudFront wäre ein zweites CDN hinter Cloudflare. Ein Worker führt die Edge-Logik im kostenlosen Tarif von Cloudflare aus.
@@ -84,6 +84,8 @@ GitHub Actions übernimmt AWS-Rollen per OIDC. Ein kleiner Bootstrap-Stack, einm
 - **`gh-infra-plan`** für Pull Requests im Infra-Repository: nur lesend, bis auf die Lock-Datei des States.
 - **`gh-infra-apply`** für `main` im Infra-Repository, in einer geschützten Umgebung `production`. Sie darf IAM nur für Namen ändern, die mit `vdd-` beginnen, und kann die CI-Rollen selbst deshalb nicht bearbeiten.
 
+Eine vierte Rolle, **`vdd-key-rotation`**, entsteht mit der übrigen Infrastruktur und vertraut dem Branch `main` des App-Repositorys. Sie darf die Zugriffsschlüssel eines einzigen IAM-Benutzers, des Workers, auflisten, anlegen, ändern und löschen, sonst nichts. Ein wöchentlicher Workflow nutzt sie, um diesen Schlüssel zu ersetzen, sobald er 80 Tage alt ist: Er legt den neuen Schlüssel an, prüft, dass er den Website-Bucket lesen kann, setzt die Secrets des Workers, führt den Smoke-Test aus und löscht erst dann den alten Schlüssel.
+
 GitHub vergibt inzwischen unveränderliche Subjects (`repo:<owner>@<ownerId>/<repo>@<repoId>`), deshalb vertrauen die Rollen den numerischen IDs von Owner und Repository. Ein neues Repository mit demselben Namen bekommt eine neue ID und keinen Zugriff.
 
 ## Zwei Repositories, zwei Pipelines
@@ -102,6 +104,7 @@ Terraform verwaltet AWS sowie Zone, DNS und Regeln bei Cloudflare; Wrangler depl
 3. Der Rest geht mit `--delete` hoch.
 4. Wrangler deployt den Worker, und der Cache wird geleert.
 5. Ein Smoke-Test prüft die Live-Domain: alle sechs Header, die 404-Seite, `405` für ein `POST`, die Weiterleitungen von `www` und `http`, dass Bucket und Kontaktfunktion direkten Zugriff ablehnen und dass die Route des Formulars ein erfundenes Turnstile-Token abweist. Er verschickt keine Mail.
+6. Zuletzt werden gehashte Assets entfernt, die den Build vor mehr als 30 Tagen verlassen haben. Der Bucket ist versioniert, ein Fehlgriff lässt sich also wiederherstellen.
 
 **Infra-Repository.** Jeder Pull Request durchläuft `fmt`, `validate`, Trivy, Checkov und gitleaks und postet den Plan als Kommentar. Ein Merge wendet ihn in der geschützten Umgebung an, immer nur ein Lauf gleichzeitig. Das Apply verweigert jeden Plan, der eine Ressource löscht oder ersetzt, bis eine Person ihn mit `allow_destroy` erneut startet. Ausnahmen für die Scanner stehen direkt am Code, jede mit Begründung.
 
@@ -114,6 +117,15 @@ Terraform verwaltet AWS sowie Zone, DNS und Regeln bei Cloudflare; Wrangler depl
 
 Der Worker schickt einen frischen Besuch auf `/` aus Deutschland, Österreich, der Schweiz, Luxemburg oder Liechtenstein mit einem ungecachten `302` nach `/de/`. Deep Links, Klicks innerhalb der Website und URLs mit `?lang=` lässt er in Ruhe. Der Sprachumschalter verlinkt auf `/?lang=en`, deshalb landet ein Klick auf Englisch immer auf Englisch. Crawler, die meist aus den USA kommen, indexieren die englische Startseite.
 
+## Ein Lebenslauf aus Daten
+
+<TradeOff
+  gained="Eine Datendatei auf Englisch und Deutsch erzeugt bei jedem Build beide PDFs. Der Lebenslauf auf der Website kann so nicht von seiner Quelle abweichen, und eine Prüfung hält private Angaben heraus."
+  price="Der Website-Build braucht Typst. Die CI installiert eine festgelegte Version, und ein Laptop ohne Typst kann die Website nicht bauen."
+/>
+
+Der Lebenslauf ist eine YAML-Datei plus eine Typst-Vorlage. Der Website-Build erzeugt daraus ein englisches und ein deutsches PDF in den veröffentlichten Dateien. Eine Prüfung lässt den Build scheitern, wenn ein PDF die falsche Seitenzahl hat, keinen Dokumenttitel oder keine Tags, oder wenn in seinem Text eine Telefonnummer, ein privater Mailanbieter oder ein Geburtsdatum steht. Dasselbe Werkzeug rendert die Vorschaubilder, die Link-Vorschauen zeigen, aus einem Endpunkt beim Build, die Website braucht dafür also keine Bildbibliothek.
+
 ## Kosten und Alarme auf einem geteilten Konto
 
 <TradeOff
@@ -122,9 +134,17 @@ Der Worker schickt einen frischen Besuch auf `/` aus Deutschland, Österreich, d
 />
 
 - **Ein Monatsbudget von 5 $** mit Alarm bei 100 % der tatsächlichen und der prognostizierten Kosten, begrenzt auf den `Project`-Tag dieses Projekts.
-- **CloudWatch-Alarme** auf Fehler und Drosselungen von Lambda sowie auf Bounce- und Beschwerderate von SES, per SNS an mein Postfach.
-- **Ein Uptime-Monitor** prüft die Startseite von außerhalb von AWS und Cloudflare.
+- **CloudWatch-Alarme** auf Fehler, Drosselungen und Aufrufe von Lambda (mehr als 30 pro Stunde) sowie auf Bounce- und Beschwerderate von SES, per SNS an mein Postfach.
+- **Uptime-Monitore** prüfen die englische und die deutsche Startseite von außerhalb von AWS und Cloudflare; der deutsche sucht zusätzlich nach einem Stichwort.
 - **Mail-Authentifizierung.** SPF, DKIM für den Mailanbieter und für SES sowie DMARC mit Berichten, alles als DNS-Einträge in Terraform.
+
+## Was die Prüfungen melden
+
+Der Build scheitert unter diesen Schwellenwerten. Die Lighthouse-Werte stammen aus dem letzten Lauf auf `main` (9. November 2026).
+
+- **Lighthouse, Mobilprofil, in der CI.** Performance 97 bis 99 und jeweils 100 bei Barrierefreiheit, Best Practices und SEO, auf der englischen Startseite, der deutschen Startseite und der Sorted-Fallstudie (je drei Läufe). Geprüft wird der gebaute Stand, nicht die Live-Domain. Der Build scheitert unter 95 bei Performance und unter 100 bei den anderen.
+- **Budgets für das Seitengewicht, pro Seite.** JavaScript bis 20 KB ohne Diagramm und 140 KB mit einem, CSS bis 30 KB, insgesamt 500 KB, Text gzip-komprimiert gezählt.
+- **Externe Scanner.** Am 8. November 2026 habe ich die Live-Domain von Hand geprüft: securityheaders.com A+, Mozilla Observatory A+ (130 Punkte, 12 von 12 Tests) und SSL Labs A+ auf allen vier Endpunkten. Das sind einmalige Prüfungen, kein Teil der Pipeline.
 
 ## Probleme, auf die ich gestoßen bin
 
@@ -229,8 +249,8 @@ Die Plattform liefert eine statische Website aus, gebaut mit Astro: englische un
     },
     {
       gap: 'Ein langlebiger Zugriffsschlüssel',
-      detail: 'Ich rotiere den Schlüssel des Workers alle 90 Tage von Hand; die erste Rotation ist bis zum 1. Februar 2027 fällig.',
-      next: 'Die Rotation in der CI automatisieren, über die bereits vorhandene Rotationsrolle.',
+      detail: 'Er liegt nur in den Secrets des Workers, und ein wöchentlicher Workflow ersetzt ihn nach 80 Tagen. Ein abgeflossener Schlüssel würde bis zur nächsten Rotation weiter funktionieren.',
+      next: 'Den Schlüssel ganz entfernen, falls der Worker stattdessen kurzlebige Zugangsdaten bekommen kann.',
     },
     {
       gap: 'Die Apply-Rolle ist in ihren Diensten weit gefasst',
