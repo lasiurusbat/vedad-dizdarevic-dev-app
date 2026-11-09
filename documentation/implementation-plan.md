@@ -53,7 +53,7 @@ How to build the site described in [project-scope.md](project-scope.md) with the
 ### Start early (long lead times)
 
 - [x] **SES production access** for `eu-central-1` (granted; out of the sandbox)
-- [ ] **Content inputs** (see [Content inputs](#content-inputs) at the end): case study notes, screenshots
+- [x] **Content inputs** (see [Content inputs](#content-inputs) at the end): case study notes, screenshots _(Audited 2026-11-09: all case study notes and screenshots delivered; only the optional photo is missing)_
 
 ### Done when
 
@@ -119,7 +119,7 @@ vedad-dizdarevic.dev/
     - infra repo, `main`: apply role; infra repo, PRs: plan-only role
     - app repo, `main`: deploy role (write to the site bucket only; no access to Terraform state)
 - [x] **`infra/main`** skeleton: backend config (`use_lockfile = true`), providers (`hashicorp/aws` in `eu-central-1`, `cloudflare/cloudflare`), variables, default tags
-- [ ] Cloudflare API tokens, one per repo, stored as CI secrets:
+- [x] Cloudflare API tokens, one per repo, stored as CI secrets: _(Audited 2026-11-09: both tokens are set)_
   - [x] infra repo (`CLOUDFLARE_API_TOKEN` secret): this zone's DNS, zone settings, rules and Turnstile. Web Analytics management returned 403 even with Account Settings Edit and Account Analytics Read, so it is not managed in Terraform for now (see Phase 10)
   - [x] app repo (`CLOUDFLARE_API_TOKEN` secret): Account Workers Scripts Edit; Zone Workers Routes Edit and Cache Purge. If the first deploy fails with a 403 on an account lookup, add Account Settings Read
 - [x] Hand-off from infra to app: after the first apply, copy the non-secret outputs (site bucket name, deploy role ARN, Cloudflare zone ID) into app repo Actions variables (done: `SITE_BUCKET`, `AWS_DEPLOY_ROLE_ARN`, `CLOUDFLARE_ZONE_ID`, `CLOUDFLARE_ACCOUNT_ID`, `TURNSTILE_SITE_KEY`, `AWS_REGION`)
@@ -166,8 +166,8 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
 
 ### Pipeline v1
 
-- [ ] Infra repo PR workflow: `terraform fmt -check`, `validate`, Trivy/Checkov, `terraform plan` as a PR comment
-- [ ] Infra repo `main` workflow: `terraform apply` (protected `production` environment; manual approval is optional at this size)
+- [x] Infra repo PR workflow: `terraform fmt -check`, `validate`, Trivy/Checkov, `terraform plan` as a PR comment _(Audited 2026-11-09: `ci.yml` (fmt, validate, Trivy, Checkov, gitleaks) and `plan.yml` (sticky plan comment))_
+- [x] Infra repo `main` workflow: `terraform apply` (protected `production` environment; manual approval is optional at this size) _(Audited 2026-11-09: `apply.yml` behind the `production` environment; refuses a plan that deletes or replaces anything unless re-run with `allow_destroy`)_
 - [x] App repo PR workflow: `site` (astro check + build) and `worker` (typecheck + tests) jobs. Add both to the required checks in branch protection after their first green run
 - [x] App repo `main` workflow (`.github/workflows/deploy.yml`; the job has no `environment:` because the deploy role trusts only the `refs/heads/main` OIDC subject), in order:
   1. Build site
@@ -175,7 +175,7 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
   3. `wrangler deploy`
   4. Cloudflare cache purge (purge everything is fine at this size)
   5. Smoke test (`tests/smoke`): `200` on `/`, `404` on a random path, `301` from `www`, `301` from `http`, all six headers present
-- [ ] Concurrency control in each repo (app deploy done; infra apply pending): one deploy (or apply) at a time, newer runs cancel queued ones. Apply never cancels a run in progress
+- [x] Concurrency control in each repo (app deploy done; infra apply pending): one deploy (or apply) at a time, newer runs cancel queued ones. Apply never cancels a run in progress _(Audited 2026-11-09: app `deploy.yml` and infra `apply.yml` never cancel a run in progress; PR workflows cancel older runs)_
 
 ### Done when
 
@@ -195,8 +195,8 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 - [x] **Base layer** (`@layer base`): Tailwind's Preflight reset plus readable measure (~65–75ch), visible focus states (`focus-visible:`), `motion-safe:`/`motion-reduce:` for any animation
 - [x] **Layout:** mobile-first single column at ~360px using unprefixed utilities; `md:`/`lg:` and container-query variants (`@container`, `@md:`) for wider screens
 - [x] Keep components in Astro files with utilities; extract repeated patterns into components, not `@apply` classes
-- [ ] **Header with CTAs:** name, section nav, language switch, and Contact / CV / GitHub / LinkedIn reachable on every screen; on mobile a compact sticky header or bottom bar; works without JavaScript _(In progress: name, section nav, language switch, Contact, GitHub and LinkedIn done, works without JS. The CV link follows with the CV, Phase 5.)_
-- [ ] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built" links to the `this-site` case study since 2026-11-07; The Datenschutz link is live; there is no Impressum (decided 2026-11-09).)_
+- [x] **Header with CTAs:** name, section nav, language switch, and Contact / CV / GitHub / LinkedIn reachable on every screen; on mobile a compact sticky header or bottom bar; works without JavaScript _(In progress: name, section nav, language switch, Contact, GitHub and LinkedIn done, works without JS. The CV link follows with the CV, Phase 5.)_ _(Audited 2026-11-09: the CV link is in the header and the hero since Phase 5)_
+- [x] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built" links to the `this-site` case study since 2026-11-07; The Datenschutz link is live; there is no Impressum (decided 2026-11-09).)_ _(Audited 2026-11-09: links, 'How this site is built' and Datenschutz are live; there is no Impressum)_
 - [x] **i18n:** Astro i18n routing with `defaultLocale: 'en'`, `locales: ['en', 'de']`; `/` English, `/de/` German; UI strings in `src/i18n/{en,de}.ts`; language switch links to the equivalent page; `<html lang>` set per page
 - [x] **Geo-based first language** (DE, AT, CH, LU, LI to `/de/`, everyone else English): in the Worker, no cookie; see tech-stack.md, Cloudflare Worker, item 5
 - [x] Skip-to-content link, semantic landmarks, heading hierarchy
@@ -224,18 +224,18 @@ Single page with anchored sections, plus a detail page per case study.
 
 - [x] Name, role (Cloud & DevOps Engineer), one-line positioning in the owner's wording (IaC, platform architecture, containerization, Kubernetes orchestration); the 3D/CGI background moved to About on 2026-11-05
 - [x] Clear availability line: open to full-time roles and freelance work
-- [ ] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/site.ts` is set, Phase 5)_
+- [x] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/site.ts` is set, Phase 5)_ _(Audited 2026-11-09: the hero and header link the CV in the page language)_
 - [x] EN + DE
 
 ### Case studies
 
 - [x] Content collection schema (`src/content.config.ts`): title, summary, problem, stack (list), decisions (list of `{decision, why}`), outcome metrics, repo URL, live/visual links, diagram reference, language  _(Done: `site/src/content.config.ts`; one MDX file per language in `site/src/content/case-studies/{en,de}/<slug>.mdx`, the language is the folder, `draft: true` hides an entry from production builds; a generic draft `example` entry exists only to test the layout, delete it when the first real case study lands.)_
 - [x] Case study 1: **sorted.onl** _(English merged in #19 and rewritten DevOps-first as a live, commercially available product with the sorted.onl link; German and the diagram pending. Demo-data screenshots as light/dark pairs in "The workload"; repo is private, so the page says so. Needs an infrastructure screenshot (pipeline run, plan summary or Grafana); the Grafana prod screenshot is a placeholder to be retaken, with the Uptime panel fixed.)_
-- [ ] Case study 2: **rainalert.live**
-- [ ] Case study 3 (optional): **this site**
-- [ ] Each has: problem in 1–2 sentences, architecture diagram, stack, 2–3 decisions with trade-offs (cost, security, reliability), outcome, links to repo and something live (pipeline run, Grafana screenshot)
+- [x] Case study 2: **rainalert.live** _(Audited 2026-11-09: RainAlert, EN and DE (#54, #55))_
+- [x] Case study 3 (optional): **this site** _(Audited 2026-11-09: `this-site`, EN and DE (#60))_
+- [x] Each has: problem in 1–2 sentences, architecture diagram, stack, 2–3 decisions with trade-offs (cost, security, reliability), outcome, links to repo and something live (pipeline run, Grafana screenshot) _(Audited 2026-11-09: private repositories say so instead of linking; the live evidence is pipeline and dashboard screenshots)_
 - [x] Cards on the main page, full write-up on `/projects/<slug>/`  _(Done: cards in the work section, pages at `/projects/<slug>/` and `/de/projects/<slug>/`, language switch and hreflang only for translations that exist.)_
-- [ ] German versions: at least summaries on the cards; full translations optional at launch
+- [x] German versions: at least summaries on the cards; full translations optional at launch _(Audited 2026-11-09: all three case studies are fully translated)_
 
 ### Diagrams
 
@@ -243,31 +243,31 @@ Single page with anchored sections, plus a detail page per case study.
   _Result: `@astrojs/react` and `client:only` fail the CSP (Astro's island wrapper emits an inline script, an inline `<style>` and a `style` attribute). Use a plain module script instead (`site/src/diagrams/mount.ts`): it mounts React Flow when the diagram scrolls into view, so there is no inline code and `script-src 'self'` / `style-src 'self'` stay unchanged. Cost on a diagram page: about 128 KB gzipped (React Flow 60, react-dom 64, loader and CSS 4); pages without a diagram load none of it. Proposed diagram-page JS budget: 140 KB gzipped. Mobile: the diagram keeps a readable width inside a keyboard-focusable, sideways-scrolling wrapper, because shrinking it to 360px makes the text about 5px. `tests/e2e/diagram.spec.ts` enforces the production CSP and fails on any violation._
 - [x] Diagram component renders typed nodes/edges from `site/src/diagrams/`; AWS Architecture Icons stored locally as SVGs; hydrated only where used _(Done in #20: `ArchitectureDiagram.astro` + `mount.ts`, loaded when the diagram scrolls into view; the 10 icons are unmodified, release 07312026. Brand logos (GitHub, Cloudflare) are used unmodified; open: check the AWS, GitHub and Cloudflare usage terms.)_
 - [x] Light/dark: node and edge colours use the semantic tokens _(axe passes in both themes)_
-- [ ] Each diagram has a text alternative (short description of the flow) and a static fallback image for `<noscript>` and pre-hydration _(Text alternative done in `<details>`, EN only; the DE text and the static fallback image are open.)_
+- [x] Each diagram has a text alternative (short description of the flow) and a static fallback image for `<noscript>` and pre-hydration _(Text alternative done in `<details>`, EN only; the DE text and the static fallback image are open.)_ _(Audited 2026-11-09: EN and DE text alternatives for all four diagrams; no-JS fallback in #105, so merge #105 before this change)_
 - [x] Mobile: fit-to-view on load, touch pan/zoom doesn't trap page scroll; complex diagrams get a simplified layout _(Done differently: below 640px the diagram keeps a readable width in a sideways-scrolling, keyboard-focusable wrapper instead of a second layout; drag-pan is for a fine pointer only; on desktop the figure is wider than the text column.)_
 
 ### Skills
 
 - [x] Grouped by area: Cloud, IaC, CI/CD, Containers, Observability (plus others as needed); no bars or percentages _(Eight groups from the CV's Technical Skills, October 2026, in `site/src/skills.ts`: platform first, application stack and ways of working last; Stripe and Windows left out)_
 - [x] DevOps diploma shown _(Certifications block under Skills: claims plus verification links, PDFs not published; AWS SAA shown as in progress)_
-- [ ] Sourced from `cv/data.yaml` if the shared-data option is taken (Phase 5)
+- [ ] Sourced from `cv/data.yaml` if the shared-data option is taken (Phase 5) _(Audited 2026-11-09, still open: optional; the skills live in `site/src/skills.ts`, the CV in `cv/data.yaml`)_
 
 ### About
 
-- [ ] Short path from 3D/CGI to DevOps (live in EN and DE: decade in 3D/CGI and render pipelines, DataScientest diploma July 2024, Sorted and this site as proof, AWS SAA in progress, games/books/bike/coffee; languages from the CV since 2026-11-07), what you're aiming for, languages, a line of personality (games, books, biking, coffee)
-- [ ] Optional photo (optimized, with alt text)
+- [x] Short path from 3D/CGI to DevOps (live in EN and DE: decade in 3D/CGI and render pipelines, DataScientest diploma July 2024, Sorted and this site as proof, AWS SAA in progress, games/books/bike/coffee; languages from the CV since 2026-11-07), what you're aiming for, languages, a line of personality (games, books, biking, coffee) _(Audited 2026-11-09: live in EN and DE)_
+- [ ] Optional photo (optimized, with alt text) _(Audited 2026-11-09, still open: no photo on the site)_
 
 ### Work with me
 
-- [ ] Separate from the job pitch: what you offer, problems you solve, how fast you can start, how to begin a conversation
-- [ ] CTA to the contact form (Phase 6) or a booking link
-- [ ] EN + DE
+- [x] Separate from the job pitch: what you offer, problems you solve, how fast you can start, how to begin a conversation _(Audited 2026-11-09: `WorkWithMe.astro`: status panel and a services grid)_
+- [x] CTA to the contact form (Phase 6) or a booking link _(Audited 2026-11-09: the email button and the contact form below it; no booking tool)_
+- [x] EN + DE _(Audited 2026-11-09: both languages)_
 
 ### How this site is built
 
 - [x] Architecture diagram of this site (Cloudflare → Worker → S3, contact flow) _(Built as a third case study, `this-site` (EN, DE), decided 2026-11-07: diagram `site-platform` with paths Requests, Contact and alerts (planned, dashed), Deploys)_
-- [ ] Key decisions: Worker over CloudFront/public S3, Cloudflare free plan, `eu-central-1`, Typst CV, security headers _(Done except the Typst CV, which comes with Phase 5: six decision sections with Gained | Price ledgers, a problem log and seven Limitations)_
-- [ ] Live evidence: CI status badge, Lighthouse scores, securityheaders.com grade, link to the repo _(Both repos linked. A badge image from GitHub would need a CSP exception; Lighthouse scores and the securityheaders.com grade come with Phase 9, after the CSP is enforced)_
+- [ ] Key decisions: Worker over CloudFront/public S3, Cloudflare free plan, `eu-central-1`, Typst CV, security headers _(Done except the Typst CV, which comes with Phase 5: six decision sections with Gained | Price ledgers, a problem log and seven Limitations)_ _(Audited 2026-11-09, still open: six decision sections exist; the Typst CV is not one of them)_
+- [ ] Live evidence: CI status badge, Lighthouse scores, securityheaders.com grade, link to the repo _(Both repos linked. A badge image from GitHub would need a CSP exception; Lighthouse scores and the securityheaders.com grade come with Phase 9, after the CSP is enforced)_ _(Audited 2026-11-09, still open: both repos are linked; Lighthouse scores and the securityheaders.com grade (A+) are not on the page yet (next-steps item 8))_
 
 ### Done when
 
@@ -288,7 +288,7 @@ Can run alongside Phases 3–4.
 - [x] PDF metadata: title, author, language
 - [x] CI: compile both languages, fail the build on errors, copy outputs to `site/public/cv/` as `Vedad_Dizdarevic_CV_EN.pdf` and `Vedad_Dizdarevic_CV_DE.pdf`
 - [x] Site links the CV in the current page language
-- [ ] Optional: site's skills/experience read `cv/data.yaml` (Astro can import YAML via a loader)
+- [ ] Optional: site's skills/experience read `cv/data.yaml` (Astro can import YAML via a loader) _(Audited 2026-11-09, still open: optional, not planned)_
 - [x] `cv/reference/` is local only (git-ignored since 2026-11-08); delete the local copies once both PDFs are approved
 
 ### Done when
@@ -353,11 +353,11 @@ A real submission from the live site arrives in your inbox, spam submissions wit
 - [x] Removed the leftover Namecheap forwarding SPF record; one SPF record remains (`include:_spf.purelymail.com`). Two SPF records on one name would be invalid and fail with `permerror`
 - [x] DMARC replaced by hand: Purelymail's `_dmarc` CNAME removed, own TXT record `v=DMARC1; p=none; rua=mailto:hello@vedad-dizdarevic.dev` in place (verified with `dig`). Imported into Terraform with the other mail records (2026-11-02)
 - [x] MX records in Cloudflare DNS via Terraform
-- [ ] SPF: one record covering the mailbox provider and SES (`include:amazonses.com` for the MAIL FROM domain)
-- [ ] DKIM for the mailbox provider and SES
-- [ ] DMARC: start at `p=none` with `rua` reports to an address you read; move to `p=quarantine`, then `p=reject` once reports show only aligned mail (typically 2–4 weeks)
-- [ ] Send test mail to Gmail and Outlook; check headers for SPF/DKIM/DMARC `pass`
-- [ ] Optional: MTA-STS and TLS-RPT records
+- [x] SPF: one record covering the mailbox provider and SES (`include:amazonses.com` for the MAIL FROM domain) _(Audited 2026-11-09: the apex record covers Purelymail; SES sends from the custom MAIL FROM domain `mail.` with its own `include:amazonses.com` record)_
+- [x] DKIM for the mailbox provider and SES _(Audited 2026-11-09: three Purelymail CNAMEs and three SES CNAMEs in Terraform)_
+- [ ] DMARC: start at `p=none` with `rua` reports to an address you read; move to `p=quarantine`, then `p=reject` once reports show only aligned mail (typically 2–4 weeks) _(Audited 2026-11-09, still open: `p=none` with `rua` since 2026-11-02; the ramp (quarantine, then reject) is the item 8 work; the policy is a Terraform variable (`dmarc_policy`))_
+- [ ] Send test mail to Gmail and Outlook; check headers for SPF/DKIM/DMARC `pass` _(Audited 2026-11-09, still open: the real contact message of 2026-11-08 was delivered, but its SPF/DKIM/DMARC headers have not been checked)_
+- [ ] Optional: MTA-STS and TLS-RPT records _(Audited 2026-11-09, still open: optional; no `_mta-sts` or `_smtp._tls` record exists)_
 
 ### Reading DMARC reports
 
@@ -415,17 +415,17 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 ### Quality gates in CI (fail the build)
 
 - [x] **Lighthouse CI** (mobile profile, CI job `lighthouse`, `tests/e2e/lighthouserc.json`) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. **Budgets** in `tests/e2e/budgets.spec.ts` on every page, after diagrams and images have loaded, because Lighthouse does not see what loads on scroll: JS ≤ 20 KB without a diagram, ≤ 140 KB with one, CSS ≤ 30 KB, page weight ≤ 500 KB, text gzipped, the CV excluded
-- [ ] **axe** via Playwright on every page, zero violations _(started in Phase 3: `tests/e2e` covers `/`, `/de/` and the 404 page; extend it as pages are added)_
-- [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR _(started in Phase 3: the `e2e` CI job uploads the screenshots as an artifact; extend as pages are added)_
+- [x] **axe** via Playwright on every page, zero violations _(started in Phase 3: `tests/e2e` covers `/`, `/de/` and the 404 page; extend it as pages are added)_ _(Audited 2026-11-09: `sweep.spec.ts` runs axe on every page it finds, in both themes)_
+- [x] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR _(started in Phase 3: the `e2e` CI job uploads the screenshots as an artifact; extend as pages are added)_ _(Audited 2026-11-09: `layout.spec.ts` covers 360, 390, 768 and 1280 and the `e2e` job uploads the screenshots)_
 - [x] **html-validate** and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)
-- [ ] **Trivy/Checkov** on Terraform (infra repo); **gitleaks** on both repos
-- [ ] Dependabot (or Renovate) for npm, GitHub Actions and Terraform providers (provider updates in the infra repo) (app repo done in #82; infra repo still open)
+- [x] **Trivy/Checkov** on Terraform (infra repo); **gitleaks** on both repos _(Audited 2026-11-09: Trivy and Checkov in the infra `ci.yml`; gitleaks in both repos)_
+- [x] Dependabot (or Renovate) for npm, GitHub Actions and Terraform providers (provider updates in the infra repo) (app repo done in #82; infra repo still open) _(Audited 2026-11-09: app (npm, Actions) and infra (Terraform, Actions) both have `dependabot.yml`)_
 
 ### Legal (Germany)
 
 - [x] ~~Impressum (EN + DE)~~ dropped on 2026-11-09: the owner has no serviceable address besides home and will not publish it; the geo-redirect to `/de/` stays
 - [x] Datenschutzerklärung (EN + DE): hosting (Cloudflare, AWS `eu-central-1`), contact form processing, Cloudflare Web Analytics, Turnstile, no cookies (name and email only, no postal address yet; wording not legally reviewed)
-- [ ] Both linked from the footer on every page (the policy is; there is no Impressum)
+- [x] Both linked from the footer on every page (the policy is; there is no Impressum) _(Audited 2026-11-09: the privacy policy is linked on every page; there is no Impressum)_
 
 ### Done when
 
@@ -437,8 +437,8 @@ All gates are required status checks on `main`, the CSP is enforced, and the leg
 
 ### Monitoring
 
-- [ ] Better Stack uptime checks (monitor on `/` already exists from Phase 0) every 5 minutes on `/` and `/de/`, plus a keyword check (catches a "200 with an error page"); alert by email
-- [ ] Optional synthetic check of `/api/contact` returning the expected rejection for a request without a Turnstile token (proves the Worker → Lambda path is wired without sending mail)
+- [x] Better Stack uptime checks (monitor on `/` already exists from Phase 0) every 5 minutes on `/` and `/de/`, plus a keyword check (catches a "200 with an error page"); alert by email _(Audited 2026-11-09: monitors on `/` and `/de/`; the `/de/` monitor has a keyword check (created 2026-11-09, interval 3 minutes))_
+- [ ] Optional synthetic check of `/api/contact` returning the expected rejection for a request without a Turnstile token (proves the Worker → Lambda path is wired without sending mail) _(Audited 2026-11-09, still open: not built)_
 - [x] CloudWatch alarms → SNS → email: Lambda errors, Lambda throttles, SES bounce and complaint rates
 - [x] AWS Budgets: alert at €5 actual and at forecasted overspend
 - [x] Cloudflare Web Analytics: decided against it. The orphan site from an early apply was deleted on 2026-11-09; the page loads no analytics script. Adding analytics later means a CSP change and a privacy policy update
@@ -460,21 +460,21 @@ Each alert has fired once in a test, and the runbook procedures have each been t
 
 ### Checklist
 
-- [ ] All phase "done when" criteria met
-- [ ] Manual test on a real iPhone (Safari) and Android phone (Chrome): both languages, both themes, contact form, CV download
-- [ ] Desktop test in Chrome, Firefox, Safari
-- [ ] Proofread all text, EN and German (ideally a native German speaker reviews the DE text)
-- [ ] Every CTA works: Contact, CV (both languages), GitHub, LinkedIn, booking link if used
-- [ ] OG preview checked on LinkedIn
-- [ ] CV PDFs match the LinkedIn profile
-- [ ] DMARC at `p=reject`; test email delivered
-- [ ] Remove any placeholder or test content
+- [ ] All phase "done when" criteria met _(Audited 2026-11-09, still open: this audit is the input; see the list of open items in the PR)_
+- [ ] Manual test on a real iPhone (Safari) and Android phone (Chrome): both languages, both themes, contact form, CV download _(Audited 2026-11-09, still open: owner)_
+- [ ] Desktop test in Chrome, Firefox, Safari _(Audited 2026-11-09, still open: owner (Playwright covers Chromium))_
+- [ ] Proofread all text, EN and German (ideally a native German speaker reviews the DE text) _(Audited 2026-11-09, still open: owner)_
+- [ ] Every CTA works: Contact, CV (both languages), GitHub, LinkedIn, booking link if used _(Audited 2026-11-09, still open: owner; e2e checks the links exist)_
+- [ ] OG preview checked on LinkedIn _(Audited 2026-11-09, still open: verified on 2026-11-08; re-check after the card changes)_
+- [ ] CV PDFs match the LinkedIn profile _(Audited 2026-11-09, still open: owner)_
+- [ ] DMARC at `p=reject`; test email delivered _(Audited 2026-11-09, still open: waiting on the report check and the ramp)_
+- [ ] Remove any placeholder or test content _(Audited 2026-11-09, still open: not yet searched)_
 
 ### After launch
 
-- [ ] Add the site URL to LinkedIn, GitHub profile, CV, and email signature
-- [ ] Share a short LinkedIn post about how the site is built
-- [ ] Review analytics and Search Console after two weeks
+- [ ] Add the site URL to LinkedIn, GitHub profile, CV, and email signature _(Audited 2026-11-09, still open: after launch)_
+- [ ] Share a short LinkedIn post about how the site is built _(Audited 2026-11-09, still open: after launch)_
+- [ ] Review analytics and Search Console after two weeks _(Audited 2026-11-09, still open: after launch; there are no analytics, only Search Console)_
 
 ---
 
@@ -500,10 +500,10 @@ Each alert has fired once in a test, and the runbook procedures have each been t
 
 Things only you can provide; start these in Phase 0.
 
-- [ ] Positioning line and hero copy (draft, I can help edit)
-- [ ] For each case study: the problem, the architecture (rough sketch is fine), the stack, 2–3 decisions with the reasons and alternatives you considered, outcome numbers (cost, deploy time, uptime), repo links
-- [ ] Screenshots: Grafana dashboards, pipeline runs, anything visual
-- [ ] About section notes: path, goals, languages, personality line
-- [ ] Freelance offer: services, typical engagements, availability
-- [ ] Optional: a photo
-- [ ] Links: GitHub, LinkedIn, booking tool (if any)
+- [x] Positioning line and hero copy (draft, I can help edit) _(Audited 2026-11-09: delivered and used)_
+- [x] For each case study: the problem, the architecture (rough sketch is fine), the stack, 2–3 decisions with the reasons and alternatives you considered, outcome numbers (cost, deploy time, uptime), repo links _(Audited 2026-11-09: delivered and used)_
+- [x] Screenshots: Grafana dashboards, pipeline runs, anything visual _(Audited 2026-11-09: delivered and used)_
+- [x] About section notes: path, goals, languages, personality line _(Audited 2026-11-09: delivered and used)_
+- [x] Freelance offer: services, typical engagements, availability _(Audited 2026-11-09: delivered and used)_
+- [ ] Optional: a photo _(Audited 2026-11-09, still open: not provided)_
+- [x] Links: GitHub, LinkedIn, booking tool (if any) _(Audited 2026-11-09: GitHub and LinkedIn; no booking tool)_
