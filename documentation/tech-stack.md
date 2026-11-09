@@ -167,7 +167,7 @@ Auth: OIDC to AWS in both repos with separate roles (the app deploy role can onl
 
 ## Compliance (Germany)
 
-- Impressum and Datenschutzerklärung pages in EN and DE, linked from the footer
+- Datenschutzerklärung (privacy policy) in EN and DE, linked from the footer; no Impressum (owner's decision, 2026-11-09)
 - GDPR-friendly choices documented on the site: EU region, self-hosted fonts, cookieless analytics
 
 ## Cost estimate
