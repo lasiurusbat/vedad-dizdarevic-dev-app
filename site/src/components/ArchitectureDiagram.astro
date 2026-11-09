@@ -66,22 +66,22 @@ const paths = (definition.paths ?? []).map((p) => ({
     <div class="diagram-mount" data-diagram={id} data-label={title}></div>
   </div>
   {paths.length > 0 && <p class="path-status mt-3 text-sm" aria-live="polite" data-path-status />}
-  <figcaption class="text-muted mt-2 text-sm">
-    {t.diagramSimplified} {title}
-  </figcaption>
-  <details class="mt-2 text-sm">
-    <summary class="inline-flex min-h-11 cursor-pointer items-center underline">
-      {t.diagramTextAlternative}
-    </summary>
-    <ol class="mt-2 list-decimal space-y-2 pl-6">
-      {steps.map((step) => (
-        <li>{step}</li>
-      ))}
-    </ol>
-  </details>
   <noscript>
     <p class="text-muted mt-2 text-sm">{t.diagramNeedsJs}</p>
   </noscript>
+  <figcaption class="text-muted mt-2 text-sm">
+    {t.diagramSimplified} {title}
+    <details class="text-fg mt-2">
+      <summary class="inline-flex min-h-11 cursor-pointer items-center underline">
+        {t.diagramTextAlternative}
+      </summary>
+      <ol class="mt-2 list-decimal space-y-2 pl-6">
+        {steps.map((step) => (
+          <li>{step}</li>
+        ))}
+      </ol>
+    </details>
+  </figcaption>
 </figure>
 
 <style>

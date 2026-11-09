@@ -42,6 +42,8 @@ jobs:
       - run: pnpm --filter @vdd/site check
       # Also builds the CV (cv/build.sh).
       - run: pnpm --filter @vdd/site build
+      # Validates the built HTML (site/.htmlvalidate.json lists the rules turned off, with reasons in the PR that added it).
+      - run: pnpm --filter @vdd/site validate
       - name: check the CV
         run: |
           sudo apt-get update -qq

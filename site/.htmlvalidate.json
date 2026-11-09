@@ -1,0 +1,12 @@
+{
+  "extends": ["html-validate:recommended"],
+  "rules": {
+    "no-redundant-role": "off",
+    "prefer-native-element": [
+      "error",
+      { "exclude": ["table", "region", "row", "rowgroup", "cell", "columnheader"] }
+    ],
+    "unique-landmark": "off",
+    "long-title": "off"
+  }
+}

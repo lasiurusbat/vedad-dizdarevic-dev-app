@@ -6,7 +6,8 @@
     "dev": "astro dev",
     "build": "sh ../cv/build.sh && astro build",
     "preview": "astro preview",
-    "check": "astro check"
+    "check": "astro check",
+    "validate": "html-validate \"dist/**/*.html\""
   },
   "dependencies": {
     "@astrojs/mdx": "^8.1.2",
@@ -25,6 +26,7 @@
     "@tailwindcss/vite": "^4.3.4",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
+    "html-validate": "^11.21.0",
     "tailwindcss": "^4.3.4",
     "typescript": "^6.0.3"
   }
