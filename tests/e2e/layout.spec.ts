@@ -148,10 +148,11 @@ test('About reads like the body text of a project page', async ({ page }) => {
       .first()
       .evaluate((el) => {
         const { fontSize, lineHeight } = getComputedStyle(el);
-        return { fontSize, lineHeight, width: el.getBoundingClientRect().width };
+        return { fontSize, lineHeight };
       });
   await page.goto('/');
-  const about = await style('#about p');
+  // The first paragraph is the larger lead sentence; the body paragraphs follow it.
+  const about = await style('#about .prose > p:nth-child(2)');
   await page.goto('/projects/sorted/');
   expect(about).toEqual(await style('.prose > p'));
 });

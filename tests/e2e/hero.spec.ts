@@ -9,7 +9,7 @@ const pages = [
     availability: /open to full-time roles and freelance work/i,
     positioning: /production-ready cloud platforms through infrastructure as code/i,
     about: /more than a decade in 3D\/CGI/i,
-    languages: 'Languages: Bosnian/Serbian/Croatian (native), English and German (fluent)',
+    languages: 'Bosnian/Serbian/Croatian (native), English and German (fluent)',
     contact: 'Contact',
     contactHref: '/#contact',
   },
@@ -20,8 +20,7 @@ const pages = [
     availability: /offen für festanstellung und freiberufliche projekte/i,
     positioning: /produktionsreife cloud-plattformen mit infrastructure as code/i,
     about: /über zehn jahre habe ich in 3D\/CGI/i,
-    languages:
-      'Sprachen: Bosnisch/Serbisch/Kroatisch (Muttersprache), Englisch und Deutsch (fließend)',
+    languages: 'Bosnisch/Serbisch/Kroatisch (Muttersprache), Englisch und Deutsch (fließend)',
     contact: 'Kontakt',
     contactHref: '/de/#contact',
   },

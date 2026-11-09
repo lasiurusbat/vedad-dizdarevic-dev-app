@@ -1,0 +1,46 @@
+---
+import { type Locale, useTranslations } from '../i18n';
+import { caseStudyPath } from '../lib/caseStudies';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+// The second paragraph names Sorted; `{sorted}` in the string marks where the link goes.
+const [before, after] = t.aboutP2.split('{sorted}');
+---
+
+<!-- Story on the left (one lead sentence, then two short paragraphs), the plain facts on the right
+     as a definition list, so nobody has to dig dates and languages out of running text. -->
+<div class="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-14">
+  <div class="prose">
+    <p class="text-fg text-xl leading-snug font-medium">{t.aboutLead}</p>
+    <p>{t.aboutP1}</p>
+    <p>
+      {before}
+      <a href={caseStudyPath(locale, 'sorted')} class="underline">
+        Sorted
+      </a>
+      {after}
+    </p>
+  </div>
+
+  <aside
+    aria-labelledby="about-facts-title"
+    class="not-prose border-border bg-surface self-start rounded-lg border p-5"
+  >
+    <h3 id="about-facts-title" class="text-lg">
+      {t.aboutFactsTitle}
+    </h3>
+    <dl class="mt-4 divide-y divide-[var(--border)]">
+      {t.aboutFacts.map((f) => (
+        <div class="py-3 first:pt-0 last:pb-0">
+          <dt class="text-muted text-sm">{f.label}</dt>
+          <dd class="text-fg mt-0.5">{f.value}</dd>
+        </div>
+      ))}
+    </dl>
+  </aside>
+</div>
