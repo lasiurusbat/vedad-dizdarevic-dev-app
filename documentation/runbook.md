@@ -17,6 +17,7 @@ Order inside the job, and why:
 5. `wrangler deploy` for the Worker.
 6. Purge the whole Cloudflare cache.
 7. Smoke test against the live site: six security headers and an enforced CSP, a custom 404, 405 on `POST /` and `GET /api/contact`, `/api/contact` rejected for another origin, a missing token and a made-up token (nothing is sent), the Lambda refusing unsigned calls, `robots.txt`, sitemap and share image served, `www` and `http` redirects, and the bucket refusing direct access.
+8. Prune old hashed assets (`.github/scripts/prune-assets.sh`): deletes `_astro/` files that are not in this build and were last uploaded more than 30 days ago. A failure only logs a warning. Try it without deleting: `DRY_RUN=1 .github/scripts/prune-assets.sh vdd-site-769814228024 site/dist/_astro 30` (needs a build and AWS credentials). The bucket is versioned, so a wrong delete can be restored for 30 days.
 
 A failed smoke test means the deploy is live but wrong: roll back (below) first, then investigate.
 
@@ -24,7 +25,7 @@ Redeploy without a code change: Actions → Deploy → Run workflow.
 
 Infrastructure is separate: the infra repo's `Apply` workflow runs on pushes to `main` that touch `main/**`, behind the `production` environment (a person approves). It refuses a plan that deletes or replaces anything unless re-run with `allow_destroy`.
 
-**Tried:** deploys run on every merge (many times). Redeploy by hand: not yet.
+**Tried:** deploys run on every merge (many times). Redeploy by hand: not yet. Pruning: the script is tested against a stubbed `aws`; nothing is old enough to delete before 2026-12-03 (the oldest asset is from 2026-11-04).
 
 ## Roll back
 

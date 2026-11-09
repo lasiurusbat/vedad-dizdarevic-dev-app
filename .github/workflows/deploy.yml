@@ -78,3 +78,9 @@ jobs:
           SITE_BUCKET: ${{ vars.SITE_BUCKET }}
           AWS_REGION: ${{ vars.AWS_REGION }}
         run: node --test "tests/smoke/*.test.mjs"
+
+      # Housekeeping, after the live checks: a failure here must not turn a good deploy red.
+      - name: Prune old hashed assets
+        run: |
+          .github/scripts/prune-assets.sh "${{ vars.SITE_BUCKET }}" site/dist/_astro 30 \
+            || echo "::warning::Asset pruning failed; the deploy itself is fine."
