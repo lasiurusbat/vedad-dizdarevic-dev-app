@@ -84,7 +84,7 @@ jobs:
       - run: pnpm --filter @vdd/e2e test
       - name: upload screenshots and report
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: e2e-screenshots-and-report
           path: |
@@ -109,7 +109,7 @@ jobs:
       - run: pnpm --filter @vdd/e2e lighthouse
       - name: upload the reports
         if: always()
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v7
         with:
           name: lighthouse-reports
           path: tests/e2e/lighthouse-report
