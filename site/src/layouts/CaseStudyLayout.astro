@@ -33,7 +33,7 @@ const t = useTranslations(locale);
   caseStudy={slug}
   jsonLd={articleLd(locale, title, summary, Astro.url.pathname, slug)}
 >
-  <article class="max-w-page px-gutter py-section mx-auto">
+  <article class="max-w-page px-gutter py-section mx-auto overflow-x-clip">
     <a
       href={`${localeUrl(locale)}#work`}
       class="inline-flex min-h-11 items-center text-sm underline"
