@@ -139,7 +139,7 @@ aws cloudwatch set-alarm-state --profile sorted --region eu-central-1 \
 
 Repeat for each alarm name in the table. CloudWatch puts it back to OK at the next evaluation, which sends a second email. Check that both arrive.
 
-**Tried:** not yet. Alarms exist and are in state OK as of 2026-11-09.
+**Tried:** all five alarms put into ALARM by hand on 2026-11-09; every one emailed and returned to OK with a second email.
 
 ## Where things live
 
