@@ -417,7 +417,7 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 - [x] **Lighthouse CI** (mobile profile, CI job `lighthouse`, `tests/e2e/lighthouserc.json`) on home, a case study page and the German home page: Performance ≥ 95, Accessibility 100, Best Practices 100, SEO 100. **Budgets** in `tests/e2e/budgets.spec.ts` on every page, after diagrams and images have loaded, because Lighthouse does not see what loads on scroll: JS ≤ 20 KB without a diagram, ≤ 140 KB with one, CSS ≤ 30 KB, page weight ≤ 500 KB, text gzipped, the CV excluded
 - [ ] **axe** via Playwright on every page, zero violations _(started in Phase 3: `tests/e2e` covers `/`, `/de/` and the 404 page; extend it as pages are added)_
 - [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR _(started in Phase 3: the `e2e` CI job uploads the screenshots as an artifact; extend as pages are added)_
-- [ ] **html-validate** and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)
+- [ ] ~~**html-validate**~~ (done) and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)
 - [ ] **Trivy/Checkov** on Terraform (infra repo); **gitleaks** on both repos
 - [ ] Dependabot (or Renovate) for npm, GitHub Actions and Terraform providers (provider updates in the infra repo) (app repo done in #82; infra repo still open)
 
