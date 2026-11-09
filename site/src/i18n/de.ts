@@ -194,6 +194,8 @@ export const de: Messages = {
   footerHowBuilt: 'Wie diese Website gebaut ist',
   footerPrivacy: 'Datenschutz',
   footerNav: 'Fußzeile',
+  footerTrademarks:
+    'Die Namen und Logos von AWS, GitHub und Cloudflare sind Marken ihrer jeweiligen Inhaber. Sie dienen nur dazu, die Dienste zu benennen; eine Empfehlung durch die Inhaber ist damit nicht verbunden.',
 
   notFoundTitle: 'Seite nicht gefunden',
   notFoundText: 'Die gesuchte Seite existiert nicht.',
