@@ -211,6 +211,8 @@ export const en = {
   footerHowBuilt: 'How this site is built',
   footerPrivacy: 'Privacy policy',
   footerNav: 'Footer',
+  footerTrademarks:
+    'AWS, GitHub and Cloudflare names and logos are trademarks of their owners. They are shown to identify the services, and no endorsement is implied.',
 
   notFoundTitle: 'Page not found',
   notFoundText: 'The page you are looking for does not exist.',
