@@ -14,8 +14,8 @@ const [before, after] = t.aboutP2.split('{sorted}');
 
 <!-- Story on the left (one lead sentence, then two short paragraphs), the plain facts on the right
      as a definition list, so nobody has to dig dates and languages out of running text. -->
-<div class="grid gap-10 md:grid-cols-[minmax(0,1fr)_minmax(0,22rem)] md:gap-14">
-  <div class="prose">
+<div class="grid gap-10 md:grid-cols-[minmax(0,54ch)_minmax(0,22rem)] md:justify-between md:gap-14">
+  <div class="prose max-w-[54ch]!">
     <p class="text-fg text-xl leading-snug font-medium">{t.aboutLead}</p>
     <p>{t.aboutP1}</p>
     <p>

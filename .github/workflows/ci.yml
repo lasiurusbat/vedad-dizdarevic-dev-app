@@ -46,6 +46,8 @@ jobs:
       - run: pnpm --filter @vdd/site validate
       # Internal links and #fragments in the built pages (external links: links.yml, weekly).
       - run: node tests/links/check-internal.mjs
+      # Unit tests for copy and helpers (Node's built-in runner, no dependencies).
+      - run: node --test "tests/unit/*.test.mjs"
       - name: check the CV
         run: |
           sudo apt-get update -qq
