@@ -53,7 +53,7 @@ How to build the site described in [project-scope.md](project-scope.md) with the
 ### Start early (long lead times)
 
 - [x] **SES production access** for `eu-central-1` (granted; out of the sandbox)
-- [ ] **Content inputs** (see [Content inputs](#content-inputs) at the end): case study notes, screenshots, Impressum details
+- [ ] **Content inputs** (see [Content inputs](#content-inputs) at the end): case study notes, screenshots
 
 ### Done when
 
@@ -196,7 +196,7 @@ A commit to `main` changes the live placeholder within minutes, the smoke test p
 - [x] **Layout:** mobile-first single column at ~360px using unprefixed utilities; `md:`/`lg:` and container-query variants (`@container`, `@md:`) for wider screens
 - [x] Keep components in Astro files with utilities; extract repeated patterns into components, not `@apply` classes
 - [ ] **Header with CTAs:** name, section nav, language switch, and Contact / CV / GitHub / LinkedIn reachable on every screen; on mobile a compact sticky header or bottom bar; works without JavaScript _(In progress: name, section nav, language switch, Contact, GitHub and LinkedIn done, works without JS. The CV link follows with the CV, Phase 5.)_
-- [ ] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built" links to the `this-site` case study since 2026-11-07; Impressum and Datenschutz links are added when those pages exist (Phase 9), to avoid dead links.)_
+- [ ] **Footer:** links, "How this site is built", Impressum, Datenschutz _(In progress: copyright, GitHub and LinkedIn done. "How this site is built" links to the `this-site` case study since 2026-11-07; The Datenschutz link is live; there is no Impressum (decided 2026-11-09).)_
 - [x] **i18n:** Astro i18n routing with `defaultLocale: 'en'`, `locales: ['en', 'de']`; `/` English, `/de/` German; UI strings in `src/i18n/{en,de}.ts`; language switch links to the equivalent page; `<html lang>` set per page
 - [x] **Geo-based first language** (DE, AT, CH, LU, LI to `/de/`, everyone else English): in the Worker, no cookie; see tech-stack.md, Cloudflare Worker, item 5
 - [x] Skip-to-content link, semantic landmarks, heading hierarchy
@@ -423,9 +423,9 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 
 ### Legal (Germany)
 
-- [ ] Impressum (EN + DE): name, address, contact; check § 5 DDG requirements (no VAT ID; needs a serviceable address that is not the owner's home)
+- [x] ~~Impressum (EN + DE)~~ dropped on 2026-11-09: the owner has no serviceable address besides home and will not publish it; the geo-redirect to `/de/` stays
 - [x] Datenschutzerklärung (EN + DE): hosting (Cloudflare, AWS `eu-central-1`), contact form processing, Cloudflare Web Analytics, Turnstile, no cookies (name and email only, no postal address yet; wording not legally reviewed)
-- [ ] Both linked from the footer on every page (the policy is; the Impressum follows with its page)
+- [ ] Both linked from the footer on every page (the policy is; there is no Impressum)
 
 ### Done when
 
@@ -505,6 +505,5 @@ Things only you can provide; start these in Phase 0.
 - [ ] Screenshots: Grafana dashboards, pipeline runs, anything visual
 - [ ] About section notes: path, goals, languages, personality line
 - [ ] Freelance offer: services, typical engagements, availability
-- [ ] Impressum details: legal name, address, contact email
 - [ ] Optional: a photo
 - [ ] Links: GitHub, LinkedIn, booking tool (if any)

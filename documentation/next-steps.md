@@ -4,17 +4,17 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Stopped at: 2026-11-09 (end of the session begun on 2026-11-08, day 7)
 
-**Merged:** #62–#80 and infra #10. No other PRs are open in either repo. M3 is done. The contact form is live and delivers real mail, also under the enforced CSP. Phase 8's build work is done. The privacy policy is live; the Impressum is not.
+**Merged:** #62–#80 and infra #10. No other PRs are open in either repo. M3 is done. The contact form is live and delivers real mail, also under the enforced CSP. Phase 8's build work is done. The privacy policy is live; there is no Impressum (owner's decision, 2026-11-09).
 
 **Phase 9 is done** (Dependabot, `html-validate`, the link checker, sweep coverage; `lighthouse` is a required check). **Phase 10 (monitoring and operations), state on 2026-11-09:**
 
 - Done and tried: the runbook (`documentation/runbook.md`); all five alarms tested by hand (every one emailed and returned to OK); the invocations alarm (infra #17); the budget; the Web Analytics site deleted; the **Worker key rotation workflow** (`rotate-key.yml`, app #95, role from infra #18) run once with `force`: passed, the live key was created 2026-11-09 and the old one deleted.
 - In review: asset pruning (app #99, last deploy step, `.github/scripts/prune-assets.sh`; nothing is old enough to delete before about 2026-12-03, so read the deploy log then); the alarm-test line in the runbook (app #98). GitHub had a partial outage on 2026-11-09, and required checks (`lint`, `secrets`, `worker`) went missing on #98: closing and reopening the PR retriggers them.
-- Owner: Better Stack `/de/` monitor and a keyword check (an account setting).
+- Owner: Better Stack `/de/` monitor created 2026-11-09 (keyword `Datenschutz`); an English keyword check on `/` is optional.
 - Left: try each other runbook procedure once and update its **Tried** line (redeploy by hand, rollback, the manual key rotation, add a case study again if wanted); optional synthetic check of `/api/contact`. Then Phase 11, the launch checklist.
 - The infra repo needs `github_owner_id` and `app_repo_id` in the owner's local `main/terraform.tfvars` (the CI variables `GH_OWNER_ID` and `APP_REPO_ID` are set).
 
-**Waiting on the owner, blocks launch:** a serviceable address for the Impressum that is not the owner's home (for example a business address service). The site is live without an Impressum until then; once there is an address, add `/impressum/` in both languages, the footer link, and the address in the policy's first section. **Also:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; the data processing agreements for Cloudflare and AWS; a safeguard for mail stored at Purelymail in the USA (Add Rabbit LLC, servers in AWS us-east-1): the policy states the fact but names no legal mechanism, because none is confirmed, so get a DPA with standard contractual clauses from Purelymail or move the mailbox to an EU provider; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
+**Decided 2026-11-09:** no Impressum (the owner has no serviceable address besides home and will not publish it), the geo-redirect to `/de/` stays, and Purelymail's US servers are accepted: the policy states the fact and names no mechanism. The Cloudflare paragraph now says Cloudflare's standard DPA applies (#101); AWS is not named in the policy. The Better Stack `/de/` keyword monitor (keyword `Datenschutz`, the German footer link) was created on 2026-11-09. **Waiting on the owner:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
 ### Day 6: closing-band links, tests, Skills, About, "How this site is built"
 
