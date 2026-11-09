@@ -58,7 +58,7 @@ const paths = (definition.paths ?? []).map((p) => ({
   )}
   {/* Focusable so keyboard users can scroll it sideways on a narrow screen. */}
   <div
-    class="border-border overflow-x-auto rounded-lg border"
+    class="diagram-canvas border-border overflow-x-auto rounded-lg border"
     role="region"
     aria-label={title}
     tabindex="0"
@@ -66,12 +66,20 @@ const paths = (definition.paths ?? []).map((p) => ({
     <div class="diagram-mount" data-diagram={id} data-label={title}></div>
   </div>
   {paths.length > 0 && <p class="path-status mt-3 text-sm" aria-live="polite" data-path-status />}
+  {/* Without JavaScript the canvas stays empty: the description replaces it (see the scripting query below). */}
   <noscript>
-    <p class="text-muted mt-2 text-sm">{t.diagramNeedsJs}</p>
+    <div class="diagram-fallback border-border mt-2 rounded-lg border p-4 text-sm">
+      <p class="text-muted">{t.diagramNeedsJs}</p>
+      <ol class="mt-2 list-decimal space-y-2 pl-6">
+        {steps.map((step) => (
+          <li>{step}</li>
+        ))}
+      </ol>
+    </div>
   </noscript>
   <figcaption class="text-muted mt-2 text-sm">
     {t.diagramSimplified} {title}
-    <details class="text-fg mt-2">
+    <details class="diagram-details text-fg mt-2">
       <summary class="inline-flex min-h-11 cursor-pointer items-center underline">
         {t.diagramTextAlternative}
       </summary>
@@ -85,6 +93,14 @@ const paths = (definition.paths ?? []).map((p) => ({
 </figure>
 
 <style>
+  /* No scripting: the canvas would stay an empty box and the description is already shown in the
+     noscript block, so drop both the box, the path status and the collapsed duplicate. */
+  @media (scripting: none) {
+    .diagram-canvas,
+    .diagram-details {
+      display: none;
+    }
+  }
   /* Reserves the space before the script runs, so the page does not jump. */
   .diagram-mount {
     height: clamp(30rem, 70vw, 44rem);
