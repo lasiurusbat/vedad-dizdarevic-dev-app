@@ -1,0 +1,16 @@
+# External link check, run weekly by .github/workflows/links.yml on the built site.
+# Internal links are checked on every PR by tests/links/check-internal.mjs.
+scheme = ["https"]
+exclude_all_private = true
+max_retries = 3
+retry_wait_time = 5
+timeout = 30
+max_concurrency = 8
+# 429 means "slow down", not "broken".
+accept = ["200..=299", "429"]
+exclude = [
+  # Our own origin (canonical and og:url point at the live site; the internal check covers the build).
+  '^https://vedad-dizdarevic\.dev',
+  # Refuses automated requests (answers 999 or a login wall).
+  '^https://(www\.)?linkedin\.com',
+]
