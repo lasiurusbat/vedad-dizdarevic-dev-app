@@ -193,3 +193,29 @@ test('path buttons trace one path and dim the rest, under the production CSP', a
   const results = await new AxeBuilder({ page }).include('figure').analyze();
   expect(results.violations).toEqual([]);
 });
+
+for (const [path, locale] of [
+  ['/projects/sorted/', 'en'],
+  ['/de/projects/sorted/', 'de'],
+] as const) {
+  test(`${locale}: without JavaScript the description replaces the empty canvas`, async ({
+    browser,
+  }) => {
+    const context = await browser.newContext({
+      javaScriptEnabled: false,
+      viewport: { width: 1280, height: 900 },
+    });
+    const page = await context.newPage();
+    await page.goto(path);
+    const figure = page.locator('figure.diagram').first();
+    await expect(figure.locator('.diagram-canvas')).toBeHidden();
+    await expect(figure.locator('.diagram-details')).toBeHidden();
+    const steps = figure.locator('.diagram-fallback li');
+    await expect(steps.first()).toBeVisible();
+    expect(await steps.count()).toBeGreaterThan(3);
+    await expect(figure.locator('.diagram-fallback')).toContainText(
+      locale === 'de' ? 'benötigt JavaScript' : 'needs JavaScript',
+    );
+    await context.close();
+  });
+}

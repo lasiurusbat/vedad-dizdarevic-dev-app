@@ -183,8 +183,7 @@ export const en = {
   diagramPaths: 'Trace a path',
   diagramPathAll: 'Everything',
   diagramTextAlternative: 'Text description of the diagram',
-  diagramNeedsJs:
-    'The diagram needs JavaScript. Open the text description above for the same information.',
+  diagramNeedsJs: 'The interactive diagram needs JavaScript. Its description:',
 
   caseProblem: 'The problem',
   tradeOff: 'Trade-off',
