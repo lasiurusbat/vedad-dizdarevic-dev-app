@@ -60,8 +60,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 ## Key rotation
 
 - The infra Cloudflare token `infra-terraform-vedad-dizdarevic-dev` expires **2027-11-02** (rolled 2026-11-09; copies: infra Actions secret and Dependabot secret).
-- The `vdd-worker` access key (ends in `...OI3S`) was created on **2026-11-03** and set as Worker secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
-- **Rotate by 2027-02-01** (90 days): create a second key in IAM, `wrangler secret put` both values in a real terminal (through `!` it stores an empty value), check the smoke test, then delete the old key. IAM allows two keys per user, so this needs no downtime.
+- The `vdd-worker` access key (ends in `...Z7TB`) was created by the rotation workflow on **2026-11-09** and set as Worker secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`. The first key (2026-11-03) is deleted.
+- `.github/workflows/rotate-key.yml` rotates it every Monday once it is 80 days old (first automatic rotation about 2027-01-28; hard limit 90 days, 2027-02-07). The manual steps are in [runbook.md](runbook.md#rotate-the-workers-aws-key).
 
 ## Small loose ends
 

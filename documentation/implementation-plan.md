@@ -139,7 +139,7 @@ Goal: a placeholder page served at `https://vedad-dizdarevic.dev` through the fi
 
 - [x] Site bucket in `eu-central-1`: private, Block Public Access, versioning, SSE-S3, lifecycle rule expiring noncurrent versions after 30 days
 - [x] Bucket policy: TLS only; read allowed only for the Worker IAM user; write only for the app repo's CI deploy role
-- [x] Worker IAM user (access key created 2026-11-03 and stored as Worker secrets; rotate by 2027-02-01) with `s3:GetObject` on the site bucket (later also `lambda:InvokeFunctionUrl` on the contact function, Phase 6); access key created and stored as Worker secrets (`wrangler secret put`), never in Terraform state outputs or the repo
+- [x] Worker IAM user (access key rotated 2026-11-09 by `rotate-key.yml` and stored as Worker secrets; rotated automatically from 80 days) with `s3:GetObject` on the site bucket (later also `lambda:InvokeFunctionUrl` on the contact function, Phase 6); access key created and stored as Worker secrets (`wrangler secret put`), never in Terraform state outputs or the repo
 - [x] Cloudflare zone settings: SSL **Full (strict)**, Always Use HTTPS, minimum TLS 1.2, TLS 1.3 on, HTTP/3 on, Brotli on
 - [x] DNS: apex and `www` proxied records (the Worker route handles requests)
 - [x] Redirect Rule: `www` → apex (301, path and query preserved)
