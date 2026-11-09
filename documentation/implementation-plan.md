@@ -439,16 +439,16 @@ All gates are required status checks on `main`, the CSP is enforced, and the leg
 
 - [ ] Better Stack uptime checks (monitor on `/` already exists from Phase 0) every 5 minutes on `/` and `/de/`, plus a keyword check (catches a "200 with an error page"); alert by email
 - [ ] Optional synthetic check of `/api/contact` returning the expected rejection for a request without a Turnstile token (proves the Worker → Lambda path is wired without sending mail)
-- [ ] CloudWatch alarms → SNS → email: Lambda errors, Lambda throttles, SES bounce and complaint rates
-- [ ] AWS Budgets: alert at €5 actual and at forecasted overspend
+- [x] CloudWatch alarms → SNS → email: Lambda errors, Lambda throttles, SES bounce and complaint rates
+- [x] AWS Budgets: alert at €5 actual and at forecasted overspend
 - [x] Cloudflare Web Analytics: decided against it. The orphan site from an early apply was deleted on 2026-11-09; the page loads no analytics script. Adding analytics later means a CSP change and a privacy policy update
 
 ### Operations
 
-- [ ] **Worker key rotation:** scheduled workflow in the app repo (every 90 days), using a rotation role that the infra repo creates, that creates a new access key, updates the Worker secrets, verifies the site, then deletes the old key; alert on failure
-- [ ] **Asset pruning:** remove `/_astro/` files not referenced by the current build and older than 30 days (scheduled job)
-- [ ] **Rollback:** documented procedure: revert the commit and let the pipeline redeploy; S3 versioning as a fallback; `wrangler rollback` for the Worker
-- [ ] **Runbook** (`documentation/runbook.md` in the app repo): deploy, rollback, rotate keys, update the CV, add a case study, respond to an alert
+- [x] **Worker key rotation** (done 2026-11-09, app #95 and infra #18): scheduled workflow in the app repo (every 90 days), using a rotation role that the infra repo creates, that creates a new access key, updates the Worker secrets, verifies the site, then deletes the old key; alert on failure
+- [x] **Asset pruning** (app #99, a deploy step instead of a scheduled job): remove `/_astro/` files not referenced by the current build and older than 30 days (scheduled job)
+- [x] **Rollback** (written in the runbook, not yet tried): documented procedure: revert the commit and let the pipeline redeploy; S3 versioning as a fallback; `wrangler rollback` for the Worker
+- [x] **Runbook** (`documentation/runbook.md` in the app repo): deploy, rollback, rotate keys, update the CV, add a case study, respond to an alert
 
 ### Done when
 
