@@ -57,7 +57,11 @@ SITE_BUCKET=vdd-site-769814228024 node --test "tests/smoke/*.test.mjs"
 
 ## Rotate the Worker's AWS key
 
-The `vdd-worker` IAM user's key lives only in Worker secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Created 2026-11-03; **rotate by 2027-02-01**. IAM allows two keys per user, so there is no downtime. An automated rotation workflow is still planned (Phase 10); until then:
+The `vdd-worker` IAM user's key lives only in Worker secrets (`AWS_ACCESS_KEY_ID`, `AWS_SECRET_ACCESS_KEY`). Created 2026-11-03; **rotate by 2027-02-01**. IAM allows two keys per user, so there is no downtime.
+
+**Automatic:** `.github/workflows/rotate-key.yml` runs every Monday and rotates when the key is 80 days old or more (first rotation about 2027-01-22). It assumes the `vdd-key-rotation` role through OIDC (repo variable `AWS_ROTATION_ROLE_ARN`), creates the second key, checks that it can read the site bucket, sets both Worker secrets in one `wrangler secret bulk` call, runs the smoke test, then deletes the old key. If it fails before the Worker secrets change it deletes the new key; after that it leaves both keys and opens a GitHub issue. Run it by hand from Actions → Rotate Worker key (tick "force" to rotate regardless of age). With exactly two keys on the user the workflow refuses to run: find out which one the Worker uses, delete the other, re-run.
+
+**By hand** (fallback, or if the workflow is broken):
 
 1. Create the second key (the account is shared, so use the `sorted` profile after `aws login --profile sorted`):
    ```bash
@@ -83,7 +87,7 @@ Other secrets and their sources:
 - `TURNSTILE_SECRET_KEY` (Worker secret): from the Cloudflare Turnstile widget. Same rule: set it in a real terminal. The smoke test fails with a 503 if it is empty.
 - Cloudflare API tokens (two, separate): the **infra** token `infra-terraform-vedad-dizdarevic-dev` (infra repo Actions secret and Dependabot secret, expires **2027-11-02**) and the **app** token (app repo Actions secret, Worker edit, zone routes, cache purge). Cloudflare shows a token's value once; rolling it invalidates the old value at once, so set every copy straight afterwards (`gh secret set CLOUDFLARE_API_TOKEN --repo …`, and with `--app dependabot` for the infra repo), then re-run a `Plan`. Rolled on 2026-11-09 after a plan failed for Dependabot PRs (Dependabot reads its own secret store).
 
-**Tried:** not yet.
+**Tried:** not yet (the workflow needs infra #18 applied and the `AWS_ROTATION_ROLE_ARN` variable set first).
 
 ## Update the CV
 

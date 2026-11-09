@@ -1,0 +1,159 @@
+name: Rotate Worker key
+
+# The vdd-worker IAM user's access key is the one long-lived key in the setup. It lives only in
+# Worker secrets. Weekly check, rotate when the key is 80 days old or older (so it never reaches 90),
+# or on demand. IAM allows two keys per user, so the site stays up throughout.
+on:
+  schedule:
+    - cron: '23 5 * * 1'
+  workflow_dispatch:
+    inputs:
+      force:
+        description: 'Rotate now, whatever the key age'
+        type: boolean
+        default: false
+
+permissions:
+  contents: read
+  id-token: write
+  issues: write
+
+# Shares the deploy lock: both run wrangler against the same Worker.
+concurrency:
+  group: deploy
+  cancel-in-progress: false
+
+env:
+  IAM_USER: vdd-worker
+  MAX_AGE_DAYS: '80'
+
+jobs:
+  rotate:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # No `environment:`: the rotation role trusts only the refs/heads/main subject.
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+
+      - uses: aws-actions/configure-aws-credentials@v6
+        with:
+          role-to-assume: ${{ vars.AWS_ROTATION_ROLE_ARN }}
+          aws-region: ${{ vars.AWS_REGION }}
+
+      - name: decide
+        id: decide
+        env:
+          FORCE: ${{ inputs.force }}
+        run: |
+          keys=$(aws iam list-access-keys --user-name "$IAM_USER" --query 'AccessKeyMetadata[].[AccessKeyId,CreateDate,Status]' --output text)
+          count=$(printf '%s\n' "$keys" | grep -c . || true)
+          echo "$count key(s):"; printf '%s\n' "$keys" | awk '{print $1, $2, $3}'
+          if [ "$count" -ne 1 ]; then
+            echo "::error::$count access keys on $IAM_USER; expected exactly one. A previous run probably stopped half way. Check which key the Worker uses (runbook), delete the other, and re-run."
+            exit 1
+          fi
+          old_id=$(printf '%s\n' "$keys" | awk '{print $1}')
+          created=$(printf '%s\n' "$keys" | awk '{print $2}')
+          age=$(( ( $(date -u +%s) - $(date -u -d "$created" +%s) ) / 86400 ))
+          echo "key $old_id is $age day(s) old"
+          if [ "$FORCE" = "true" ] || [ "$age" -ge "$MAX_AGE_DAYS" ]; then
+            echo "rotate=true" >> "$GITHUB_OUTPUT"
+            echo "old_id=$old_id" >> "$GITHUB_OUTPUT"
+          else
+            echo "No rotation needed (limit $MAX_AGE_DAYS days)."
+            echo "rotate=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: create the new key
+        if: steps.decide.outputs.rotate == 'true'
+        id: create
+        run: |
+          new=$(aws iam create-access-key --user-name "$IAM_USER" --query 'AccessKey.[AccessKeyId,SecretAccessKey]' --output text)
+          new_id=$(printf '%s' "$new" | awk '{print $1}')
+          new_secret=$(printf '%s' "$new" | awk '{print $2}')
+          [ -n "$new_id" ] && [ -n "$new_secret" ] || { echo "::error::create-access-key returned nothing"; exit 1; }
+          echo "::add-mask::$new_secret"
+          echo "new_id=$new_id" >> "$GITHUB_OUTPUT"
+          # Between steps only; the runner is discarded afterwards.
+          echo "NEW_SECRET=$new_secret" >> "$GITHUB_ENV"
+          echo "created $new_id"
+
+      # The new key has to work before it goes anywhere. IAM is eventually consistent, so retry.
+      - name: check the new key reads the site bucket
+        if: steps.decide.outputs.rotate == 'true'
+        env:
+          NEW_ID: ${{ steps.create.outputs.new_id }}
+          BUCKET: ${{ vars.SITE_BUCKET }}
+        run: |
+          for i in 1 2 3 4 5 6; do
+            if env -u AWS_SESSION_TOKEN AWS_ACCESS_KEY_ID="$NEW_ID" AWS_SECRET_ACCESS_KEY="$NEW_SECRET" \
+               aws s3api head-object --bucket "$BUCKET" --key index.html >/dev/null 2>&1; then
+              echo "new key works (attempt $i)"; exit 0
+            fi
+            sleep 10
+          done
+          echo "::error::the new key could not read s3://$BUCKET/index.html"
+          exit 1
+
+      - name: put the key into the Worker secrets
+        id: put
+        if: steps.decide.outputs.rotate == 'true'
+        working-directory: worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+          NEW_ID: ${{ steps.create.outputs.new_id }}
+        run: |
+          # An empty value would be stored and reported as success: refuse it.
+          [ -n "$NEW_ID" ] && [ -n "$NEW_SECRET" ] || { echo "::error::empty key value"; exit 1; }
+          # One bulk call sets both values in a single new Worker version, so a failure cannot leave
+          # a new key ID next to an old secret.
+          umask 077
+          file="$RUNNER_TEMP/worker-secrets.json"
+          jq -n --arg id "$NEW_ID" --arg secret "$NEW_SECRET" \
+            '{AWS_ACCESS_KEY_ID: $id, AWS_SECRET_ACCESS_KEY: $secret}' > "$file"
+          trap 'rm -f "$file"' EXIT
+          pnpm exec wrangler secret bulk "$file"
+
+      - name: smoke test the live site
+        if: steps.decide.outputs.rotate == 'true'
+        env:
+          SITE_BUCKET: ${{ vars.SITE_BUCKET }}
+          AWS_REGION: ${{ vars.AWS_REGION }}
+        run: |
+          # The Worker picks up a new secret version within seconds; retry for a minute or two.
+          for i in 1 2 3 4 5 6; do
+            if node --test "tests/smoke/*.test.mjs"; then exit 0; fi
+            echo "attempt $i failed, waiting"; sleep 20
+          done
+          exit 1
+
+      - name: delete the old key
+        if: steps.decide.outputs.rotate == 'true'
+        env:
+          OLD_ID: ${{ steps.decide.outputs.old_id }}
+        run: aws iam delete-access-key --user-name "$IAM_USER" --access-key-id "$OLD_ID"
+
+      # Before the Worker secrets changed, nothing depends on the new key: remove it so the next run
+      # starts clean. After that point both keys stay, because the old one may still be the one in use.
+      - name: remove the new key after an early failure
+        if: failure() && steps.create.outcome == 'success' && steps.put.outcome != 'success'
+        env:
+          NEW_ID: ${{ steps.create.outputs.new_id }}
+        run: aws iam delete-access-key --user-name "$IAM_USER" --access-key-id "$NEW_ID"
+
+      - name: open an issue on failure
+        if: failure()
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          gh issue create --title "Worker key rotation failed ($(date -u +%F))" \
+            --body "The rotation run failed: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+
+          If both keys still exist on \`$IAM_USER\`, do not delete either until you know which one the Worker uses. See documentation/runbook.md, 'Rotate the Worker's AWS key'."
