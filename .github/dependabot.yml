@@ -1,0 +1,26 @@
+version: 2
+
+updates:
+  # One pnpm workspace; Dependabot reads pnpm-lock.yaml through the npm ecosystem.
+  - package-ecosystem: npm
+    directory: /
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      # Minor and patch bumps arrive as one PR a week; majors stay separate.
+      minor-and-patch:
+        update-types: [minor, patch]
+
+  - package-ecosystem: github-actions
+    directories:
+      - /
+      - /.github/actions/setup-typst
+    schedule:
+      interval: weekly
+      day: monday
+    open-pull-requests-limit: 5
+    groups:
+      actions:
+        update-types: [minor, patch]

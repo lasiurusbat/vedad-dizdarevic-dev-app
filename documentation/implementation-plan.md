@@ -419,7 +419,7 @@ Lighthouse SEO is 100, the LinkedIn preview shows the right image and text in bo
 - [ ] **Playwright** layout checks at 360, 390, 768, 1280px: no horizontal scroll, header CTAs visible; screenshot artifacts attached to the PR _(started in Phase 3: the `e2e` CI job uploads the screenshots as an artifact; extend as pages are added)_
 - [ ] **html-validate** and a **link checker** (internal links on PRs, external links on a weekly schedule so outside sites can't block deploys)
 - [ ] **Trivy/Checkov** on Terraform (infra repo); **gitleaks** on both repos
-- [ ] Dependabot (or Renovate) for npm, GitHub Actions and Terraform providers (provider updates in the infra repo)
+- [x] Dependabot (or Renovate) for npm, GitHub Actions and Terraform providers (provider updates in the infra repo)
 
 ### Legal (Germany)
 
