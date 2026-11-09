@@ -25,7 +25,7 @@ Redeploy without a code change: Actions → Deploy → Run workflow.
 
 Infrastructure is separate: the infra repo's `Apply` workflow runs on pushes to `main` that touch `main/**`, behind the `production` environment (a person approves). It refuses a plan that deletes or replaces anything unless re-run with `allow_destroy`.
 
-**Tried:** deploys run on every merge (many times). Redeploy by hand: not yet. Pruning: the script is tested against a stubbed `aws`; nothing is old enough to delete before 2026-12-03 (the oldest asset is from 2026-11-04).
+**Tried:** deploys run on every merge (many times). Redeploy by hand: run on 2026-11-09 (Actions → Run workflow on `main`): green in 56 seconds, smoke test passed, and it put the Worker on a new version after the rollback test. Pruning: the script is tested against a stubbed `aws`; nothing is old enough to delete before 2026-12-03 (the oldest asset is from 2026-11-04).
 
 ## Roll back
 
@@ -54,7 +54,7 @@ After any rollback, purge the Cloudflare cache if the deploy job did not (Cloudf
 SITE_BUCKET=vdd-site-769814228024 node --test "tests/smoke/*.test.mjs"
 ```
 
-**Tried:** not yet.
+**Tried:** the Worker rollback on 2026-11-09: `wrangler rollback` restored the previous version (the deployment list shows a "Rollback" entry) and the site kept answering with HSTS and the CSP; a manual redeploy then moved the Worker forward again. The other cases (revert PR, bucket versions, Lambda, infra) are not tried.
 
 ## Rotate the Worker's AWS key
 
