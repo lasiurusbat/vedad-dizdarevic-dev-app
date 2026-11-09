@@ -47,14 +47,20 @@ export const en = {
   workTitle: 'Selected work',
   skillsTitle: 'Skills',
   aboutTitle: 'About',
+  aboutLead: 'I moved into cloud and DevOps engineering after more than a decade in 3D/CGI.',
   aboutP1:
-    'I spent more than a decade in 3D/CGI before moving into cloud and DevOps engineering. There I worked with render pipelines and large files every day, and infrastructure turned out to be the part I enjoyed most. In July 2024 I completed the DevOps Engineer diploma at DataScientest.',
+    'There I worked with render pipelines and large files every day, and the infrastructure behind them turned out to be the part I enjoyed most.',
   aboutP2:
     'My largest project so far is {sorted}, a commercial SaaS product whose AWS platform I built and run on my own, from the first Terraform module to production in six weeks. This site is a project too: Terraform for AWS and Cloudflare, CI/CD through OIDC, security headers tested on every deploy.',
-  aboutP3:
-    "I'm working towards the AWS Certified Solutions Architect – Associate and am open to full-time roles and freelance work. Away from the terminal: games, books, a bike and too much coffee.",
-  aboutLanguagesLabel: 'Languages',
-  aboutLanguages: 'Bosnian/Serbian/Croatian (native), English and German (fluent)',
+  aboutFactsTitle: 'At a glance',
+  aboutFacts: [
+    { label: 'Background', value: '3D/CGI, more than ten years' },
+    { label: 'Training', value: 'DevOps Engineer diploma, DataScientest, July 2024' },
+    { label: 'Working towards', value: 'AWS Certified Solutions Architect – Associate' },
+    { label: 'Open to', value: 'Full-time roles and freelance work' },
+    { label: 'Languages', value: 'Bosnian/Serbian/Croatian (native), English and German (fluent)' },
+    { label: 'Away from the terminal', value: 'Games, books, a bike and too much coffee' },
+  ],
   hireTitle: 'Work with me',
   hireStatus: 'Available now',
   hirePlace:
