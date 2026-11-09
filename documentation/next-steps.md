@@ -6,7 +6,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 **Merged:** #62–#80 and infra #10. No other PRs are open in either repo. M3 is done. The contact form is live and delivers real mail, also under the enforced CSP. Phase 8's build work is done. The privacy policy is live; the Impressum is not.
 
-**Start next with the rest of Phase 9, in small PRs:** ~~`html-validate`~~ (done); ~~the link checker~~ (done: `tests/links/check-internal.mjs` in the `site` job, `links.yml` weekly with lychee; run it once by hand from the Actions tab); ~~Dependabot~~ (done, #82 and infra #11); ~~wider axe and layout coverage~~ (done: `tests/e2e/sweep.spec.ts`). `lighthouse` is now a required check (2026-11-09). Then Phase 10.
+**Start next with the rest of Phase 9, in small PRs:** ~~`html-validate`~~ (done); ~~the link checker~~ (done: `tests/links/check-internal.mjs` in the `site` job, `links.yml` weekly with lychee; run it once by hand from the Actions tab); ~~Dependabot~~ (done, #82 and infra #11); ~~wider axe and layout coverage~~ (done: `tests/e2e/sweep.spec.ts`). `lighthouse` is now a required check (2026-11-09). Then Phase 10: the runbook is written (`documentation/runbook.md`); alarms exist (plus the invocations alarm, infra #17); the Web Analytics site is deleted; left: test each alarm (commands in the runbook), Better Stack `/de/` and keyword checks, the key rotation workflow, asset pruning, and trying each runbook procedure once.
 
 **Waiting on the owner, blocks launch:** a serviceable address for the Impressum that is not the owner's home (for example a business address service). The site is live without an Impressum until then; once there is an address, add `/impressum/` in both languages, the footer link, and the address in the policy's first section. **Also:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; the data processing agreements for Cloudflare and AWS; a safeguard for mail stored at Purelymail in the USA (Add Rabbit LLC, servers in AWS us-east-1): the policy states the fact but names no legal mechanism, because none is confirmed, so get a DPA with standard contractual clauses from Purelymail or move the mailbox to an EU provider; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
 
@@ -54,17 +54,18 @@ Working log for picking up where the last session stopped. Task-level detail sta
 8. Add the Lighthouse, Observatory, SSL Labs and securityheaders.com results to the `this-site` page (all A+; Lighthouse 97–99 and 100s), if the owner wants them there.
 9. **When the AWS exam is passed:** download the badge from Credly, add it to `site/src/assets/credentials/`, set `badge`, `status: 'earned'`, `issued` and the Credly URL in `credentials.ts`.
 10. **Live check** of the geo redirect through a German VPN.
-11. **Remind the owner at the start of Phase 10** about the Cloudflare Web Analytics site (see loose ends). Diagram pages are at 137 of the 140 KB JS budget (2026-11-08), and Sorted at 452 of 500 KB page weight: little room for growth.
+11. ~~Cloudflare Web Analytics site~~ deleted by the owner 2026-11-09 (no beacon on the live page). Diagram pages are at 137 of the 140 KB JS budget (2026-11-08), and Sorted at 452 of 500 KB page weight: little room for growth.
 12. **Refresh the billed costs** when November is complete (same method; footnote dates change).
 
 ## Key rotation
 
+- The infra Cloudflare token `infra-terraform-vedad-dizdarevic-dev` expires **2027-11-02** (rolled 2026-11-09; copies: infra Actions secret and Dependabot secret).
 - The `vdd-worker` access key (ends in `...OI3S`) was created on **2026-11-03** and set as Worker secrets `AWS_ACCESS_KEY_ID` and `AWS_SECRET_ACCESS_KEY`.
 - **Rotate by 2027-02-01** (90 days): create a second key in IAM, `wrangler secret put` both values in a real terminal (through `!` it stores an empty value), check the smoke test, then delete the old key. IAM allows two keys per user, so this needs no downtime.
 
 ## Small loose ends
 
-- **REMIND THE OWNER at the start of Phase 10:** the Cloudflare Web Analytics site created by an early apply still exists (`auto_install`) but is not in Terraform state (the API token gets 403). Check whether it injects a beacon (the CSP and GDPR rules matter), then decide: keep it, manage it by hand, or delete it. The owner asked to be reminded when we reach Phase 10.
+- Cloudflare Web Analytics: the orphan site was deleted by the owner on 2026-11-09 (the live page had no beacon). No analytics now; add one deliberately later if wanted (CSP and privacy policy change with it).
 - The Sorted page states costs as estimates and says failover and backup restores are designed but not drilled. Update only when the owner confirms a drill happened. The owner approved publishing that the deploy role is an administrator (2026-11-04).
 - Local-only files: `.claude/`, `case-studies/Sorted-architecture.md` and `case-studies/cs_rainalert/` stay out of git (listed in `.git/info/exclude`, owner's decisions 2026-11-06 and 2026-11-08). A fresh clone needs those lines added again.
 - At 320px the header's theme button makes the page about 31px too wide. The site targets 360px and up; fix it if the header changes.
@@ -91,7 +92,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - Lambda concurrency is not reserved (AWS rejects it on this account).
 - Cloudflare returns TXT content quoted; TXT `content` in Terraform uses escaped quotes.
 - A variable missing in CI (for example `purelymail_ownership_proof`) causes a spurious plan diff, and could cause a destructive apply.
-- The Terraform token cannot manage Cloudflare Web Analytics (403). Not in Terraform for now.
+- The Terraform token cannot manage Cloudflare Web Analytics (403); there is no analytics site now.
 - Worker tests: the edge cache persists across tests within a file, so each test uses its own host. `@cloudflare/vitest-plugin` replaced the deprecated `vitest-pool-workers`; `SELF` is gone.
 - URL parsing collapses `%2e%2e` before the Worker sees it; the Worker itself rejects `..%2f` style paths.
 - Two PRs that both change `pnpm-lock.yaml` conflict; rebase, take the other lockfile, run `pnpm install`.

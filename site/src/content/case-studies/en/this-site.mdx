@@ -163,7 +163,7 @@ The Worker sends a fresh visit to `/` from Germany, Austria, Switzerland, Luxemb
     {
       area: 'Cloudflare',
       problem: 'Terraform could not manage Web Analytics',
-      fix: 'The API returned 403 for the scoped token; it stays out of Terraform and is listed under Limitations',
+      fix: 'The API returned 403 for the scoped token; I deleted the site, so the page loads no analytics script',
     },
   ]}
 />
@@ -231,11 +231,6 @@ The platform serves a static site built with Astro: English and German pages, ca
       gap: 'One long-lived access key',
       detail: 'I rotate the Worker’s key by hand every 90 days; the first rotation is due by February 1, 2027.',
       next: 'Script the rotation in CI through the rotation role that already exists.',
-    },
-    {
-      gap: 'Analytics outside Terraform',
-      detail: 'The Cloudflare Web Analytics site was created by an early apply, and the token gets a 403.',
-      next: 'Decide whether it stays. If it does, manage it by hand and write down why; if not, delete it.',
     },
     {
       gap: 'The apply role is broad within its services',
