@@ -441,7 +441,7 @@ All gates are required status checks on `main`, the CSP is enforced, and the leg
 - [ ] Optional synthetic check of `/api/contact` returning the expected rejection for a request without a Turnstile token (proves the Worker → Lambda path is wired without sending mail)
 - [ ] CloudWatch alarms → SNS → email: Lambda errors, Lambda throttles, SES bounce and complaint rates
 - [ ] AWS Budgets: alert at €5 actual and at forecasted overspend
-- [ ] Cloudflare Web Analytics enabled (a site was created by an early apply and removed from Terraform state; it still exists in Cloudflare with `auto_install`. Decide whether to manage it in Terraform once a token with the right permission is found, and check that the injected beacon is allowed by the enforced CSP)
+- [x] Cloudflare Web Analytics: decided against it. The orphan site from an early apply was deleted on 2026-11-09; the page loads no analytics script. Adding analytics later means a CSP change and a privacy policy update
 
 ### Operations
 

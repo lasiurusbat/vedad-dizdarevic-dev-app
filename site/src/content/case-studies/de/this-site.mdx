@@ -163,7 +163,7 @@ Der Worker schickt einen frischen Besuch auf `/` aus Deutschland, Österreich, d
     {
       area: 'Cloudflare',
       problem: 'Terraform konnte Web Analytics nicht verwalten',
-      fix: 'Die API antwortete dem eng gefassten Token mit 403; es bleibt außerhalb von Terraform und steht unter Grenzen',
+      fix: 'Die API antwortete dem eng gefassten Token mit 403; ich habe die Website gelöscht, die Seite lädt kein Analytics-Skript',
     },
   ]}
 />
@@ -231,11 +231,6 @@ Die Plattform liefert eine statische Website aus, gebaut mit Astro: englische un
       gap: 'Ein langlebiger Zugriffsschlüssel',
       detail: 'Ich rotiere den Schlüssel des Workers alle 90 Tage von Hand; die erste Rotation ist bis zum 1. Februar 2027 fällig.',
       next: 'Die Rotation in der CI automatisieren, über die bereits vorhandene Rotationsrolle.',
-    },
-    {
-      gap: 'Analytics außerhalb von Terraform',
-      detail: 'Die Website in Cloudflare Web Analytics entstand bei einem frühen Apply, und das Token bekommt ein 403.',
-      next: 'Entscheiden, ob sie bleibt. Wenn ja, von Hand verwalten und den Grund festhalten; wenn nein, löschen.',
     },
     {
       gap: 'Die Apply-Rolle ist in ihren Diensten weit gefasst',
