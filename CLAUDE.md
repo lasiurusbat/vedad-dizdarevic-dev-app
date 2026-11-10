@@ -11,6 +11,7 @@ Personal portfolio site for Vedad Dizdarevic (Cloud & DevOps Engineer) at `vedad
 | [implementation-plan.md](documentation/implementation-plan.md) | Phases 0–11 with tasks and "done when" criteria |
 | [roadmap.md](documentation/roadmap.md) | Milestones M1–M6, day-by-day schedule, critical path |
 | [next-steps.md](documentation/next-steps.md) | Where the last session stopped and what to do next |
+| [refactor-plan.md](documentation/refactor-plan.md) | Ten small refactor PRs in order of value, with a tick per merged item |
 
 Read the relevant doc before changing anything it covers. If a decision changes, update the doc in the same change.
 
