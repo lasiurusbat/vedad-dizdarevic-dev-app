@@ -54,7 +54,7 @@ After any rollback, purge the Cloudflare cache if the deploy job did not (Cloudf
 SITE_BUCKET=vdd-site-769814228024 node --test "tests/smoke/*.test.mjs"
 ```
 
-**Tried:** the Worker rollback on 2026-11-09: `wrangler rollback` restored the previous version (the deployment list shows a "Rollback" entry) and the site kept answering with HSTS and the CSP; a manual redeploy then moved the Worker forward again. The revert PR on 2026-11-10: a marker comment was merged (#113) and reverted through a PR (#114); both deploys were green, the marker is gone from `main` and the smoke test passed (14 of 14). The other cases (bucket versions, Lambda, infra) are not tried.
+**Tried:** the Worker rollback on 2026-11-09: `wrangler rollback` restored the previous version (the deployment list shows a "Rollback" entry) and the site kept answering with HSTS and the CSP; a manual redeploy then moved the Worker forward again. The revert PR on 2026-11-10: a marker comment was merged (#113) and reverted through a PR (#114); both deploys were green, the marker is gone from `main` and the smoke test passed (14 of 14). Bucket versions on 2026-11-10: on a throwaway key (`_rollback-test/marker.txt`) a "good" object was overwritten with a bad one, the older version was read with `get-object --version-id`, then restored with `copy-object --copy-source "<bucket>/<key>?versionId=…"` (it becomes a new, third version), and every version of the key was deleted afterwards. Needs the `sorted` profile; set the variables in the same shell and quote the version ID. The other cases (Lambda, infra) are not tried.
 
 ## Rotate the Worker's AWS key
 
