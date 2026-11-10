@@ -483,6 +483,7 @@ Each alert has fired once in a test, and the runbook procedures have each been t
 - Full German translations of the case studies
 - PR preview deployments (Worker on a preview subdomain reading a per-PR S3 prefix)
 - Write-ups for further projects as they're built
+- **Compact SRE-Project case study** (decided 2026-11-10, after launch): a short page, not a full one: one screen of facts, the "Problems I hit" log (Bitnami image paths, wrong repo and branch, silent typos, Splunk licence and CRDs), a tech stack and an honest Limitations section (not production, cluster no longer running, mostly vendored charts, no users). It turns the Kubernetes row's source link in Work with me into a proof dot, so add the `proof` anchors in both languages and the e2e check with it. Needs from the owner first: how the cluster was built and why (tooling, node groups, networking, EFS for Ghost), any screenshots still available, which parts are the owner's alone, and whether to keep the CV's "EBS CSI driver IRSA" bullet (not evidenced in the repo). Do not start without those; do not credit or name another account without the owner's say-so
 - Blog or notes section, if there's a steady supply of topics
 
 ## Risks
