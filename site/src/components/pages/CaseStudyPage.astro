@@ -13,6 +13,7 @@ import {
   translationsOf,
 } from '../../lib/caseStudies';
 import CaseStudySummary from '../CaseStudySummary.astro';
+import { mdxComponents } from '../mdx';
 
 interface Props {
   entry: CaseStudy;
@@ -36,5 +37,5 @@ const next = await nextCaseStudy(locale, slug);
   next={next}
 >
   <CaseStudySummary locale={locale} data={entry.data} />
-  <Content costs={entry.data.costs} />
+  <Content costs={entry.data.costs} components={mdxComponents} />
 </CaseStudyLayout>

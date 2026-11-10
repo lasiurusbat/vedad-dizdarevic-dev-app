@@ -65,7 +65,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 7. MDX imports
 
-- [ ] Done
+- [x] Done (2026-11-10). `site/src/components/mdx.ts` lists the ten components a case study can use; `CaseStudyPage` passes it to `<Content components={...} />`, and the 42 component imports are gone from the six MDX files (image imports stay). Side effect: every case study page now loads all ten components' styles in one stylesheet (4 files instead of 5 to 7; 17.0 to 18.4 KB gzipped on this-site, 18.6 to 18.4 on Rain Alert, 20.0 to 18.4 on Sorted; the budget is 30 KB).
 
 **Problem.** Each case study repeats up to ten component imports.
 
