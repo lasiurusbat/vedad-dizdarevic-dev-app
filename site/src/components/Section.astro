@@ -14,8 +14,8 @@ const { id, title, bloom = false } = Astro.props;
   aria-labelledby={`${id}-title`}
   class:list={['section py-section', bloom && 'has-bloom']}
 >
-  <div class="max-w-page px-gutter mx-auto">
-    <h2 id={`${id}-title`} class="text-3xl">
+  <div class="plate-scope max-w-page px-gutter mx-auto">
+    <h2 id={`${id}-title`} class="plate-heading text-3xl">
       {title}
     </h2>
     <div class="mt-6">
