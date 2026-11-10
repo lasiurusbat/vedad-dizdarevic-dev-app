@@ -1,0 +1,13 @@
+name: Set up Node and pnpm
+description: Installs pnpm and the Node version from .nvmrc (with the pnpm cache), then the locked dependencies. Run actions/checkout first, because a local action is read from the checkout.
+
+runs:
+  using: composite
+  steps:
+    - uses: pnpm/action-setup@v6
+    - uses: actions/setup-node@v7
+      with:
+        node-version-file: .nvmrc
+        cache: pnpm
+    - shell: bash
+      run: pnpm install --frozen-lockfile
