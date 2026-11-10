@@ -1,0 +1,280 @@
+---
+/*
+ * Symbolic header illustration for Sorted (`illustration: 'inbox'`): scattered mail passes one gate
+ * in the perimeter and leaves as sorted ticket lanes. Line art in the site tokens on the tilted
+ * dot-matrix plane of Frame; decorative.
+ *
+ * Event-driven: a small bundled script sends one email at a random moment (every 4-9s, only while
+ * the art is on screen and the tab is visible). When it reaches the gate (animationend), the gate
+ * flashes once and one random ticket lane receives it. Packets use pathLength=100 and a 4/120
+ * dash, like the home hero, so one dash runs along a path and disappears. Without JavaScript, or
+ * with reduced motion, the art stays still.
+ *
+ * CSP: inline SVG only, no style attributes; geometry is SVG attributes, colours and motion live
+ * in the bundled stylesheet.
+ */
+import Frame from './Frame.astro';
+
+/* inbox: envelopes on the left (x, y, rotation), each wired to the gate. */
+const envelopes = [
+  { x: 34, y: 70, r: -14 },
+  { x: 112, y: 46, r: 9 },
+  { x: 70, y: 142, r: 6 },
+  { x: 150, y: 120, r: -8 },
+  { x: 28, y: 222, r: 12 },
+  { x: 120, y: 206, r: -4 },
+  { x: 62, y: 300, r: -10 },
+  { x: 146, y: 290, r: 7 },
+  { x: 96, y: 372, r: 4 },
+];
+const gate = { x: 248, y: 220 };
+const lanes = [
+  { y: 112, label: 'triage', state: 'open' },
+  { y: 176, label: 'assigned', state: 'open' },
+  { y: 240, label: 'human only', state: 'locked' },
+  { y: 304, label: 'resolved', state: 'done' },
+];
+---
+
+<Frame>
+  <svg viewBox="0 0 520 440" focusable="false" data-mail-flow>
+    {/* Perimeter: one wall with a single opening. */}
+    <path class="wall" d={`M${gate.x} 24 V${gate.y - 26} M${gate.x} ${gate.y + 26} V416`}></path>
+    <rect class="gate" x={gate.x - 9} y={gate.y - 26} width="18" height="52" rx="9"></rect>
+    {/* Flashes briefly when an email reaches the gate (set by the script). */}
+    <rect class="gate-flash" x={gate.x - 9} y={gate.y - 26} width="18" height="52" rx="9"></rect>
+    <text class="label" x={gate.x} y="16" text-anchor="middle">
+      perimeter
+    </text>
+
+    {envelopes.map((e) => (
+      <path
+        class="wire"
+        d={`M${e.x + 13} ${e.y + 9} C${e.x + 90} ${e.y + 9}, ${gate.x - 70} ${gate.y}, ${gate.x - 9} ${gate.y}`}
+        pathLength="100"
+      ></path>
+    ))}
+    {envelopes.map((e) => (
+      <path
+        class="pkt"
+        data-in
+        d={`M${e.x + 13} ${e.y + 9} C${e.x + 90} ${e.y + 9}, ${gate.x - 70} ${gate.y}, ${gate.x - 9} ${gate.y}`}
+        pathLength="100"
+      ></path>
+    ))}
+    {envelopes.map((e) => (
+      <g transform={`translate(${e.x} ${e.y}) rotate(${e.r} 13 9)`}>
+        <rect class="env" width="26" height="18" rx="2"></rect>
+        <path class="env-flap" d="M1 2 L13 10 L25 2"></path>
+      </g>
+    ))}
+
+    {lanes.map((l) => (
+      <>
+        <path
+          class="wire"
+          d={`M${gate.x + 9} ${gate.y} C${gate.x + 50} ${gate.y}, ${gate.x + 40} ${l.y}, 316 ${l.y}`}
+          pathLength="100"
+        ></path>
+        <path
+          class="pkt"
+          data-out
+          d={`M${gate.x + 9} ${gate.y} C${gate.x + 50} ${gate.y}, ${gate.x + 40} ${l.y}, 316 ${l.y}`}
+          pathLength="100"
+        ></path>
+        <g transform={`translate(316 ${l.y - 20})`}>
+          <rect class:list={['ticket', l.state]} width="180" height="40" rx="8"></rect>
+          <circle class:list={['dot', l.state]} cx="18" cy="20" r="4"></circle>
+          <rect class="line" x="32" y="13" width="72" height="5" rx="2.5"></rect>
+          <rect class="line faint" x="32" y="23" width="46" height="4" rx="2"></rect>
+          <text class="label" x="168" y="24" text-anchor="end">
+            {l.label}
+          </text>
+        </g>
+      </>
+    ))}
+  </svg>
+</Frame>
+
+<script>
+  // Inbox variant: one email at a time, at random moments, so the motion never becomes a beat.
+  const reduced = window.matchMedia('(prefers-reduced-motion: reduce)');
+
+  for (const svg of document.querySelectorAll<SVGSVGElement>('[data-mail-flow]')) {
+    const inbound = [...svg.querySelectorAll<SVGPathElement>('[data-in]')];
+    const outbound = [...svg.querySelectorAll<SVGPathElement>('[data-out]')];
+    const flash = svg.querySelector<SVGElement>('.gate-flash');
+    const pick = <T,>(list: T[]) => list[Math.floor(Math.random() * list.length)]!;
+    let onScreen = false;
+
+    // Restart a one-shot CSS animation on an element.
+    const fire = (el: Element, cls: string) => {
+      el.classList.remove(cls);
+      void el.getBoundingClientRect();
+      el.classList.add(cls);
+    };
+
+    for (const p of inbound) {
+      p.addEventListener('animationend', () => {
+        p.classList.remove('run');
+        if (flash) fire(flash, 'burst');
+        fire(pick(outbound), 'run');
+      });
+    }
+    for (const p of outbound) p.addEventListener('animationend', () => p.classList.remove('run'));
+    flash?.addEventListener('animationend', () => flash.classList.remove('burst'));
+
+    new IntersectionObserver(([entry]) => {
+      onScreen = entry?.isIntersecting ?? false;
+    }).observe(svg);
+
+    const next = (delay: number) => {
+      window.setTimeout(() => {
+        if (onScreen && !document.hidden && !reduced.matches) fire(pick(inbound), 'run');
+        next(4000 + Math.random() * 5000);
+      }, delay);
+    };
+    next(1200 + Math.random() * 1500);
+  }
+</script>
+
+<style>
+  .wire {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.1;
+    stroke-opacity: 0.55;
+  }
+
+  .pkt {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 3;
+    stroke-linecap: round;
+    stroke-dasharray: 4 120;
+    stroke-dashoffset: 4;
+    filter: drop-shadow(0 0 4px var(--accent));
+  }
+
+  /* Inbox: packets wait for the script; each run is one trip, head to the end of the path. */
+  [data-mail-flow] .pkt {
+    animation: none;
+  }
+
+  [data-mail-flow] .pkt.run {
+    animation: trip 1.5s cubic-bezier(0.45, 0, 0.7, 1) forwards;
+  }
+
+  [data-mail-flow] [data-out].run {
+    animation-duration: 0.9s;
+    animation-timing-function: cubic-bezier(0.2, 0.6, 0.4, 1);
+  }
+
+  .wall {
+    stroke: var(--border-strong);
+    stroke-width: 2;
+    stroke-dasharray: 2 5;
+    stroke-linecap: round;
+  }
+
+  .gate {
+    fill: color-mix(in srgb, var(--accent) 14%, var(--bg));
+    stroke: var(--accent);
+    stroke-width: 1.5;
+    filter: drop-shadow(0 0 10px color-mix(in srgb, var(--accent) 45%, transparent));
+  }
+
+  .gate-flash {
+    fill: var(--accent);
+    opacity: 0;
+    transform-box: fill-box;
+    transform-origin: center;
+    filter: drop-shadow(0 0 6px var(--accent)) drop-shadow(0 0 18px var(--accent));
+  }
+
+  .gate-flash.burst {
+    animation: burst 0.22s ease-out forwards;
+  }
+
+  .env {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+  }
+
+  .env-flap {
+    fill: none;
+    stroke: var(--border-strong);
+  }
+
+  .ticket {
+    fill: color-mix(in srgb, var(--surface) 80%, transparent);
+    stroke: var(--border-strong);
+    stroke-opacity: 0.6;
+  }
+
+  .ticket.locked {
+    stroke: var(--accent);
+    stroke-opacity: 0.8;
+    stroke-dasharray: 4 3;
+  }
+
+  .dot {
+    fill: var(--accent);
+  }
+
+  .dot.done {
+    fill: none;
+    stroke: var(--muted);
+  }
+
+  .dot.locked {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.5;
+  }
+
+  .line {
+    fill: color-mix(in srgb, var(--fg) 22%, transparent);
+  }
+
+  .line.faint {
+    fill: color-mix(in srgb, var(--fg) 10%, transparent);
+  }
+
+  /* A flashburst: on at once, gone in about a fifth of a second. */
+  @keyframes burst {
+    0% {
+      opacity: 0;
+      transform: scale(1);
+    }
+    12% {
+      opacity: 0.95;
+      transform: scale(1.35);
+    }
+    100% {
+      opacity: 0;
+      transform: scale(1.05);
+    }
+  }
+
+  /* One trip: the dash enters at the start and is fully absorbed at the end. */
+  @keyframes trip {
+    from {
+      stroke-dashoffset: 4;
+    }
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .pkt {
+      animation: none;
+    }
+
+    .pkt,
+    .gate-flash {
+      display: none;
+    }
+  }
+</style>

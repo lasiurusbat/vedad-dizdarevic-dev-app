@@ -1,8 +1,8 @@
 ---
 /*
- * Symbolic header illustration for the "this site" case study, in the same language as
- * CaseIllustration (Sorted) and RainIllustration (Rain Alert): line art in the site tokens on a
- * tilted dot-matrix plane, one accent motion, decorative (aria-hidden).
+ * Symbolic header illustration for the "this site" case study (`illustration: 'headers'`), in the
+ * same language as Inbox (Sorted) and Umbrella (Rain Alert): line art in the site tokens on the
+ * tilted dot-matrix plane of Frame, one accent motion, decorative.
  *
  * It shows the page's core decision and how it is checked: a response leaves the locked bucket,
  * passes the Worker gate and collects the six security headers; in the browser frame on the
@@ -17,14 +17,8 @@
  * CSP: inline SVG only, no style attributes; geometry is SVG attributes, colours and motion live in
  * the bundled stylesheet. Reduced motion: everything stands still in its finished state.
  */
-import { getLocale } from '../i18n';
-
-export type SiteVariant = 'headers';
-
-interface Props {
-  /** The only variant; kept as a prop so the layout can treat all illustrations alike. */
-  variant: SiteVariant;
-}
+import { getLocale } from '../../i18n';
+import Frame from './Frame.astro';
 
 // The one word in the art follows the page language (decorative, so not in i18n).
 const words =
@@ -43,111 +37,68 @@ const checks = [
 const row = (i: number) => 168 + i * 28;
 ---
 
-<div class="illo" aria-hidden="true">
-  <div class="plane">
-    <svg viewBox="0 0 520 440" focusable="false">
-      {/* The private bucket, with a lock. */}
-      <ellipse class="line" cx="80" cy="176" rx="50" ry="14"></ellipse>
-      <path class="line" d="M30 176 V266 A50 14 0 0 0 130 266 V176"></path>
-      <rect class="lock" x="66" y="212" width="28" height="22" rx="4"></rect>
-      <path class="line" d="M72 212 V204 a8 8 0 0 1 16 0 V212"></path>
-      <text class="label" x="80" y="300" text-anchor="middle">
-        S3, {words.private}
-      </text>
+<Frame>
+  <svg viewBox="0 0 520 440" focusable="false">
+    {/* The private bucket, with a lock. */}
+    <ellipse class="line" cx="80" cy="176" rx="50" ry="14"></ellipse>
+    <path class="line" d="M30 176 V266 A50 14 0 0 0 130 266 V176"></path>
+    <rect class="lock" x="66" y="212" width="28" height="22" rx="4"></rect>
+    <path class="line" d="M72 212 V204 a8 8 0 0 1 16 0 V212"></path>
+    <text class="label" x="80" y="300" text-anchor="middle">
+      S3, {words.private}
+    </text>
 
-      {/* The Worker gate. */}
-      <rect class="gate" x="216" y="150" width="56" height="140" rx="10"></rect>
-      <text class="label" x="244" y="314" text-anchor="middle">
-        Worker
-      </text>
+    {/* The Worker gate. */}
+    <rect class="gate" x="216" y="150" width="56" height="140" rx="10"></rect>
+    <text class="label" x="244" y="314" text-anchor="middle">
+      Worker
+    </text>
 
-      {/* The browser, running the smoke test's checks against the live domain. */}
-      <rect class="line" x="346" y="114" width="166" height="214" rx="8"></rect>
-      <path class="line" d="M346 140 H512"></path>
-      <circle class="dot" cx="358" cy="127" r="3"></circle>
-      <circle class="dot" cx="368" cy="127" r="3"></circle>
-      <circle class="dot" cx="378" cy="127" r="3"></circle>
-      <text class="bar-text" x="500" y="131" text-anchor="end">
-        smoke test
-      </text>
-      {checks.map((c, i) => (
-        <g class:list={['check', `c${i}`]}>
-          <text class="req" x="358" y={row(i)}>
-            {c.req}
-          </text>
-          <text class="code" x="468" y={row(i)} text-anchor="end">
-            {c.code}
-          </text>
-          <circle class="check-dot" cx="490" cy={row(i) - 4} r="8"></circle>
-          <path class="check-mark" d={`M486 ${row(i) - 4} l3 3 l6 -7`}></path>
-        </g>
-      ))}
+    {/* The browser, running the smoke test's checks against the live domain. */}
+    <rect class="line" x="346" y="114" width="166" height="214" rx="8"></rect>
+    <path class="line" d="M346 140 H512"></path>
+    <circle class="dot" cx="358" cy="127" r="3"></circle>
+    <circle class="dot" cx="368" cy="127" r="3"></circle>
+    <circle class="dot" cx="378" cy="127" r="3"></circle>
+    <text class="bar-text" x="500" y="131" text-anchor="end">
+      smoke test
+    </text>
+    {checks.map((c, i) => (
+      <g class:list={['check', `c${i}`]}>
+        <text class="req" x="358" y={row(i)}>
+          {c.req}
+        </text>
+        <text class="code" x="468" y={row(i)} text-anchor="end">
+          {c.code}
+        </text>
+        <circle class="check-dot" cx="490" cy={row(i) - 4} r="8"></circle>
+        <path class="check-mark" d={`M486 ${row(i) - 4} l3 3 l6 -7`}></path>
+      </g>
+    ))}
 
-      <path class="wire" d="M130 220 H216 M272 220 H346"></path>
-      <path class="pkt-in" d="M130 220 H216" pathLength="100"></path>
-      <path class="pkt-out" d="M272 220 H346" pathLength="100"></path>
+    <path class="wire" d="M130 220 H216 M272 220 H346"></path>
+    <path class="pkt-in" d="M130 220 H216" pathLength="100"></path>
+    <path class="pkt-out" d="M272 220 H346" pathLength="100"></path>
 
-      {/* Six headers stamped at the gate, lit one after another. */}
-      {headers.map((h, i) => (
-        <g class:list={['stamp', `s${i}`]}>
-          <rect
-            x={128 + (i % 3) * 98}
-            y={352 + Math.floor(i / 3) * 34}
-            width="88"
-            height="24"
-            rx="6"
-          ></rect>
-          <text x={172 + (i % 3) * 98} y={368 + Math.floor(i / 3) * 34} text-anchor="middle">
-            {h}
-          </text>
-        </g>
-      ))}
-    </svg>
-  </div>
-</div>
+    {/* Six headers stamped at the gate, lit one after another. */}
+    {headers.map((h, i) => (
+      <g class:list={['stamp', `s${i}`]}>
+        <rect
+          x={128 + (i % 3) * 98}
+          y={352 + Math.floor(i / 3) * 34}
+          width="88"
+          height="24"
+          rx="6"
+        ></rect>
+        <text x={172 + (i % 3) * 98} y={368 + Math.floor(i / 3) * 34} text-anchor="middle">
+          {h}
+        </text>
+      </g>
+    ))}
+  </svg>
+</Frame>
 
 <style>
-  /* Wrapper, plane and dot matrix: the same as CaseIllustration, so all case studies match. */
-  .illo {
-    animation: appear 0.6s ease-out 0.1s both;
-    perspective: 1100px;
-    overflow: clip;
-    mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
-  }
-
-  .plane {
-    position: relative;
-    isolation: isolate;
-    transform: rotateX(18deg) rotateY(-30deg) rotateZ(2.5deg);
-    transform-origin: 40% 50%;
-  }
-
-  .plane::before {
-    content: '';
-    position: absolute;
-    inset: -4%;
-    z-index: -1;
-    background-image: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--fg) 16%, transparent) 1px,
-      transparent 1.5px
-    );
-    background-size: 12px 12px;
-    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 25%, transparent 100%);
-  }
-
-  svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  .label {
-    fill: var(--muted);
-    font-size: 12px;
-  }
-
   .line {
     fill: color-mix(in srgb, var(--surface) 80%, transparent);
     stroke: var(--border-strong);
@@ -400,15 +351,8 @@ const row = (i: number) => 168 + i * 28;
     }
   }
 
-  @keyframes appear {
-    from {
-      opacity: 0;
-    }
-  }
-
   /* Reduced motion: still, in the finished state (all six headers set, every check passed). */
   @media (prefers-reduced-motion: reduce) {
-    .illo,
     .gate,
     .pkt-in,
     .pkt-out,

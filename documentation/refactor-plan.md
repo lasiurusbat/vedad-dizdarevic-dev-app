@@ -49,7 +49,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 5. Illustrations folder
 
-- [ ] Done
+- [x] Done (2026-11-10). `components/illustrations/`: `Frame.astro` (the shared wrapper, plane, dot matrix and fade) and one file per id: `Inbox.astro` (Sorted), `Umbrella.astro` (Rain Alert), `Headers.astro` (this site); the layout maps the schema's ids to them. Instead of a split, the unused `module` and `perimeter` variants (the design options not chosen for Sorted) were removed; git history keeps them. Every computed style in the three illustrations was compared with `main` in both themes, with and without reduced motion: no differences.
 
 **Problem.** Three components hold about 1,500 lines, about 980 of them CSS. `CaseStudyLayout.astro` picks one through a nested ternary over three variant types. `@keyframes appear` is defined four times across components.
 

@@ -1,8 +1,8 @@
 ---
 /*
- * Symbolic header illustration for Rain Alert, in the same language as CaseIllustration (Sorted):
- * line art in the site tokens on a tilted dot-matrix plane, one accent motion, decorative
- * (aria-hidden). It shows the problem the app solves: will it rain where I am, and when do I need
+ * Symbolic header illustration for Rain Alert (`illustration: 'umbrella'`), in the same language as
+ * Inbox (Sorted): line art in the site tokens on the tilted dot-matrix plane of Frame, one accent
+ * motion, decorative. It shows the problem the app solves: will it rain where I am, and when do I need
  * an umbrella?
  *
  * The motion is one 12-second day: a "now" marker sweeps Dublin's 24-hour strip (the hours from
@@ -14,14 +14,8 @@
  * classes; synchronised motion shares one cycle length. Reduced motion: everything stands still
  * in a meaningful state.
  */
-import { getLocale } from '../i18n';
-
-export type RainVariant = 'umbrella';
-
-interface Props {
-  /** The only variant; kept as a prop so the layout can treat both illustrations alike. */
-  variant: RainVariant;
-}
+import { getLocale } from '../../i18n';
+import Frame from './Frame.astro';
 
 // The two words in the art follow the page language (decorative, so not in i18n).
 const words =
@@ -48,104 +42,61 @@ const rain = Array.from({ length: 22 }, (_, i) => {
 });
 ---
 
-<div class="illo" aria-hidden="true">
-  <div class="plane">
-    <svg viewBox="0 0 520 440" focusable="false">
-      <path class="cloud faint" d={cloud} transform="translate(-6 24) scale(1.1 0.9)"></path>
-      <path class="cloud" d={cloud} transform="translate(150 6) scale(1.5 1.15)"></path>
-      <path class="cloud faint" d={cloud} transform="translate(372 30) scale(0.95 0.85)"></path>
-      <g class="shower">
-        {rain.map((r) => (
-          <path
-            class:list={['drop', `d${r.k}`]}
-            d={`M${r.x + 8} ${r.top} L${r.x} ${r.bottom}`}
-            pathLength="100"
-          ></path>
-        ))}
-      </g>
-      <g class="umbrella">
+<Frame>
+  <svg viewBox="0 0 520 440" focusable="false">
+    <path class="cloud faint" d={cloud} transform="translate(-6 24) scale(1.1 0.9)"></path>
+    <path class="cloud" d={cloud} transform="translate(150 6) scale(1.5 1.15)"></path>
+    <path class="cloud faint" d={cloud} transform="translate(372 30) scale(0.95 0.85)"></path>
+    <g class="shower">
+      {rain.map((r) => (
         <path
-          class="canopy"
-          d="M168 200 Q260 104 352 200 Q329 184 306 200 Q283 184 260 200 Q237 184 214 200 Q191 184 168 200 Z"
+          class:list={['drop', `d${r.k}`]}
+          d={`M${r.x + 8} ${r.top} L${r.x} ${r.bottom}`}
+          pathLength="100"
         ></path>
-        <path class="shaft" d="M260 200 V286 q0 14 -14 14 q-12 0 -12 -12"></path>
-      </g>
-      <text class="advice" x="260" y="330" text-anchor="middle">
-        {words.advice}
-      </text>
-      {/* The day, hour by hour: the bars carry the chance, the marker is "now". */}
-      <path class="ground" d="M30 410 H492"></path>
-      {hours.map((p, h) => (
-        <rect
-          class:list={['bar', 'thin', band(p)]}
-          x={hx(h)}
-          y={410 - Math.max(3, p * 0.62)}
-          width="12"
-          height={Math.max(3, p * 0.62)}
-          rx="2"
-        ></rect>
       ))}
-      <text class="label" x={hx(0) + 6} y="430" text-anchor="middle">
-        00
+    </g>
+    <g class="umbrella">
+      <path
+        class="canopy"
+        d="M168 200 Q260 104 352 200 Q329 184 306 200 Q283 184 260 200 Q237 184 214 200 Q191 184 168 200 Z"
+      ></path>
+      <path class="shaft" d="M260 200 V286 q0 14 -14 14 q-12 0 -12 -12"></path>
+    </g>
+    <text class="advice" x="260" y="330" text-anchor="middle">
+      {words.advice}
+    </text>
+    {/* The day, hour by hour: the bars carry the chance, the marker is "now". */}
+    <path class="ground" d="M30 410 H492"></path>
+    {hours.map((p, h) => (
+      <rect
+        class:list={['bar', 'thin', band(p)]}
+        x={hx(h)}
+        y={410 - Math.max(3, p * 0.62)}
+        width="12"
+        height={Math.max(3, p * 0.62)}
+        rx="2"
+      ></rect>
+    ))}
+    <text class="label" x={hx(0) + 6} y="430" text-anchor="middle">
+      00
+    </text>
+    <text class="label" x={hx(12) + 6} y="430" text-anchor="middle">
+      12
+    </text>
+    <text class="label" x={hx(23) + 6} y="430" text-anchor="middle">
+      23
+    </text>
+    <g class="now">
+      <path class="now-line" d={`M${hx(0) + 6} 336 V414`}></path>
+      <text class="now-label" x={hx(0) + 6} y="350" text-anchor="middle">
+        {words.now}
       </text>
-      <text class="label" x={hx(12) + 6} y="430" text-anchor="middle">
-        12
-      </text>
-      <text class="label" x={hx(23) + 6} y="430" text-anchor="middle">
-        23
-      </text>
-      <g class="now">
-        <path class="now-line" d={`M${hx(0) + 6} 336 V414`}></path>
-        <text class="now-label" x={hx(0) + 6} y="350" text-anchor="middle">
-          {words.now}
-        </text>
-      </g>
-    </svg>
-  </div>
-</div>
+    </g>
+  </svg>
+</Frame>
 
 <style>
-  /* Wrapper, plane and dot matrix: the same as CaseIllustration, so both case studies match. */
-  .illo {
-    animation: appear 0.6s ease-out 0.1s both;
-    perspective: 1100px;
-    overflow: clip;
-    mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
-  }
-
-  .plane {
-    position: relative;
-    isolation: isolate;
-    transform: rotateX(18deg) rotateY(-30deg) rotateZ(2.5deg);
-    transform-origin: 40% 50%;
-  }
-
-  .plane::before {
-    content: '';
-    position: absolute;
-    inset: -4%;
-    z-index: -1;
-    background-image: radial-gradient(
-      circle,
-      color-mix(in srgb, var(--fg) 16%, transparent) 1px,
-      transparent 1.5px
-    );
-    background-size: 12px 12px;
-    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 25%, transparent 100%);
-  }
-
-  svg {
-    display: block;
-    width: 100%;
-    height: auto;
-    overflow: visible;
-  }
-
-  .label {
-    fill: var(--muted);
-    font-size: 12px;
-  }
-
   .cloud {
     fill: color-mix(in srgb, var(--surface) 85%, transparent);
     stroke: var(--border-strong);
@@ -341,15 +292,8 @@ const rain = Array.from({ length: 22 }, (_, i) => {
     }
   }
 
-  @keyframes appear {
-    from {
-      opacity: 0;
-    }
-  }
-
   /* Reduced motion: still, in a meaningful state (the wet afternoon for the umbrella). */
   @media (prefers-reduced-motion: reduce) {
-    .illo,
     .drop,
     .shower,
     .canopy,

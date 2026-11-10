@@ -1,0 +1,77 @@
+---
+/*
+ * The frame every case-study header illustration sits in: a wrapper that fades in and fades every
+ * edge into the page, and a plane tilted towards the title (like the home hero, a little gentler)
+ * with a dot matrix behind the art. The illustration's SVG goes in the slot.
+ *
+ * Decorative (aria-hidden): the page text carries every fact the art hints at. CSP: no style
+ * attributes; this stylesheet and the illustration's own are bundled.
+ */
+---
+
+<div class="illo" aria-hidden="true">
+  <div class="plane">
+    <slot />
+  </div>
+</div>
+
+<style>
+  .illo {
+    animation: appear 0.6s ease-out 0.1s both;
+    perspective: 1100px;
+    /* The tilt pushes corners past the box; clip there (already faded) so the page never scrolls sideways. */
+    overflow: clip;
+    /* Fade every edge into the page, like the home hero. */
+    mask-image: radial-gradient(ellipse 72% 70% at 50% 50%, #000 62%, transparent 100%);
+  }
+
+  .plane {
+    position: relative;
+    isolation: isolate;
+    transform: rotateX(18deg) rotateY(-30deg) rotateZ(2.5deg);
+    transform-origin: 40% 50%;
+  }
+
+  /* Dot matrix behind the art, densest in the middle; tilts with it. */
+  .plane::before {
+    content: '';
+    position: absolute;
+    inset: -4%;
+    z-index: -1;
+    background-image: radial-gradient(
+      circle,
+      color-mix(in srgb, var(--fg) 16%, transparent) 1px,
+      transparent 1.5px
+    );
+    background-size: 12px 12px;
+    mask-image: radial-gradient(ellipse 50% 50% at 50% 50%, #000 25%, transparent 100%);
+  }
+
+  /*
+   * Defaults for the slotted art, which carries the illustration's own scope, not this one. `:where`
+   * keeps them at the lowest specificity, so any rule in the illustration overrides them.
+   */
+  :global(:where(.illo) svg) {
+    display: block;
+    width: 100%;
+    height: auto;
+    overflow: visible;
+  }
+
+  :global(:where(.illo) .label) {
+    fill: var(--muted);
+    font-size: 12px;
+  }
+
+  @keyframes appear {
+    from {
+      opacity: 0;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .illo {
+      animation: none;
+    }
+  }
+</style>
