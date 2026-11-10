@@ -73,7 +73,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 8. CI
 
-- [x] Done for the five CI jobs (`.github/actions/setup-node-pnpm`). Left for later: the same action in `deploy.yml`, `links.yml` and `rotate-key.yml` (they only run on `main` or on a schedule, so they follow once CI has proved the action), and building once and sharing `dist` (job dependencies for a small saving).
+- [x] Done: the composite action `.github/actions/setup-node-pnpm` is used by the five CI jobs (#137), the deploy, the weekly link check and the key rotation. Not done, on purpose: building once and sharing `dist` between jobs (job dependencies for a small saving).
 
 **Problem.** The checkout, pnpm, Node and install block is repeated in five CI jobs and the deploy. The site is built three times per PR (`site`, the e2e web server, `lighthouse`).
 
