@@ -41,12 +41,17 @@ importers:
       '@types/node':
         specifier: ^24.0.0
         version: 24.19.2
+      '@vdd/contact-schema':
+        specifier: workspace:*
+        version: link:../../packages/contact-schema
       esbuild:
         specifier: ^0.27.0
         version: 0.27.7
       vitest:
         specifier: ^5.1.0
         version: 5.1.0(@opentelemetry/api@1.10.0)(@types/node@24.19.2)(vite@8.3.5(@types/node@24.19.2)(esbuild@0.27.7)(jiti@2.7.0)(yaml@2.9.1))
+
+  packages/contact-schema: {}
 
   site:
     dependencies:
@@ -68,6 +73,9 @@ importers:
       '@tailwindcss/typography':
         specifier: ^0.5.20
         version: 0.5.20(tailwindcss@4.3.4)
+      '@vdd/contact-schema':
+        specifier: workspace:*
+        version: link:../packages/contact-schema
       '@xyflow/react':
         specifier: ^12.12.1
         version: 12.12.1(@types/react-dom@19.3.0(@types/react@19.3.0))(@types/react@19.3.0)(react-dom@19.3.1(react@19.3.1))(react@19.3.1)
@@ -117,6 +125,9 @@ importers:
 
   worker:
     dependencies:
+      '@vdd/contact-schema':
+        specifier: workspace:*
+        version: link:../packages/contact-schema
       aws4fetch:
         specifier: ^1.0.20
         version: 1.0.20

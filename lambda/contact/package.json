@@ -10,6 +10,7 @@
   "devDependencies": {
     "@aws-sdk/client-sesv2": "^3.0.0",
     "@types/node": "^24.0.0",
+    "@vdd/contact-schema": "workspace:*",
     "esbuild": "^0.27.0",
     "vitest": "^5.1.0"
   }

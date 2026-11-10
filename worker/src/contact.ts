@@ -1,3 +1,4 @@
+import { FIELDS } from '@vdd/contact-schema';
 import { AwsClient } from 'aws4fetch';
 import { withSecurityHeaders } from './headers';
 
@@ -146,12 +147,11 @@ export async function handleContact(request: Request, env: ContactEnv): Promise<
   });
 
   try {
-    const { name, email, type, language, message } = body;
     const response = await aws.fetch(env.CONTACT_FUNCTION_URL, {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       // Only the fields the Lambda needs: never the token or anything else that was posted.
-      body: JSON.stringify({ name, email, type, language, message }),
+      body: JSON.stringify(Object.fromEntries(FIELDS.map((field) => [field, body[field]]))),
       signal: AbortSignal.timeout(LAMBDA_TIMEOUT_MS),
     });
     if (response.ok) return json(200, { ok: true });

@@ -1,24 +1,16 @@
-export const TYPES = ['job', 'freelance', 'other'] as const;
-export const LANGUAGES = ['en', 'de'] as const;
+import {
+  EMAIL,
+  EMAIL_MAX,
+  LANGUAGES,
+  MESSAGE_MAX,
+  MESSAGE_MIN,
+  NAME_MAX,
+  TYPES,
+  type ContactMessage,
+} from '@vdd/contact-schema';
 
-export type ContactType = (typeof TYPES)[number];
-export type Language = (typeof LANGUAGES)[number];
+export type { ContactMessage };
 
-export interface ContactMessage {
-  name: string;
-  email: string;
-  type: ContactType;
-  language: Language;
-  message: string;
-}
-
-const NAME_MAX = 100;
-const EMAIL_MAX = 254;
-const MESSAGE_MIN = 10;
-const MESSAGE_MAX = 5000;
-
-// One address, nothing that could end it or add another. Deliberately not a full RFC parser.
-const EMAIL = /^[^\s@<>()[\]",;:\\]+@[^\s@<>()[\]",;:\\]+\.[^\s@<>()[\]",;:\\.]{2,}$/;
 // Line breaks and other control characters, which have no place in a name or a mail header.
 // eslint-disable-next-line no-control-regex
 const CONTROL = /[\u0000-\u001f\u007f]/;

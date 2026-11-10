@@ -41,7 +41,7 @@ Browser → Cloudflare (DNS, CDN, TLS, Worker) → private S3 in `eu-central-1` 
 
 ## Folder split
 
-- **App files** go in this folder (`/home/vedad/DevProjects/vedad-dizdarevic.dev/app`): `site/`, `worker/`, `lambda/contact/`, `case-studies/`, `cv/`, `tests/`, `.github/workflows/`.
+- **App files** go in this folder (`/home/vedad/DevProjects/vedad-dizdarevic.dev/app`): `site/`, `worker/`, `lambda/contact/`, `packages/` (`contact-schema`: the contact form's limits, types and field list, imported by the site, the Worker and the Lambda; change them there only), `case-studies/`, `cv/`, `tests/`, `.github/workflows/`.
 - **Infrastructure files** go in the sibling folder `/home/vedad/DevProjects/vedad-dizdarevic.dev/infra` (its own separate git repo, outside this one): `bootstrap/` and `main/` Terraform. Commit infra changes in that repo, app changes here.
 
 The layout tree in [implementation-plan.md](documentation/implementation-plan.md#repository-layout) shows both repos.

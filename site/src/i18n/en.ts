@@ -1,3 +1,5 @@
+import type { ContactType } from '@vdd/contact-schema';
+
 /** A case study that the Work with me grid has a column for. */
 type HireSlug = 'sorted' | 'rainalert' | 'this-site';
 interface HireProject {
@@ -155,7 +157,7 @@ export const en = {
     { value: 'job', label: 'A full-time role' },
     { value: 'freelance', label: 'A freelance project' },
     { value: 'other', label: 'Something else' },
-  ],
+  ] satisfies { value: ContactType; label: string }[],
   contactName: 'Name',
   contactEmail: 'Email',
   contactMessage: 'Message',

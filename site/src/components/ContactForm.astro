@@ -5,8 +5,10 @@
  * Needs JavaScript, because Turnstile does: the form stays hidden without it, and the email address
  * beside it always works. Turnstile (a third party) loads only once someone starts on the form, so
  * reading the page contacts nobody else. CSP: no inline styles or scripts; state is `hidden`,
- * attributes and classes. Limits here mirror lambda/contact/src/validate.ts, which has the last word.
+ * attributes and classes. Limits and the email pattern come from @vdd/contact-schema; the Lambda
+ * applies the same ones and has the last word.
  */
+import { EMAIL_MAX, MESSAGE_MAX, NAME_MAX } from '@vdd/contact-schema';
 import { type Locale, localeUrl, useTranslations } from '../i18n';
 import { CONTACT_EMAIL, TURNSTILE_SITE_KEY } from '../site';
 
@@ -67,7 +69,7 @@ const t = useTranslations(locale);
         name="name"
         type="text"
         autocomplete="name"
-        maxlength="100"
+        maxlength={NAME_MAX}
         required
         aria-describedby="contact-name-error"
       />
@@ -86,7 +88,7 @@ const t = useTranslations(locale);
         name="email"
         type="email"
         autocomplete="email"
-        maxlength="254"
+        maxlength={EMAIL_MAX}
         required
         aria-describedby="contact-email-error"
       />
@@ -104,7 +106,7 @@ const t = useTranslations(locale);
         id="contact-message"
         name="message"
         rows="6"
-        maxlength="5000"
+        maxlength={MESSAGE_MAX}
         required
         aria-describedby="contact-message-error"
       ></textarea>
@@ -311,6 +313,8 @@ const t = useTranslations(locale);
 </style>
 
 <script>
+  import { EMAIL, MESSAGE_MIN } from '@vdd/contact-schema';
+
   interface TurnstileApi {
     render(
       el: HTMLElement,
@@ -333,7 +337,6 @@ const t = useTranslations(locale);
   const SCRIPT = 'https://challenges.cloudflare.com/turnstile/v0/api.js?render=explicit';
   // Long enough for a person to solve a challenge, should Turnstile ask for one.
   const TOKEN_WAIT_MS = 60_000;
-  const EMAIL = /^[^\s@<>()[\]",;:\\]+@[^\s@<>()[\]",;:\\]+\.[^\s@<>()[\]",;:\\.]{2,}$/;
 
   const form = document.querySelector<HTMLFormElement>('[data-contact]');
 
@@ -424,7 +427,7 @@ const t = useTranslations(locale);
     const checks: [HTMLInputElement | HTMLTextAreaElement, (value: string) => boolean][] = [
       [fields.name, (v) => v.length > 0],
       [fields.email, (v) => EMAIL.test(v)],
-      [fields.message, (v) => v.length >= 10],
+      [fields.message, (v) => v.length >= MESSAGE_MIN],
     ];
 
     /** Marks every field; focus goes to the first problem. */

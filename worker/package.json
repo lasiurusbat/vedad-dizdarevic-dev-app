@@ -9,6 +9,7 @@
     "deploy": "wrangler deploy"
   },
   "dependencies": {
+    "@vdd/contact-schema": "workspace:*",
     "aws4fetch": "^1.0.20"
   },
   "devDependencies": {
