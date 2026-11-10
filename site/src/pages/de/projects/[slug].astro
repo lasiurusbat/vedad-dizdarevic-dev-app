@@ -1,29 +1,10 @@
 ---
-import { render } from 'astro:content';
-import CaseStudySummary from '../../../components/CaseStudySummary.astro';
-import CaseStudyLayout from '../../../layouts/CaseStudyLayout.astro';
-import { getCaseStudies, nextCaseStudy, slugOf, translationsOf } from '../../../lib/caseStudies';
+import CaseStudyPage from '../../../components/pages/CaseStudyPage.astro';
+import { caseStudyPaths } from '../../../lib/caseStudies';
 
-export async function getStaticPaths() {
-  const entries = await getCaseStudies('de');
-  return entries.map((entry) => ({ params: { slug: slugOf(entry) }, props: { entry } }));
-}
+export const getStaticPaths = () => caseStudyPaths('de');
 
 const { entry } = Astro.props;
-const { Content } = await render(entry);
-const alternates = await translationsOf(slugOf(entry));
-const next = await nextCaseStudy('de', slugOf(entry));
 ---
 
-<CaseStudyLayout
-  locale="de"
-  title={entry.data.title}
-  summary={entry.data.summary}
-  slug={slugOf(entry)}
-  alternates={alternates}
-  illustration={entry.data.illustration}
-  next={next}
->
-  <CaseStudySummary locale="de" data={entry.data} />
-  <Content costs={entry.data.costs} />
-</CaseStudyLayout>
+<CaseStudyPage entry={entry} />

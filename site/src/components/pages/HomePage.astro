@@ -1,0 +1,23 @@
+---
+/** The home page in one language; `pages/index.astro` and `pages/de/index.astro` only pick it. */
+import { type Locale, useTranslations } from '../../i18n';
+import Base from '../../layouts/Base.astro';
+import { personLd } from '../../lib/structuredData';
+import Home from '../Home.astro';
+
+interface Props {
+  locale: Locale;
+}
+
+const { locale } = Astro.props;
+const t = useTranslations(locale);
+---
+
+<Base
+  title={`${t.siteTitle} | ${t.role}`}
+  description={t.metaDescription}
+  locale={locale}
+  jsonLd={{ '@context': 'https://schema.org', ...personLd(locale) }}
+>
+  <Home locale={locale} />
+</Base>

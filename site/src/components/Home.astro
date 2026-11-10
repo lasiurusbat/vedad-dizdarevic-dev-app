@@ -18,51 +18,45 @@ interface Props {
 const { locale } = Astro.props;
 const t = useTranslations(locale);
 const caseStudies = await getCaseStudies(locale);
-
-// Page order: pitch first (work, skills, about), then the freelance offer, then contact.
-// Section ids are the anchors the header links to. Content arrives section by section (Phase 4).
-const sections = [
-  { id: 'work', title: t.workTitle },
-  { id: 'skills', title: t.skillsTitle },
-  { id: 'about', title: t.aboutTitle },
-  { id: 'hire', title: t.hireTitle },
-  { id: 'contact', title: t.contactTitle },
-];
+// Page order: pitch first (work, skills, about), then the freelance offer, then contact. Section
+// ids are the anchors the header links to.
 ---
 
 <Hero locale={locale} />
 
-{sections.map((s) => (
-  <Section id={s.id} title={s.title} bloom={s.id === 'work' || s.id === 'contact'}>
-    {s.id === 'work' && caseStudies.length > 0 ? (
-      <div class="grid gap-4 md:grid-cols-2">
-        {caseStudies.map((study) => (
-          <CaseStudyCard
-            locale={locale}
-            title={study.data.title}
-            summary={study.data.summary}
-            href={caseStudyPath(locale, slugOf(study))}
-            tags={study.data.stack}
-          />
-        ))}
-      </div>
-    ) : s.id === 'skills' ? (
-      <div class="space-y-12">
-        <div class="grid gap-x-8 gap-y-8 md:grid-cols-2">
-          {skillGroups.map((g) => (
-            <SkillGroup title={g.title[locale]} items={g.items.map((i) => text(i, locale))} />
-          ))}
-        </div>
-        <Credentials locale={locale} />
-      </div>
-    ) : s.id === 'about' ? (
-      <About locale={locale} />
-    ) : s.id === 'hire' ? (
-      <WorkWithMe locale={locale} />
-    ) : s.id === 'contact' ? (
-      <ContactForm locale={locale} />
-    ) : (
-      <p class="text-muted">{t.comingSoon}</p>
-    )}
-  </Section>
-))}
+<Section id="work" title={t.workTitle} bloom>
+  <div class="grid gap-4 md:grid-cols-2">
+    {caseStudies.map((study) => (
+      <CaseStudyCard
+        locale={locale}
+        title={study.data.title}
+        summary={study.data.summary}
+        href={caseStudyPath(locale, slugOf(study))}
+        tags={study.data.stack}
+      />
+    ))}
+  </div>
+</Section>
+
+<Section id="skills" title={t.skillsTitle}>
+  <div class="space-y-12">
+    <div class="grid gap-x-8 gap-y-8 md:grid-cols-2">
+      {skillGroups.map((g) => (
+        <SkillGroup title={g.title[locale]} items={g.items.map((i) => text(i, locale))} />
+      ))}
+    </div>
+    <Credentials locale={locale} />
+  </div>
+</Section>
+
+<Section id="about" title={t.aboutTitle}>
+  <About locale={locale} />
+</Section>
+
+<Section id="hire" title={t.hireTitle}>
+  <WorkWithMe locale={locale} />
+</Section>
+
+<Section id="contact" title={t.contactTitle} bloom>
+  <ContactForm locale={locale} />
+</Section>

@@ -57,7 +57,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 6. Home and page shells
 
-- [ ] Done
+- [x] Done (2026-11-10). `Home.astro` writes its five sections out and the dead `comingSoon` string is gone. `components/pages/HomePage.astro` and `CaseStudyPage.astro` hold the page bodies; the four route files are a few lines each, and `caseStudyPaths(locale)` in `lib/caseStudies.ts` lists the static paths. Every element on six pages (two widths, both themes) was compared with `main` by computed style and position: no differences.
 
 **Problem.** `Home.astro` loops over a sections array and then switches on the id in a five-way ternary. The `comingSoon` branch and string are dead. The EN and DE files for `index.astro` and `projects/[slug].astro` differ only in the locale literal.
 
