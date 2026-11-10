@@ -25,7 +25,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 2. Client scripts out of `.astro` files
 
-- [ ] Done
+- [x] Done (2026-11-10). The two large scripts are `site/src/scripts/contact-form.ts` and `screenshot-gallery.ts`; the five short ones (3 to 41 lines) stay in their components, now linted by `eslint-plugin-astro`.
 
 **Problem.** `ContactForm.astro` carries 184 lines of script and `ScreenshotGallery.astro` 92. ESLint has no Astro plugin, so this code is not linted, and it cannot be unit-tested.
 
