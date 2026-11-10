@@ -49,7 +49,7 @@ The layout tree in [implementation-plan.md](documentation/implementation-plan.md
 
 ## Planned layout
 
-`site/` Astro · `worker/` Cloudflare Worker · `lambda/contact/` · `cv/` Typst · diagrams: React Flow in `site/src/diagrams/` · `tests/e2e` + `tests/smoke` · `.github/workflows/`; Terraform in `../infra/bootstrap` + `../infra/main`. Full tree in the implementation plan.
+`site/` Astro · `worker/` Cloudflare Worker · `lambda/contact/` · `cv/` Typst · diagrams: React Flow in `site/src/diagrams/` · longer client scripts in `site/src/scripts/` (a component's `<script>` imports and starts them; ESLint also covers `.astro` files and their script blocks) · `tests/e2e` + `tests/smoke` · `.github/workflows/`; Terraform in `../infra/bootstrap` + `../infra/main`. Full tree in the implementation plan.
 
 ## Rules that are easy to break
 
