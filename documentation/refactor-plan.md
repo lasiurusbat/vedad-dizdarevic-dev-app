@@ -87,6 +87,6 @@ Four response builders in `index.ts` and `contact.ts` repeat "security headers p
 
 ### 10. Data files (optional)
 
-- [ ] Done
+- [x] Done: `skills.ts`, `credentials.ts` and `site.ts` moved to `site/src/data/`. `hireServices` stays in the i18n files: it is translated copy for each language, not neutral data.
 
 `skills.ts`, `credentials.ts` and `site.ts` sit at the `src` root, and structured data such as `hireServices` lives inside the i18n string files. A `src/data/` folder would separate data from UI strings.

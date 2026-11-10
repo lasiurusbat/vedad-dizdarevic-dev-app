@@ -6,7 +6,7 @@
  * Tool names are proper names and stay as they are; a `{ en, de }` item is for the few that carry
  * words. Phase 5 may move this into `cv/data.yaml` so the CV and the site share one source.
  */
-import type { Locale } from './i18n';
+import type { Locale } from '../i18n';
 
 type Text = string | Record<Locale, string>;
 
