@@ -3,3 +3,4 @@ packages:
   - worker
   - lambda/contact
   - tests/e2e
+  - packages/*
