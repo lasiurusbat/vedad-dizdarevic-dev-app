@@ -88,7 +88,6 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 Drei Pfade laufen durch die Plattform: Anfragen, Mail und Releases. Die Schaltflächen über dem Diagramm zeichnen jeden davon nach und blenden den Rest ab.
 
 <ArchitectureDiagram
-  locale="de"
   id="sorted-production"
   title="Produktionsarchitektur von Sorted auf AWS: der Anfragepfad, der Mailpfad mit Anhang-Scan und der Release-Pfad."
 />
@@ -160,7 +159,6 @@ Dev und Prod sind getrennte Terraform-Roots, die nur Flags auf einem gemeinsamen
 Zwei Repositories, zwei Rollen. Im Anwendungs-Repository startet ein Git-Tag die vollständige Prüfsuite und schiebt ein Image unter einem unveränderlichen Tag nach ECR. Das Infrastruktur-Repository entscheidet, welches Image läuft: Ein Deployment ist eine geprüfte Terraform-Änderung am Image-Tag, und ein Rollback ist dieselbe einzeilige Änderung zurück. Der Workflow schreibt den Plan in die Zusammenfassung des Laufs und wendet genau diesen gespeicherten Plan an. Die Infrastruktur-CI führt `terraform fmt`, `validate` und 22 Offline-Läufe von `terraform test` mit gemockten Providern aus, die die Sicherheitseigenschaften ohne AWS-Konto prüfen.
 
 <ArchitectureDiagram
-  locale="de"
   id="sorted-release"
   compact
   title="Wie ein Sorted-Release zu AWS gelangt: Ein Git-Tag baut ein unveränderliches Image in ECR, und eine geprüfte Terraform-Änderung bringt es nach ECS."

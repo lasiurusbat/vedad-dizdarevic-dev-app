@@ -37,7 +37,6 @@ import TradeOff from '../../../components/TradeOff.astro';
 Three paths run through the site: requests, deploys, and the contact form with its alarms. The buttons above the diagram trace each one. The code lives in two public repositories: the <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-app" target="_blank" rel="noopener noreferrer">app<span class="sr-only"> (opens in a new tab)</span></a> (site, Worker, tests, deploy) and the <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-infra" target="_blank" rel="noopener noreferrer">infrastructure<span class="sr-only"> (opens in a new tab)</span></a> (Terraform).
 
 <ArchitectureDiagram
-  locale="en"
   id="site-platform"
   compact
   title="How vedad-dizdarevic.dev is served and deployed: Cloudflare and a Worker in front of a private S3 bucket, the contact path through Lambda and SES, and the deploy from GitHub Actions."

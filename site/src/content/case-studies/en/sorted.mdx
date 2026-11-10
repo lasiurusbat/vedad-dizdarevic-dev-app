@@ -88,7 +88,6 @@ import dashboardDark from '../../../assets/case-studies/sorted/dashboard-dark.pn
 Three paths run through the platform: requests, mail and releases. The buttons above the diagram trace each one and dim the rest.
 
 <ArchitectureDiagram
-  locale="en"
   id="sorted-production"
   title="Sorted production architecture on AWS: the request path, the mail path with attachment scanning, and the release path."
 />
@@ -160,7 +159,6 @@ Dev and prod are separate Terraform roots that only set flags on one shared modu
 Two repositories, two roles. In the application repository, a git tag runs the full check suite and pushes an image to ECR under an immutable tag. The infrastructure repository decides which image runs: a deploy is a reviewed Terraform change to the image tag, and a rollback is the same one-line change back. The workflow writes the plan into the run summary and applies that exact saved plan. Infrastructure CI runs `terraform fmt`, `validate` and 22 offline `terraform test` runs with mocked providers, which assert the security properties without an AWS account.
 
 <ArchitectureDiagram
-  locale="en"
   id="sorted-release"
   compact
   title="How a Sorted release gets to AWS: a git tag builds an immutable image in ECR, and a reviewed Terraform change deploys it to ECS."
