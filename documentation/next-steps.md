@@ -11,7 +11,8 @@ Working log for picking up where the last session stopped. Task-level detail sta
 **Phase 11 (launch), 2026-11-10:**
 
 - Done: no placeholder or test content (source grep and all 10 live pages).
-- **DMARC:** still `p=none` (rua to `hello@`, `adkim=r`, `aspf=r`). Next: read an aggregate report in `hello@`, confirm the SES contact mail is aligned (SPF or DKIM pass with alignment), then an infra PR to `p=quarantine`, later `p=reject`. SPF is a single record.
+- **DMARC:** `p=quarantine` since 2026-11-10 (infra #21; the owner went ahead after 8 days of reports instead of about 2 weeks). Evidence: Purelymail mail passes SPF, DKIM and DMARC in Gmail and Outlook, the SES contact form passes with DKIM and SPF both aligned (also under quarantine), and the SES aggregate report of 2026-11-05 shows Purelymail aligned by DKIM. Next: read the reports that arrive in `hello@` over the next two weeks; if only aligned mail shows, an infra PR sets `dmarc_policy` to `reject` (target D23, about 2026-11-26). Stay at quarantine if a legitimate source fails alignment.
+- **Outlook junk-filing:** a one-line test from `hello@` to an Outlook address landed in Junk (SCL 5) although SPF, DKIM and DMARC passed. Cause is most likely a new domain on a shared sending IP. Warm it up: real, longer mail to a few Outlook and Hotmail contacts, ask them to reply, mark "Not junk". Check that a real reply to a recruiter on Outlook arrives before launch.
 - **Owner's launch test script** ([launch-test-script.md](launch-test-script.md)): real iPhone and Android, Firefox and Safari, proofreading EN and DE (a native German speaker for DE), every CTA, CV against LinkedIn, link previews, the German VPN check. Failures go back as `device or browser, page, what happened`; each is one small PR.
 - After launch: site URL on LinkedIn, GitHub, CV and email signature; the LinkedIn post; Search Console after two weeks.
 
