@@ -1,12 +1,11 @@
 ---
-import { type Locale, useTranslations } from '../i18n';
+import { getLocale, useTranslations } from '../i18n';
 import { sortedProduction } from '../diagrams/sorted-production';
 import { sortedRelease } from '../diagrams/sorted-release';
 import { rainalertRelease } from '../diagrams/rainalert-release';
 import { sitePlatform } from '../diagrams/site-platform';
 
 interface Props {
-  locale: Locale;
   id: 'sorted-production' | 'sorted-release' | 'rainalert-release' | 'site-platform';
   /** Accessible name and caption. */
   title: string;
@@ -14,7 +13,8 @@ interface Props {
   compact?: boolean;
 }
 
-const { locale, id, title, compact = false } = Astro.props;
+const { id, title, compact = false } = Astro.props;
+const locale = getLocale(Astro.currentLocale);
 const t = useTranslations(locale);
 const description = {
   'sorted-production': sortedProduction,
@@ -28,7 +28,8 @@ const definition = {
   'rainalert-release': rainalertRelease,
   'site-platform': sitePlatform,
 }[id];
-const steps = locale === 'de' && description.de.length > 0 ? description.de : description.en;
+// English when a diagram has no description in this language yet.
+const steps = description[locale].length > 0 ? description[locale] : description.en;
 // Path buttons: hidden until the diagram mounts (FlowDiagram wires them), so no-JS visitors see
 // none. "Everything" (no data-path value) clears the selection.
 const paths = (definition.paths ?? []).map((p) => ({

@@ -1,4 +1,5 @@
 import type { Edge, Node } from '@xyflow/react';
+import type { Locale } from '../i18n';
 
 /** An icon URL, or a light/dark pair swapped with the visitor's theme. */
 export type DiagramIcon = string | { light: string; dark: string };
@@ -40,13 +41,13 @@ export interface DiagramDefinition {
    * stay lit, the rest dims. Each has a one-sentence summary shown while it is selected. */
   paths?: DiagramPath[];
   /** Ordered text alternative: what the diagram says, for screen readers and no-JS visitors. */
-  description: { en: string[]; de: string[] };
+  description: Record<Locale, string[]>;
 }
 
 export interface DiagramPath {
   id: string;
-  label: { en: string; de: string };
-  summary: { en: string; de: string };
+  label: Record<Locale, string>;
+  summary: Record<Locale, string>;
   nodes: string[];
   edges: string[];
   /** Node to centre on when the diagram scrolls sideways (phones). */

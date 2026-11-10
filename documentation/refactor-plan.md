@@ -33,7 +33,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 3. One way to get the locale
 
-- [ ] Done
+- [x] Done (2026-11-10). Components used in MDX read the locale from the URL (`getLocale(Astro.currentLocale)`), so no MDX file passes `locale` any more. Page-level components (Home, Header, Footer and the like) keep their `locale` prop: the route files set it once, next to the URL that decides it.
 
 **Problem.** Ten components read `Astro.currentLocale`; the rest take a `locale` prop, which the MDX files pass by hand (`locale="en"`). A wrong value in a German file would render mixed languages with no error.
 
