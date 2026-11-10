@@ -73,7 +73,7 @@ export function createHandler(client: Pick<SESv2Client, 'send'>, config: Config)
 
     const message = validate(parse(event));
     if (!message) {
-      console.log(JSON.stringify({ outcome: 'invalid' }));
+      console.log(JSON.stringify({ outcome: 'invalid', marker: 'rollback-test' }));
       return respond(400, { error: 'invalid' });
     }
 
