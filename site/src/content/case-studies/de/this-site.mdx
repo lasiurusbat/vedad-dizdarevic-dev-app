@@ -26,12 +26,6 @@ order: 30
 draft: false
 ---
 
-import ArchitectureDiagram from '../../../components/ArchitectureDiagram.astro';
-import ProblemLog from '../../../components/ProblemLog.astro';
-import TechStack from '../../../components/TechStack.astro';
-import Limitations from '../../../components/Limitations.astro';
-import TradeOff from '../../../components/TradeOff.astro';
-
 ## Architektur
 
 Drei Pfade laufen durch die Website: Anfragen, Deploys und das Kontaktformular mit seinen Alarmen. Die Buttons über dem Diagramm zeichnen jeden einzeln nach. Der Code liegt in zwei öffentlichen Repositories: der <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-app" target="_blank" rel="noopener noreferrer">App<span class="sr-only"> (öffnet in einem neuen Tab)</span></a> (Website, Worker, Tests, Deploy) und der <a href="https://github.com/lasiurusbat/vedad-dizdarevic-dev-infra" target="_blank" rel="noopener noreferrer">Infrastruktur<span class="sr-only"> (öffnet in einem neuen Tab)</span></a> (Terraform).
