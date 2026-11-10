@@ -41,7 +41,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 4. A diagram registry
 
-- [ ] Done
+- [x] Done (2026-11-10). `site/src/diagrams/index.ts` is the one list of diagrams; `Diagram.astro`, the schema's `diagram` field and the `viewFullSize` string it alone used are gone.
 
 **Problem.** The four diagrams are mapped by id in three places: `FlowDiagram.tsx`, twice in `ArchitectureDiagram.astro`, and a hand-typed id union in its props.
 

@@ -2,6 +2,8 @@
 // island: islands emit an inline <script>, an inline <style> and a style="" attribute, which the
 // CSP (`script-src 'self'`, `style-src 'self'`) rejects. React Flow itself only sets styles through
 // the CSSOM, which the CSP allows.
+import type { DiagramId } from './index';
+
 const targets = document.querySelectorAll<HTMLElement>('[data-diagram]');
 
 async function mount(el: HTMLElement) {
@@ -13,7 +15,8 @@ async function mount(el: HTMLElement) {
   ]);
   createRoot(el).render(
     createElement(FlowDiagram, {
-      id: el.dataset.diagram as never,
+      // Written by ArchitectureDiagram from a typed DiagramId.
+      id: el.dataset.diagram as DiagramId,
       label: el.dataset.label ?? '',
     }),
   );

@@ -1,12 +1,9 @@
 ---
 import { getLocale, useTranslations } from '../i18n';
-import { sortedProduction } from '../diagrams/sorted-production';
-import { sortedRelease } from '../diagrams/sorted-release';
-import { rainalertRelease } from '../diagrams/rainalert-release';
-import { sitePlatform } from '../diagrams/site-platform';
+import { type DiagramId, diagrams } from '../diagrams';
 
 interface Props {
-  id: 'sorted-production' | 'sorted-release' | 'rainalert-release' | 'site-platform';
+  id: DiagramId;
   /** Accessible name and caption. */
   title: string;
   /** A wide, flat diagram (two rows): a shorter canvas, so the fitted view has no empty bands. */
@@ -16,18 +13,8 @@ interface Props {
 const { id, title, compact = false } = Astro.props;
 const locale = getLocale(Astro.currentLocale);
 const t = useTranslations(locale);
-const description = {
-  'sorted-production': sortedProduction,
-  'sorted-release': sortedRelease,
-  'rainalert-release': rainalertRelease,
-  'site-platform': sitePlatform,
-}[id].description;
-const definition = {
-  'sorted-production': sortedProduction,
-  'sorted-release': sortedRelease,
-  'rainalert-release': rainalertRelease,
-  'site-platform': sitePlatform,
-}[id];
+const definition = diagrams[id];
+const { description } = definition;
 // English when a diagram has no description in this language yet.
 const steps = description[locale].length > 0 ? description[locale] : description.en;
 // Path buttons: hidden until the diagram mounts (FlowDiagram wires them), so no-JS visitors see
