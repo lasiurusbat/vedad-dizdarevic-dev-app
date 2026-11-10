@@ -1,0 +1,40 @@
+---
+/**
+ * One case study page. The language comes from the entry's folder, so the EN and DE routes
+ * (`pages/projects/[slug].astro`, `pages/de/projects/[slug].astro`) only list their entries.
+ */
+import { render } from 'astro:content';
+import CaseStudyLayout from '../../layouts/CaseStudyLayout.astro';
+import {
+  type CaseStudy,
+  localeOf,
+  nextCaseStudy,
+  slugOf,
+  translationsOf,
+} from '../../lib/caseStudies';
+import CaseStudySummary from '../CaseStudySummary.astro';
+
+interface Props {
+  entry: CaseStudy;
+}
+
+const { entry } = Astro.props;
+const locale = localeOf(entry);
+const slug = slugOf(entry);
+const { Content } = await render(entry);
+const alternates = await translationsOf(slug);
+const next = await nextCaseStudy(locale, slug);
+---
+
+<CaseStudyLayout
+  locale={locale}
+  title={entry.data.title}
+  summary={entry.data.summary}
+  slug={slug}
+  alternates={alternates}
+  illustration={entry.data.illustration}
+  next={next}
+>
+  <CaseStudySummary locale={locale} data={entry.data} />
+  <Content costs={entry.data.costs} />
+</CaseStudyLayout>

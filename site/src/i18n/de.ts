@@ -10,7 +10,6 @@ export const de: Messages = {
   heroPositioning:
     'Skalierbare, produktionsreife Cloud-Plattformen mit Infrastructure as Code, Plattformarchitektur, Containerisierung und Kubernetes-Orchestrierung.',
   ctaCv: 'Lebenslauf herunterladen',
-  comingSoon: 'Folgt in Kürze.',
 
   themeToDark: 'Zum dunklen Design wechseln',
   themeToLight: 'Zum hellen Design wechseln',

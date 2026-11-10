@@ -28,6 +28,12 @@ export async function getCaseStudies(locale: Locale): Promise<CaseStudy[]> {
     .sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title));
 }
 
+/** Static paths for the case study pages of one language: `slug` as the param, the entry as a prop. */
+export async function caseStudyPaths(locale: Locale) {
+  const entries = await getCaseStudies(locale);
+  return entries.map((entry) => ({ params: { slug: slugOf(entry) }, props: { entry } }));
+}
+
 /** Which languages a project exists in, as locale -> path (for the language switch and hreflang). */
 export async function translationsOf(slug: string): Promise<Partial<Record<Locale, string>>> {
   const all = await getCollection('caseStudies', (e) => showDrafts || !e.data.draft);

@@ -29,7 +29,6 @@ export const en = {
   heroPositioning:
     'Building scalable, production-ready cloud platforms through Infrastructure as Code, platform architecture, containerization, and Kubernetes orchestration.',
   ctaCv: 'Download CV',
-  comingSoon: 'Coming soon.',
 
   themeToDark: 'Switch to dark theme',
   themeToLight: 'Switch to light theme',

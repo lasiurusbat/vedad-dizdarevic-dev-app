@@ -1,17 +1,5 @@
 ---
-import Home from '../../components/Home.astro';
-import { useTranslations } from '../../i18n';
-import Base from '../../layouts/Base.astro';
-import { personLd } from '../../lib/structuredData';
-
-const t = useTranslations('de');
+import HomePage from '../../components/pages/HomePage.astro';
 ---
 
-<Base
-  title={`${t.siteTitle} | ${t.role}`}
-  description={t.metaDescription}
-  locale="de"
-  jsonLd={{ '@context': 'https://schema.org', ...personLd('de') }}
->
-  <Home locale="de" />
-</Base>
+<HomePage locale="de" />
