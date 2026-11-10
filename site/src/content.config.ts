@@ -71,8 +71,6 @@ const caseStudies = defineCollection({
     repoPrivate: z.boolean().default(false),
     /** Something live or visual: a pipeline run, a Grafana screenshot, a demo. */
     liveLinks: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
-    /** Id of a diagram in src/diagrams/ (Phase 4 diagram spike). */
-    diagram: z.string().optional(),
     /** Symbolic line-art illustration beside the title on wide screens: CaseIllustration for
      * Sorted (inbox, module, perimeter), RainIllustration for Rain Alert (umbrella),
      * SiteIllustration for this site (headers). */

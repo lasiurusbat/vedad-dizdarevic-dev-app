@@ -13,22 +13,10 @@ import { useEffect, useMemo, useRef, useState, type RefObject } from 'react';
 import '@xyflow/react/dist/base.css';
 import './flow.css';
 import { GroupLabel, ServiceNode } from './ServiceNode';
-import { sortedProduction } from './sorted-production';
-import { sortedRelease } from './sorted-release';
-import { rainalertRelease } from './rainalert-release';
-import { sitePlatform } from './site-platform';
+import { type DiagramId, diagrams } from './index';
 import type { DiagramDefinition, DiagramNode } from './types';
 
 const nodeTypes = { service: ServiceNode, group: GroupLabel };
-const diagrams = {
-  'sorted-production': sortedProduction,
-  'sorted-release': sortedRelease,
-  'rainalert-release': rainalertRelease,
-  'site-platform': sitePlatform,
-};
-
-export type DiagramId = keyof typeof diagrams;
-
 /** Mouse and trackpad only; on touch a swipe has to keep scrolling the page. */
 function useFinePointer() {
   const [fine, setFine] = useState(false);

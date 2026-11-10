@@ -181,7 +181,6 @@ export const en = {
 
   readCaseStudy: 'Read the case study',
   backToWork: 'Back to selected work',
-  viewFullSize: 'View full size',
   galleryPrev: 'Previous screenshot',
   galleryNext: 'Next screenshot',
   galleryOpen: '(view full size)',

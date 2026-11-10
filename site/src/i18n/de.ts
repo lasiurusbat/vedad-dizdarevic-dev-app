@@ -166,7 +166,6 @@ export const de: Messages = {
 
   readCaseStudy: 'Fallstudie lesen',
   backToWork: 'Zurück zu den ausgewählten Projekten',
-  viewFullSize: 'Vollbild ansehen',
   galleryPrev: 'Vorheriger Screenshot',
   galleryNext: 'Nächster Screenshot',
   galleryOpen: '(in voller Größe ansehen)',
