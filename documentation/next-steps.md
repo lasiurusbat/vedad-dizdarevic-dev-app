@@ -2,19 +2,24 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-09 (end of the session begun on 2026-11-08, day 7)
+## Stopped at: 2026-11-10 (Phase 10 done except one manual fallback; Phase 11 started)
 
-**Merged:** #62–#80 and infra #10. No other PRs are open in either repo. M3 is done. The contact form is live and delivers real mail, also under the enforced CSP. Phase 8's build work is done. The privacy policy is live; there is no Impressum (owner's decision, 2026-11-09).
+**State:** #110–#120 and infra #19, #20 are merged; the only open PR is the one that wrote this section.
 
-**Phase 9 is done** (Dependabot, `html-validate`, the link checker, sweep coverage; `lighthouse` is a required check). **Phase 10 (monitoring and operations), state on 2026-11-09:**
+**Phase 10 (monitoring and operations):** every rollback case in the runbook is tried (Worker 2026-11-09; revert PR #113/#114, bucket versions #116, Lambda #117/#118 and infra #19/#20 on 2026-11-10). Alarms, key rotation (workflow), pruning, the runbook and the `/de/` monitor are done. Left: the by-hand key rotation steps (the workflow ran; only the fallback is untried, and it touches the live key), the optional synthetic check of `/api/contact`, and reading the deploy log around 2026-12-03 to see pruning delete its first assets.
 
-- Done and tried: the runbook (`documentation/runbook.md`); all five alarms tested by hand (every one emailed and returned to OK); the invocations alarm (infra #17); the budget; the Web Analytics site deleted; the **Worker key rotation workflow** (`rotate-key.yml`, app #95, role from infra #18) run once with `force`: passed, the live key was created 2026-11-09 and the old one deleted.
-- In review: asset pruning (app #99, last deploy step, `.github/scripts/prune-assets.sh`; nothing is old enough to delete before about 2026-12-03, so read the deploy log then); the alarm-test line in the runbook (app #98). GitHub had a partial outage on 2026-11-09, and required checks (`lint`, `secrets`, `worker`) went missing on #98: closing and reopening the PR retriggers them.
-- Owner: Better Stack `/de/` monitor created 2026-11-09 (keyword `Datenschutz`); an English keyword check on `/` is optional.
-- Left: try each other runbook procedure once and update its **Tried** line (redeploy by hand, rollback, the manual key rotation, add a case study again if wanted); optional synthetic check of `/api/contact`. Then Phase 11, the launch checklist.
-- The infra repo needs `github_owner_id` and `app_repo_id` in the owner's local `main/terraform.tfvars` (the CI variables `GH_OWNER_ID` and `APP_REPO_ID` are set).
+**Phase 11 (launch), 2026-11-10:**
 
-**Decided 2026-11-09:** no Impressum (the owner has no serviceable address besides home and will not publish it), the geo-redirect to `/de/` stays, and Purelymail's US servers are accepted: the policy states the fact and names no mechanism. The Cloudflare paragraph now says Cloudflare's standard DPA applies (#101); AWS is not named in the policy. The Better Stack `/de/` keyword monitor (keyword `Datenschutz`, the German footer link) was created on 2026-11-09. **Waiting on the owner:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996.
+- Done: no placeholder or test content (source grep and all 10 live pages).
+- **DMARC:** still `p=none` (rua to `hello@`, `adkim=r`, `aspf=r`). Next: read an aggregate report in `hello@`, confirm the SES contact mail is aligned (SPF or DKIM pass with alignment), then an infra PR to `p=quarantine`, later `p=reject`. SPF is a single record.
+- **Owner's launch test script** ([launch-test-script.md](launch-test-script.md)): real iPhone and Android, Firefox and Safari, proofreading EN and DE (a native German speaker for DE), every CTA, CV against LinkedIn, link previews, the German VPN check. Failures go back as `device or browser, page, what happened`; each is one small PR.
+- After launch: site URL on LinkedIn, GitHub, CV and email signature; the LinkedIn post; Search Console after two weeks.
+
+**Waiting on the owner:** a legal review of the privacy policy (written from what the site does, not by a lawyer), including whether email alone is enough contact detail; delete `cv/reference/` and `../cv-reference-backup/` when happy with the CV; SRE-Project README; whether to keep the `workflow` scope on `gh`; the reply to GitHub Support ticket #4972996 (don't rewrite or force-push either repo while it is open).
+
+**Decided 2026-11-09:** no Impressum (home address stays private), the geo-redirect to `/de/` stays, Purelymail's US servers are accepted (the policy states the fact, names no mechanism).
+
+**Notes:** the infra repo needs `github_owner_id` and `app_repo_id` in the owner's local `main/terraform.tfvars`. GitHub had a partial outage on 2026-11-09 and required checks went missing on a PR: closing and reopening it retriggers them. Shell lesson from the bucket test: set variables in one shell and quote version IDs.
 
 ### Late 2026-11-09: About redesign and its tests
 

@@ -447,7 +447,7 @@ All gates are required status checks on `main`, the CSP is enforced, and the leg
 
 - [x] **Worker key rotation** (done 2026-11-09, app #95 and infra #18): scheduled workflow in the app repo (every 90 days), using a rotation role that the infra repo creates, that creates a new access key, updates the Worker secrets, verifies the site, then deletes the old key; alert on failure
 - [x] **Asset pruning** (app #99, a deploy step instead of a scheduled job): remove `/_astro/` files not referenced by the current build and older than 30 days (scheduled job)
-- [x] **Rollback** (written in the runbook, not yet tried): documented procedure: revert the commit and let the pipeline redeploy; S3 versioning as a fallback; `wrangler rollback` for the Worker
+- [x] **Rollback** (tried 2026-11-10: revert PR, bucket versions, Lambda and infra; the Worker on 2026-11-09): documented procedure: revert the commit and let the pipeline redeploy; S3 versioning as a fallback; `wrangler rollback` for the Worker
 - [x] **Runbook** (`documentation/runbook.md` in the app repo): deploy, rollback, rotate keys, update the CV, add a case study, respond to an alert
 
 ### Done when
@@ -468,7 +468,7 @@ Each alert has fired once in a test, and the runbook procedures have each been t
 - [ ] OG preview checked on LinkedIn _(Audited 2026-11-09, still open: verified on 2026-11-08; re-check after the card changes)_
 - [ ] CV PDFs match the LinkedIn profile _(Audited 2026-11-09, still open: owner)_
 - [ ] DMARC at `p=reject`; test email delivered _(Audited 2026-11-09, still open: waiting on the report check and the ramp)_
-- [ ] Remove any placeholder or test content _(Audited 2026-11-09, still open: not yet searched)_
+- [x] Remove any placeholder or test content _(2026-11-10: source and all 10 live pages searched, nothing found; the unused `comingSoon` fallback in `Home.astro` stays on purpose)_
 
 ### After launch
 
