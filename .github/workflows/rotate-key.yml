@@ -34,12 +34,7 @@ jobs:
     # No `environment:`: the rotation role trusts only the refs/heads/main subject.
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
-        with:
-          node-version-file: .nvmrc
-          cache: pnpm
-      - run: pnpm install --frozen-lockfile
+      - uses: ./.github/actions/setup-node-pnpm
 
       - uses: aws-actions/configure-aws-credentials@v6
         with:
