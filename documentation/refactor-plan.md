@@ -15,7 +15,7 @@ Items 1 to 4 are worth doing before launch. Items 5 to 10 can wait until after i
 
 ### 1. One contact contract
 
-- [ ] Done
+- [x] Done (#128, merged 2026-11-10; a real message through the live form arrived)
 
 **Problem.** The email pattern exists twice (the `ContactForm.astro` script and `lambda/contact/src/validate.ts`). The limits (name 100, email 254, message 10 to 5000) exist three times: HTML attributes, client checks, Lambda. The types `job | freelance | other` are in both i18n files and the Lambda. The list of fields the Worker forwards is written out in `worker/src/contact.ts`.
 
