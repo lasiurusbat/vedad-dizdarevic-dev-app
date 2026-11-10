@@ -1,11 +1,20 @@
 ---
 import { type Locale, localeUrl, useTranslations } from '../i18n';
-import CaseIllustration, { type IllustrationVariant } from '../components/CaseIllustration.astro';
-import RainIllustration, { type RainVariant } from '../components/RainIllustration.astro';
-import SiteIllustration, { type SiteVariant } from '../components/SiteIllustration.astro';
+import Headers from '../components/illustrations/Headers.astro';
+import Inbox from '../components/illustrations/Inbox.astro';
+import Umbrella from '../components/illustrations/Umbrella.astro';
 import CTAButton from '../components/CTAButton.astro';
 import { articleLd } from '../lib/structuredData';
+import type { CaseStudy } from '../lib/caseStudies';
 import Base from './Base.astro';
+
+type IllustrationId = NonNullable<CaseStudy['data']['illustration']>;
+
+/** One header illustration per id in the case-study schema. */
+const illustrations = { inbox: Inbox, umbrella: Umbrella, headers: Headers } satisfies Record<
+  IllustrationId,
+  unknown
+>;
 
 interface Props {
   locale: Locale;
@@ -16,13 +25,14 @@ interface Props {
   /** Where translations of this case study live; see Base. */
   alternates?: Partial<Record<Locale, string>>;
   /** Symbolic art beside the title on wide screens; none when unset. */
-  illustration?: IllustrationVariant | RainVariant | SiteVariant;
+  illustration?: IllustrationId;
   /** The case study to read next, linked at the foot of the closing band. */
   next?: { title: string; href: string };
 }
 
 const { locale, title, summary, slug, alternates, illustration, next } = Astro.props;
 const t = useTranslations(locale);
+const Illustration = illustration && illustrations[illustration];
 ---
 
 <Base
@@ -45,14 +55,7 @@ const t = useTranslations(locale);
         <h1 class="text-4xl">{title}</h1>
         <p class="text-muted mt-4 text-xl">{summary}</p>
       </div>
-      {illustration &&
-        (illustration === 'umbrella' ? (
-          <RainIllustration variant={illustration} />
-        ) : illustration === 'headers' ? (
-          <SiteIllustration variant={illustration} />
-        ) : (
-          <CaseIllustration variant={illustration} />
-        ))}
+      {Illustration && <Illustration />}
     </header>
     <div class="prose mt-10">
       <slot />

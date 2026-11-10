@@ -71,10 +71,9 @@ const caseStudies = defineCollection({
     repoPrivate: z.boolean().default(false),
     /** Something live or visual: a pipeline run, a Grafana screenshot, a demo. */
     liveLinks: z.array(z.object({ label: z.string(), url: z.url() })).default([]),
-    /** Symbolic line-art illustration beside the title on wide screens: CaseIllustration for
-     * Sorted (inbox, module, perimeter), RainIllustration for Rain Alert (umbrella),
-     * SiteIllustration for this site (headers). */
-    illustration: z.enum(['inbox', 'module', 'perimeter', 'umbrella', 'headers']).optional(),
+    /** Symbolic line-art illustration beside the title on wide screens, one per case study, from
+     * src/components/illustrations/ (the layout maps each id to its component). */
+    illustration: z.enum(['inbox', 'umbrella', 'headers']).optional(),
     /** Lower comes first on the home page. */
     order: z.number().default(100),
     /** Drafts are left out of production builds; SHOW_DRAFTS=1 (dev, e2e) includes them. */
