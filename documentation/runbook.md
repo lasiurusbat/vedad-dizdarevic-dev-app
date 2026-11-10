@@ -54,8 +54,6 @@ After any rollback, purge the Cloudflare cache if the deploy job did not (Cloudf
 SITE_BUCKET=vdd-site-769814228024 node --test "tests/smoke/*.test.mjs"
 ```
 
-<!-- rollback-test marker: added to be reverted, see the Tried line below -->
-
 **Tried:** the Worker rollback on 2026-11-09: `wrangler rollback` restored the previous version (the deployment list shows a "Rollback" entry) and the site kept answering with HSTS and the CSP; a manual redeploy then moved the Worker forward again. The other cases (revert PR, bucket versions, Lambda, infra) are not tried.
 
 ## Rotate the Worker's AWS key
