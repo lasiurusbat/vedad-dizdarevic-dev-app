@@ -282,13 +282,16 @@
  * marking where the section starts. The text's left edge sits on a vertical grid line and the
  * heading on a horizontal one, so the grid frames the content instead of sitting behind it.
  * Pure CSS (pseudo-elements, no images), CSP-safe; themed through the tokens.
+ * The home page's section titles get the same plate: `.plate-scope` on the wrapper (the variables)
+ * and `.plate-heading` on the h2 (the field and the bracket); they keep their own size and margins.
  *   --plate-cell   grid size
  *   --plate-out    how far the grid reaches left of the text: a whole number of cells, so a line
  *                  lands on the text edge (overflow to the left never scrolls)
  *   --plate-right  how far it reaches right of the text; kept inside the page so nothing
  *                  scrolls sideways
  */
-.prose {
+.prose,
+.plate-scope {
   --plate-cell: 2rem;
   --plate-out: 6rem;
   --plate-right: 0rem;
@@ -307,11 +310,15 @@
   }
 }
 
-.prose > h2 {
+.prose > h2,
+.plate-heading {
   position: relative;
+  padding-top: var(--plate-cell);
+}
+
+.prose > h2 {
   margin-top: 4.5rem;
   margin-bottom: 1.25rem;
-  padding-top: var(--plate-cell);
   font-size: clamp(1.5rem, 1.2rem + 1.1vw, 2rem);
   line-height: 1.15;
 }
@@ -322,7 +329,8 @@
 
 /* The field starts two cells above the heading and reaches about six cells into the section;
    the mask fades it to nothing before any edge, strongest around the heading's start. */
-.prose > h2::before {
+.prose > h2::before,
+.plate-heading::before {
   content: '';
   position: absolute;
   z-index: -1;
@@ -342,7 +350,8 @@
 
 /* The corner bracket, on the grid's top line: one cell left of the text edge on wide screens,
    hugging it on phones. */
-.prose > h2::after {
+.prose > h2::after,
+.plate-heading::after {
   content: '';
   position: absolute;
   top: 0;
@@ -357,7 +366,8 @@
 }
 
 @media (min-width: 48rem) {
-  .prose > h2::after {
+  .prose > h2::after,
+  .plate-heading::after {
     left: calc(-1 * var(--plate-cell));
   }
 }
