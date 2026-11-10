@@ -1,5 +1,5 @@
 import { localeUrl, useTranslations, type Locale } from '../i18n';
-import { GITHUB_URL, LINKEDIN_URL, OWNER, ogImagePath } from '../site';
+import { GITHUB_URL, LINKEDIN_URL, OWNER, ogImagePath } from '../data/site';
 
 /** schema.org data for search engines. Facts only: nothing here that the pages do not show. */
 const SITE = 'https://vedad-dizdarevic.dev';

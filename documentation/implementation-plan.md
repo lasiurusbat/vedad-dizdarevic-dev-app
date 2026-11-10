@@ -224,7 +224,7 @@ Single page with anchored sections, plus a detail page per case study.
 
 - [x] Name, role (Cloud & DevOps Engineer), one-line positioning in the owner's wording (IaC, platform architecture, containerization, Kubernetes orchestration); the 3D/CGI background moved to About on 2026-11-05
 - [x] Clear availability line: open to full-time roles and freelance work
-- [x] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/site.ts` is set, Phase 5)_ _(Audited 2026-11-09: the hero and header link the CV in the page language)_
+- [x] Primary CTAs: Contact, Download CV _(Contact, GitHub and LinkedIn done; the CV button renders once `CV_URL` in `site/src/data/site.ts` is set, Phase 5)_ _(Audited 2026-11-09: the hero and header link the CV in the page language)_
 - [x] EN + DE
 
 ### Case studies
@@ -248,9 +248,9 @@ Single page with anchored sections, plus a detail page per case study.
 
 ### Skills
 
-- [x] Grouped by area: Cloud, IaC, CI/CD, Containers, Observability (plus others as needed); no bars or percentages _(Eight groups from the CV's Technical Skills, October 2026, in `site/src/skills.ts`: platform first, application stack and ways of working last; Stripe and Windows left out)_
+- [x] Grouped by area: Cloud, IaC, CI/CD, Containers, Observability (plus others as needed); no bars or percentages _(Eight groups from the CV's Technical Skills, October 2026, in `site/src/data/skills.ts`: platform first, application stack and ways of working last; Stripe and Windows left out)_
 - [x] DevOps diploma shown _(Certifications block under Skills: claims plus verification links, PDFs not published; AWS SAA shown as in progress)_
-- [ ] Sourced from `cv/data.yaml` if the shared-data option is taken (Phase 5) _(Audited 2026-11-09, still open: optional; the skills live in `site/src/skills.ts`, the CV in `cv/data.yaml`)_
+- [ ] Sourced from `cv/data.yaml` if the shared-data option is taken (Phase 5) _(Audited 2026-11-09, still open: optional; the skills live in `site/src/data/skills.ts`, the CV in `cv/data.yaml`)_
 
 ### About
 

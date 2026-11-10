@@ -2,7 +2,7 @@ import { execFileSync } from 'node:child_process';
 import type { APIRoute } from 'astro';
 import { locales, useTranslations, type Locale } from '../../i18n';
 import { getCaseStudies, slugOf } from '../../lib/caseStudies';
-import { OWNER, ogImagePath } from '../../site';
+import { OWNER, ogImagePath } from '../../data/site';
 
 /** The picture a shared link shows, one per page and language, rendered with Typst at build time. */
 interface Card {
