@@ -159,6 +159,19 @@ test('the closing band links each case study to the next, wrapping round, in bot
   }
 });
 
+test('WhoCalledBack header illustration: decorative, four ports, beside the title on desktop only', async ({
+  page,
+}) => {
+  await page.setViewportSize({ width: 1440, height: 900 });
+  await page.goto('/projects/whocalledback/');
+  const illo = page.locator('.case-head .illo');
+  await expect(illo).toBeVisible();
+  await expect(illo).toHaveAttribute('aria-hidden', 'true');
+  await expect(illo.locator('.socket')).toHaveCount(4);
+  await page.setViewportSize({ width: 390, height: 900 });
+  await expect(illo).toBeHidden();
+});
+
 // WhoCalledBack is a teaser: designed and partly built, not deployed. Nothing on its card or page
 // may look live, and the status must say so in words, in both languages.
 for (const [home, path, chip, status] of [
@@ -180,7 +193,7 @@ for (const [home, path, chip, status] of [
 // clip on the article once cut its last 100px off, so no ancestor (the illustration's own frame
 // aside) may clip it short of its right edge. The illustration shows from 64rem up.
 for (const lang of ['', 'de/']) {
-  for (const slug of ['sorted', 'rainalert', 'this-site']) {
+  for (const slug of ['sorted', 'rainalert', 'this-site', 'whocalledback']) {
     for (const width of [1100, 1440, 1920]) {
       test(`/${lang}projects/${slug}/ at ${width}px: the header illustration is not clipped`, async ({
         page,
