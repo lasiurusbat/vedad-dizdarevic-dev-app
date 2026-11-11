@@ -38,11 +38,12 @@ jobs:
       - run: node tests/links/check-internal.mjs
       # Unit tests for copy and helpers (Node's built-in runner, no dependencies).
       - run: node --test "tests/unit/*.test.mjs"
+      # pdfinfo and pdftotext for cv/check.sh; the action survives a dead Ubuntu mirror (see it).
+      - uses: ./.github/actions/apt-install
+        with:
+          packages: poppler-utils
       - name: check the CV
-        run: |
-          sudo apt-get update -qq
-          sudo apt-get install -y --no-install-recommends poppler-utils
-          cv/check.sh
+        run: cv/check.sh
 
   worker:
     runs-on: ubuntu-latest
@@ -65,7 +66,7 @@ jobs:
       - uses: actions/checkout@v7
       - uses: ./.github/actions/setup-node-pnpm
       - uses: ./.github/actions/setup-typst
-      - run: pnpm --filter @vdd/e2e exec playwright install --with-deps chromium
+      - uses: ./.github/actions/setup-playwright
       # Builds the site, serves site/dist, then runs layout, a11y and menu checks.
       - run: pnpm --filter @vdd/e2e test
       - name: upload screenshots and report
