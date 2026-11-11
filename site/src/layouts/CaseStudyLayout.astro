@@ -2,6 +2,7 @@
 import { type Locale, localeUrl, useTranslations } from '../i18n';
 import Headers from '../components/illustrations/Headers.astro';
 import Inbox from '../components/illustrations/Inbox.astro';
+import Ports from '../components/illustrations/Ports.astro';
 import Umbrella from '../components/illustrations/Umbrella.astro';
 import CTAButton from '../components/CTAButton.astro';
 import { articleLd } from '../lib/structuredData';
@@ -11,10 +12,12 @@ import Base from './Base.astro';
 type IllustrationId = NonNullable<CaseStudy['data']['illustration']>;
 
 /** One header illustration per id in the case-study schema. */
-const illustrations = { inbox: Inbox, umbrella: Umbrella, headers: Headers } satisfies Record<
-  IllustrationId,
-  unknown
->;
+const illustrations = {
+  inbox: Inbox,
+  umbrella: Umbrella,
+  headers: Headers,
+  ports: Ports,
+} satisfies Record<IllustrationId, unknown>;
 
 interface Props {
   locale: Locale;

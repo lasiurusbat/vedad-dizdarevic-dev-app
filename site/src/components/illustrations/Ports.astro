@@ -1,0 +1,273 @@
+---
+/*
+ * Symbolic header illustration for WhoCalledBack (`illustration: 'ports'`), in the same language
+ * as Inbox, Umbrella and Headers: line art in the site tokens on the tilted dot-matrix plane of
+ * Frame, one accent motion, decorative. It shows the project's central decision: one app block
+ * that never changes, four ports (queue, schedules, token encryption, outgoing email) that are
+ * the only things that differ between the Raspberry Pi (left) and AWS (right).
+ *
+ * The motion is one 12-second cycle: the Pi side lights up with a packet running along each of
+ * its four wires, the lit overlay fades out, and the AWS side lights up the same way. The dim
+ * base never changes; a lit overlay (accent wires, bright port names, a glowing outline) fades in
+ * and out over it. Chosen on 2026-11-11 from three options (a ledger whose waiting row replies, one
+ * codebase two homes, tenant rows behind a gate).
+ *
+ * CSP: inline SVG only, no style attributes; geometry is SVG attributes, colours and motion live
+ * in the bundled stylesheet. Packets are paths with pathLength=100 and a short dash that runs
+ * along them (as on the home hero). Reduced motion: still, with the Pi side lit (Phase 1).
+ */
+import { getLocale } from '../../i18n';
+import Frame from './Frame.astro';
+
+// The few plain words in the art follow the page language (decorative, so not in i18n). The port
+// names are product names and stay as they are.
+const de = getLocale(Astro.currentLocale) === 'de';
+const words = de
+  ? {
+      app: 'gleicher Code',
+      shared: 'vier Ports, alles andere gemeinsam',
+      keyFile: 'Schlüsseldatei',
+      none: 'keine',
+    }
+  : {
+      app: 'same code',
+      shared: 'four ports, everything else shared',
+      keyFile: 'key file',
+      none: 'none',
+    };
+
+/* One row per port: the Pi implementation on the left, the AWS one on the right. */
+const ports = [
+  { y: 180, pi: 'ElasticMQ', aws: 'SQS' },
+  { y: 226, pi: 'cron', aws: 'EventBridge' },
+  { y: 272, pi: words.keyFile, aws: 'KMS' },
+  { y: 318, pi: words.none, aws: 'SES' },
+];
+/** A flat-bottomed cloud, 160 x 62 at scale 1. */
+const cloud =
+  'M20 60 H140 A20 20 0 0 0 140 20 A30 30 0 0 0 86 8 A26 26 0 0 0 40 22 A19 19 0 0 0 20 60 Z';
+const wire = (side: 'pi' | 'aws', y: number) =>
+  side === 'pi' ? `M254 ${y} H178` : `M266 ${y} H342`;
+const sides = [
+  { id: 'pi', lit: 'lit-pi' },
+  { id: 'aws', lit: 'lit-aws' },
+] as const;
+---
+
+<Frame>
+  <svg viewBox="0 0 520 440" focusable="false">
+    {/* The two homes, dim; the lit overlays below repeat their outlines. */}
+    <g class="board">
+      <rect class="line" x="40" y="52" width="112" height="62" rx="6"></rect>
+      <rect class="line" x="62" y="66" width="34" height="34" rx="3"></rect>
+      <rect class="line" x="124" y="62" width="20" height="14" rx="2"></rect>
+      <rect class="line" x="124" y="84" width="20" height="14" rx="2"></rect>
+    </g>
+    <path class="line" d={cloud} transform="translate(366 56) scale(0.78 0.9)"></path>
+    {ports.map((p) => (
+      <>
+        <path class="wire" d={wire('pi', p.y)}></path>
+        <path class="wire" d={wire('aws', p.y)}></path>
+        <text class="word" x="170" y={p.y + 4} text-anchor="end">
+          {p.pi}
+        </text>
+        <text class="word" x="350" y={p.y + 4} text-anchor="start">
+          {p.aws}
+        </text>
+      </>
+    ))}
+    <path class="spine" d="M260 114 V318"></path>
+    {ports.map((p) => (
+      <circle class="socket" cx="260" cy={p.y} r="5"></circle>
+    ))}
+    <rect class="app" x="200" y="50" width="120" height="64" rx="10"></rect>
+    <text class="app-name" x="260" y="87" text-anchor="middle">
+      {words.app}
+    </text>
+    <text class="label" x="96" y="140" text-anchor="middle">
+      Phase 1, Raspberry Pi 5
+    </text>
+    <text class="label" x="424" y="140" text-anchor="middle">
+      Phase 2, AWS
+    </text>
+    <text class="label" x="260" y="372" text-anchor="middle">
+      {words.shared}
+    </text>
+
+    {/* The lit overlays: accent wires with a running packet, bright port names, a glowing outline. */}
+    {sides.map((s) => (
+      <g class:list={['lit', s.lit]}>
+        {s.id === 'pi' ? (
+          <g class="board">
+            <rect class="lit-edge" x="40" y="52" width="112" height="62" rx="6"></rect>
+            <rect class="lit-edge" x="62" y="66" width="34" height="34" rx="3"></rect>
+            <rect class="lit-edge" x="124" y="62" width="20" height="14" rx="2"></rect>
+            <rect class="lit-edge" x="124" y="84" width="20" height="14" rx="2"></rect>
+          </g>
+        ) : (
+          <path class="lit-edge" d={cloud} transform="translate(366 56) scale(0.78 0.9)"></path>
+        )}
+        {ports.map((p) => (
+          <>
+            <path class="wire-on" d={wire(s.id, p.y)}></path>
+            <path class="packet" d={wire(s.id, p.y)} pathLength="100"></path>
+            <text
+              class="word-on"
+              x={s.id === 'pi' ? 170 : 350}
+              y={p.y + 4}
+              text-anchor={s.id === 'pi' ? 'end' : 'start'}
+            >
+              {s.id === 'pi' ? p.pi : p.aws}
+            </text>
+          </>
+        ))}
+      </g>
+    ))}
+  </svg>
+</Frame>
+
+<style>
+  .line {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-width: 1.4;
+    stroke-linejoin: round;
+    stroke-linecap: round;
+  }
+
+  .word {
+    fill: var(--muted);
+    font-size: 13px;
+  }
+
+  .wire,
+  .spine {
+    fill: none;
+    stroke: var(--border-strong);
+    stroke-opacity: 0.55;
+    stroke-width: 1.2;
+    stroke-dasharray: 2 5;
+    stroke-linecap: round;
+  }
+
+  .socket {
+    fill: var(--bg);
+    stroke: var(--border-strong);
+    stroke-width: 1.4;
+  }
+
+  .app {
+    fill: color-mix(in srgb, var(--surface) 80%, transparent);
+    stroke: var(--fg);
+    stroke-opacity: 0.55;
+    stroke-width: 1.4;
+  }
+
+  .app-name {
+    fill: var(--fg);
+    font-family: var(--font-display, inherit);
+    font-size: 16px;
+    font-weight: 500;
+  }
+
+  /* Lit overlays: invisible until their half of the 12-second cycle. */
+  .lit {
+    opacity: 0;
+  }
+
+  .lit-pi {
+    animation: ports-pi 12s linear infinite;
+  }
+
+  .lit-aws {
+    animation: ports-aws 12s linear infinite;
+  }
+
+  /* No drop-shadow filter on these: on a transformed path it clips the glow to a visible box. */
+  .lit-edge {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 1.8;
+    stroke-linejoin: round;
+  }
+
+  .wire-on {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2;
+    stroke-linecap: round;
+  }
+
+  .word-on {
+    fill: var(--fg);
+    font-size: 13px;
+    font-weight: 500;
+  }
+
+  /* A short dash runs along each wire and disappears (the packets on the home hero). */
+  .packet {
+    fill: none;
+    stroke: var(--accent);
+    stroke-width: 2.6;
+    stroke-linecap: round;
+    stroke-dasharray: 8 120;
+    stroke-dashoffset: 8;
+    animation: ports-run 1.4s linear infinite;
+  }
+
+  @keyframes ports-run {
+    from {
+      stroke-dashoffset: 8;
+    }
+    to {
+      stroke-dashoffset: -100;
+    }
+  }
+
+  /* The Pi half is lit from 7% to 42% of the cycle, the AWS half from 56% to 92%. */
+  @keyframes ports-pi {
+    0%,
+    3% {
+      opacity: 0;
+    }
+    7%,
+    42% {
+      opacity: 1;
+    }
+    47%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  @keyframes ports-aws {
+    0%,
+    52% {
+      opacity: 0;
+    }
+    56%,
+    92% {
+      opacity: 1;
+    }
+    96%,
+    100% {
+      opacity: 0;
+    }
+  }
+
+  /* Reduced motion: still, with Phase 1 (the Pi) lit. */
+  @media (prefers-reduced-motion: reduce) {
+    .lit-pi,
+    .lit-aws {
+      animation: none;
+    }
+
+    .lit-pi {
+      opacity: 1;
+    }
+
+    .packet {
+      display: none;
+    }
+  }
+</style>
