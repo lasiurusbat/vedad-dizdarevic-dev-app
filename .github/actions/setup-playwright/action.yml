@@ -1,0 +1,27 @@
+name: Set up Playwright
+description: Installs Chromium for the e2e tests. The browser download is cached, and the system libraries are installed (with short timeouts and retries) only when they are missing from the runner image, so a dead Ubuntu mirror cannot fail a job that needs nothing from it. Run the Node and pnpm setup first.
+
+runs:
+  using: composite
+  steps:
+    - uses: actions/cache@v6
+      with:
+        path: ~/.cache/ms-playwright
+        key: playwright-${{ runner.os }}-${{ hashFiles('pnpm-lock.yaml') }}
+    - shell: bash
+      run: |
+        set -uo pipefail
+        pnpm --filter @vdd/e2e exec playwright install chromium
+        if pnpm --filter @vdd/e2e exec playwright install-deps --dry-run chromium | grep -q 'All system dependencies are installed'; then
+          echo "system libraries already present"
+          exit 0
+        fi
+        printf 'Acquire::Retries "2";\nAcquire::http::Timeout "15";\nAcquire::https::Timeout "15";\n' \
+          | sudo tee /etc/apt/apt.conf.d/99ci-network >/dev/null
+        for attempt in 1 2 3; do
+          if pnpm --filter @vdd/e2e exec playwright install-deps chromium; then exit 0; fi
+          echo "attempt $attempt failed; retrying in 20 s"
+          sleep 20
+        done
+        echo "::error::could not install the system libraries Chromium needs"
+        exit 1

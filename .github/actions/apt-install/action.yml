@@ -1,0 +1,51 @@
+name: Install apt packages
+description: Installs Ubuntu packages without depending on the mirrors being reachable on every run. Skips what is already installed, reuses the .deb files cached by an earlier run, and otherwise installs from the network with short timeouts and retries, then caches the .deb files. Run actions/checkout first, because a local action is read from the checkout.
+
+inputs:
+  packages:
+    description: Space-separated package names.
+    required: true
+
+runs:
+  using: composite
+  steps:
+    - id: key
+      shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+      run: echo "key=apt-${ImageVersion:-unknown}-${PACKAGES// /-}" >> "$GITHUB_OUTPUT"
+    - uses: actions/cache@v6
+      with:
+        path: ~/apt-debs
+        key: ${{ steps.key.outputs.key }}
+    - shell: bash
+      env:
+        PACKAGES: ${{ inputs.packages }}
+      run: |
+        set -uo pipefail
+        missing=false
+        for p in $PACKAGES; do dpkg -s "$p" >/dev/null 2>&1 || missing=true; done
+        if [ "$missing" = false ]; then echo "already installed: $PACKAGES"; exit 0; fi
+
+        cache_dir="$HOME/apt-debs"
+        if compgen -G "$cache_dir/*.deb" >/dev/null; then
+          if sudo dpkg -i "$cache_dir"/*.deb; then echo "installed from the cache: $PACKAGES"; exit 0; fi
+          echo "the cached packages did not install; falling back to the network"
+        fi
+
+        # A dead mirror otherwise costs minutes per attempt: fail fast and retry.
+        printf 'Acquire::Retries "2";\nAcquire::http::Timeout "15";\nAcquire::https::Timeout "15";\n' \
+          | sudo tee /etc/apt/apt.conf.d/99ci-network >/dev/null
+        for attempt in 1 2 3; do
+          sudo apt-get update -qq || true
+          # shellcheck disable=SC2086  # PACKAGES is a word list on purpose
+          if sudo apt-get install -y --no-install-recommends $PACKAGES; then
+            mkdir -p "$cache_dir"
+            cp /var/cache/apt/archives/*.deb "$cache_dir"/
+            exit 0
+          fi
+          echo "attempt $attempt failed; retrying in 20 s"
+          sleep 20
+        done
+        echo "::error::could not install $PACKAGES from the Ubuntu mirrors"
+        exit 1
