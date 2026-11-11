@@ -205,6 +205,7 @@ export const en = {
   casePrivateRepo: 'Private repository',
   caseStatus: 'Status',
   caseLive: 'Live',
+  caseInProgress: 'In progress',
   caseRepo: 'Source code',
   opensNewTab: '(opens in a new tab)',
   costTotal: 'Total',

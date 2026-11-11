@@ -18,6 +18,7 @@ const source = data.repoUrl
   : data.repoPrivate
     ? { value: t.casePrivateRepo }
     : undefined;
+const inProgress = data.stage === 'in-progress';
 const cells: { label: string; value: string; url?: string }[] = [
   ...data.facts,
   ...(source ? [{ label: t.caseRepo, ...source }] : []),
@@ -30,7 +31,7 @@ const cells: { label: string; value: string; url?: string }[] = [
   before the reasoning; then the problem. The decisions follow in the MDX body, each as its own
   section with a TradeOff note. Headings start at h2.
 -->
-{(liveLinks.length > 0 || cells.length > 0) && (
+{(liveLinks.length > 0 || inProgress || cells.length > 0) && (
   <div class="facts not-prose">
     {liveLinks.length > 0 && (
       <p class="status">
@@ -46,6 +47,13 @@ const cells: { label: string; value: string; url?: string }[] = [
             <span class="sr-only">{t.opensNewTab}</span>
           </a>
         ))}
+      </p>
+    )}
+    {inProgress && (
+      <p class="status">
+        <span class="sr-only">{t.caseStatus}:</span>
+        <span class="wip-dot" aria-hidden="true"></span>
+        <span class="status-text">{data.status ?? t.caseInProgress}</span>
       </p>
     )}
     {cells.length > 0 && (
@@ -110,6 +118,15 @@ const cells: { label: string; value: string; url?: string }[] = [
     column-gap: 0.75rem;
     min-height: 2.75rem;
     padding-bottom: 0.5rem;
+  }
+
+  /* In progress: a static hollow dot, so nothing on the page looks live or pulses. */
+  .wip-dot {
+    width: 0.5rem;
+    height: 0.5rem;
+    flex: none;
+    border: 1.5px solid var(--muted);
+    border-radius: 50%;
   }
 
   .status-text {
