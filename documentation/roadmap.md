@@ -17,9 +17,9 @@ The timeline view of [implementation-plan.md](implementation-plan.md): milestone
 | M1 | **Foundation** | 0, 1 | End of D3 (W1); done 2026-11-02 | Accounts with MFA, decisions closed, app and infra repos with protected `main`, `terraform plan` running in the infra repo's CI through OIDC | Done |
 | M2 | **Live skeleton** | 2 | End of D6 (W2) | Placeholder served at `https://vedad-dizdarevic.dev` via Cloudflare → Worker → private S3, deployed on merge, smoke test green, CSP in report-only | Done 2026-11-03 (infra pipeline gaps still open) |
 | M3 | **Content complete** | 3, 4, 5 | End of D16 (W4) | All sections live in EN; hero / work with me / contact in DE; two case studies with diagrams; EN + DE CV PDFs built from Typst | Done 2026-11-08 |
-| M4 | **Feature complete** | 6, 7, 8 | End of D19 (W4) | Contact form delivers real mail; SPF/DKIM/DMARC passing; sitemap, `hreflang`, JSON-LD, OG images | In progress (contact form live, Phase 8 built, 2026-11-08; open: DMARC ramp, Search Console reporting no errors) |
-| M5 | **Launch-ready** | 9, 10 | End of D22 (W5) | CSP enforced; Lighthouse / axe / Playwright gates required on `main`; legal pages live; alerts tested; runbook written | In progress (CSP enforced, Lighthouse CI and budgets in, privacy policy live; no Impressum, owner's decision 2026-11-09) |
-| M6 | **Launch** | 11 | D23 (W5) | Launch checklist complete, DMARC at `p=reject`, link on LinkedIn / GitHub / CV | Not started |
+| M4 | **Feature complete** | 6, 7, 8 | End of D19 (W4) | Contact form delivers real mail; SPF/DKIM/DMARC passing; sitemap, `hreflang`, JSON-LD, OG images | In progress (contact form live 2026-11-08, Phase 8 built; SPF/DKIM/DMARC header checks passed 2026-11-10, DMARC at `p=quarantine` since 2026-11-10; open: Search Console reporting no errors) |
+| M5 | **Launch-ready** | 9, 10 | End of D22 (W5) | CSP enforced; Lighthouse / axe / Playwright gates required on `main`; legal pages live; alerts tested; runbook written | Done 2026-11-10 (CSP enforced, `e2e` and `lighthouse` required, privacy policy live, all five alarms tested, runbook written and every rollback case tried; no Impressum, owner's decision 2026-11-09). Left: by-hand key-rotation fallback, optional `/api/contact` synthetic check, first `_astro/` pruning run about 2026-12-03 |
+| M6 | **Launch** | 11 | D23 (W5) | Launch checklist complete, DMARC at `p=reject`, link on LinkedIn / GitHub / CV | In progress (started 2026-11-10: placeholder search clean, DMARC at `p=quarantine`; left: the owner's device and proofreading pass in [launch-test-script.md](launch-test-script.md), then `p=reject` about 2026-11-26 if reports stay clean) |
 
 ## Schedule
 
@@ -85,7 +85,7 @@ At full-time pace, waiting time matters more than effort. Start these early or t
 **Must have at launch** (from the scope's must-have list):
 
 - Hero with positioning and availability line, EN + DE
-- Two case studies (sorted.onl, rainalert.live) with diagram, stack, decisions, links
+- Case studies (sorted.onl, rainalert.live, and this site) with diagram, stack, decisions, links, in EN and DE
 - Grouped skills with the DevOps diploma, About, Work with me
 - Contact / CV / GitHub / LinkedIn reachable from every screen
 - EN + DE CV PDFs
@@ -96,8 +96,6 @@ At full-time pace, waiting time matters more than effort. Start these early or t
 
 **Can slip past launch without hurting it:**
 
-- Third case study (this site; the "How this site is built" section already covers it)
-- Full German translations of the case studies
 - `cv/data.yaml` feeding the site's skills section
 - MTA-STS / TLS-RPT
 - Synthetic `/api/contact` check
@@ -108,8 +106,9 @@ At full-time pace, waiting time matters more than effort. Start these early or t
 | Horizon | Items |
 |---|---|
 | **Week 6** | Review analytics and Search Console; DMARC to `p=reject` if not yet there; first key rotation run tested end to end; fix anything from launch feedback |
-| **Next (Weeks 7–10)** | Full German case studies; third case study; site skills sourced from `cv/data.yaml`; PR preview deployments |
+| **Next (Weeks 7–10)** | Site skills sourced from `cv/data.yaml`; PR preview deployments. The third case study (this site) and the German case studies are already done |
 | **Later** | Write-ups for new projects as they're built; blog or notes section if there's a steady supply of topics |
+| **In flight: WhoCalledBack** | Teaser page in EN and DE with an `in-progress` stage (PR #140, 2026-11-11). Update its status line and ledger when the Pi deploy and the AWS phase land; turn it into a full DevOps-first case study, add Work with me dots and drop `stage` once it is deployed. Not part of the launch scope |
 
 ## Keeping this roadmap current
 
