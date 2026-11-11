@@ -137,10 +137,17 @@ test('the closing band links each case study to the next, wrapping round, in bot
   for (const [from, label, to, title] of [
     ['/projects/sorted/', 'Next case study', '/projects/rainalert/', 'Rain Alert'],
     ['/projects/rainalert/', 'Next case study', '/projects/this-site/', 'This site'],
-    ['/projects/this-site/', 'Next case study', '/projects/sorted/', 'Sorted'],
+    ['/projects/this-site/', 'Next case study', '/projects/whocalledback/', 'WhoCalledBack'],
+    ['/projects/whocalledback/', 'Next case study', '/projects/sorted/', 'Sorted'],
     ['/de/projects/sorted/', 'Nächste Fallstudie', '/de/projects/rainalert/', 'Rain Alert'],
     ['/de/projects/rainalert/', 'Nächste Fallstudie', '/de/projects/this-site/', 'Diese Website'],
-    ['/de/projects/this-site/', 'Nächste Fallstudie', '/de/projects/sorted/', 'Sorted'],
+    [
+      '/de/projects/this-site/',
+      'Nächste Fallstudie',
+      '/de/projects/whocalledback/',
+      'WhoCalledBack',
+    ],
+    ['/de/projects/whocalledback/', 'Nächste Fallstudie', '/de/projects/sorted/', 'Sorted'],
   ]) {
     await page.goto(from);
     const next = page.locator('aside.closing').getByRole('link', { name: new RegExp(label) });
@@ -151,3 +158,20 @@ test('the closing band links each case study to the next, wrapping round, in bot
     await expect(page.locator('h1')).toContainText(title);
   }
 });
+
+// WhoCalledBack is a teaser: designed and partly built, not deployed. Nothing on its card or page
+// may look live, and the status must say so in words, in both languages.
+for (const [home, path, chip, status] of [
+  ['/', '/projects/whocalledback/', 'In progress', /not yet deployed/],
+  ['/de/', '/de/projects/whocalledback/', 'In Arbeit', /noch nicht deployt/],
+] as const) {
+  test(`WhoCalledBack is marked in progress, never live (${home})`, async ({ page }) => {
+    await page.goto(home);
+    const card = page.locator('article.card', { has: page.locator(`a[href="${path}"]`) });
+    await expect(card).toContainText(chip);
+    await page.goto(path);
+    await expect(page.locator('.status')).toContainText(status);
+    await expect(page.locator('.live-dot')).toHaveCount(0);
+    await expect(page.locator('.status-link')).toHaveCount(0);
+  });
+}

@@ -7,14 +7,22 @@ interface Props {
   summary: string;
   href: string;
   tags?: string[];
+  /** An in-progress teaser gets a chip; a live project shows nothing extra. */
+  inProgress?: boolean;
 }
 
-const { locale, title, summary, href, tags = [] } = Astro.props;
+const { locale, title, summary, href, tags = [], inProgress = false } = Astro.props;
 const t = useTranslations(locale);
 ---
 
 <!-- The whole card is clickable through the title link (stretched ::after), one link per card. -->
 <article class="not-prose card border-border focus-within:border-accent hover:border-border-strong flex flex-col gap-3 rounded-lg border p-6">
+  {inProgress && (
+    <p class="text-muted border-border-strong flex w-fit items-center gap-2 rounded-md border px-2 py-0.5 text-xs font-medium">
+      <span class="size-1.5 rounded-full bg-current" aria-hidden="true"></span>
+      {t.caseInProgress}
+    </p>
+  )}
   <h3 class="text-xl">
     <a href={href} class="no-underline after:absolute after:inset-0 after:content-['']">
       {title}

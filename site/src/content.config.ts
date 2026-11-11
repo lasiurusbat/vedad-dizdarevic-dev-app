@@ -28,6 +28,12 @@ const caseStudies = defineCollection({
      * cell is added from `repoUrl` / `repoPrivate`, so it does not belong here.
      */
     status: z.string().optional(),
+    /**
+     * `live` (default): the product runs; the card and page say nothing extra. `in-progress`: a
+     * teaser for work that is not deployed yet; the card gets an "In progress" chip and the page
+     * shows `status` with a static dot even without `liveLinks`. Never pair it with `liveLinks`.
+     */
+    stage: z.enum(['live', 'in-progress']).default('live'),
     facts: z
       .array(z.object({ label: z.string(), value: z.string().max(32) }))
       .max(5)

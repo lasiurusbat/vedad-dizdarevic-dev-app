@@ -33,6 +33,7 @@ const caseStudies = await getCaseStudies(locale);
         summary={study.data.summary}
         href={caseStudyPath(locale, slugOf(study))}
         tags={study.data.stack}
+        inProgress={study.data.stage === 'in-progress'}
       />
     ))}
   </div>

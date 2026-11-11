@@ -1,0 +1,97 @@
+---
+title: 'WhoCalledBack: zuerst für einen Raspberry Pi gebaut, danach AWS Serverless, ohne Neuschreiben'
+summary: 'Ein mandantenfähiger Bewerbungs-Tracker, gebaut für eine Frage: Wie entwirft man für die Cloud, ohne beim Bauen dafür zu zahlen? Erst läuft er für 0 € auf einem Raspberry Pi, dann auf AWS. Phase 1 ist gebaut, noch nicht deployt.'
+problem: 'Das Produkt zeigt, bei welchen Unternehmen sich eine Person beworben hat und wer geantwortet hat. Die technische Aufgabe ist die Auslieferung: eine Codebasis, die jetzt kostenlos auf einem Raspberry Pi läuft und später auf Lambda, SQS und EventBridge umzieht, und dabei personenbezogene Daten anderer verarbeitet, sodass die Mandantentrennung auch Fehler im Anwendungscode überstehen muss.'
+stack: ['Docker Compose', 'GitHub Actions', 'PostgreSQL Row-Level Security', 'SQS und ElasticMQ', 'Terraform (geplant)', 'TypeScript']
+status: 'In Arbeit: Phase 1 gebaut und getestet, noch nicht deployt. Stand: 11. November 2026.'
+stage: 'in-progress'
+facts:
+  - label: 'Rolle'
+    value: 'Alleiniger Entwickler'
+  - label: 'Start'
+    value: 'Nov. 2026'
+  - label: 'Phase 1'
+    value: 'Raspberry Pi 5'
+  - label: 'Phase 2'
+    value: 'AWS eu-central-1'
+outcomes:
+  - label: 'Laufende Kosten in Phase 1'
+    value: '0 €'
+  - label: 'Phase 2 Kostenobergrenze pro Monat (Ziel)'
+    value: '20 €'
+  - label: 'Umgebungsspezifische Ports'
+    value: '4'
+  - label: 'Geplante gespeicherte Cloud-Schlüssel'
+    value: '0'
+outcomesNote: 'Ziele und Entwurfswerte, keine Rechnung: Auf AWS ist noch nichts deployt, und das Kostenziel ist eine Schätzung, die das Kostendokument später durch die echte Rechnung ersetzt. Das Repository ist privat; die geplante Adresse ist whocalledback.com.'
+repoPrivate: true
+order: 40
+draft: false
+---
+
+Diese Seite ist bewusst vor dem Abschluss des Projekts geschrieben. Sie sagt, was entworfen, was gebaut, was geprüft und was noch nicht geprüft ist. Jeder Abschnitt ist gleich gekennzeichnet, damit ein Plan nie mit einem Ergebnis verwechselt wird.
+
+## Zwei Phasen, eine Codebasis
+
+Das Ziel: für eine Cloud-Zielumgebung bauen, ohne während der Entwicklung für die Cloud zu zahlen. Phase 1 läuft auf einem Raspberry Pi 5 mit Docker Compose, einer kostenlosen Neon-Postgres-Datenbank in Frankfurt und privatem Zugriff über Tailscale. Phase 2 bringt denselben Code auf Lambda, SQS, EventBridge Scheduler, S3 und CloudFront, definiert mit Terraform und ausgeliefert über GitHub OIDC. Pi und Lambda sind beide arm64, daher genügt ein Build-Ziel.
+
+<TradeOff
+  gained="Keine AWS-Rechnung, solange das Produkt entsteht, und keine Datenmigration beim Umzug, weil die Datenbank in beiden Phasen dieselbe ist."
+  price="Die AWS-Arbeit kommt zuletzt. Beginnt vorher die Jobsuche, zeigt das Repository Entwurf und Adapter, aber keine laufende AWS-Umgebung. Aktuell gehaltene Entscheidungsdokumente sind die Gegenmaßnahme."
+/>
+
+## Vier Ports, alles andere gemeinsam
+
+Nur vier Dinge unterscheiden sich wirklich zwischen Pi und AWS. Jedes ist eine kleine Schnittstelle mit einer Implementierung pro Umgebung. Die Geschäftslogik hängt nur von den Schnittstellen ab, umgebungsspezifischer Code steckt daher ausschließlich in Einstiegspunkten und Adaptern.
+
+| Aufgabe | Raspberry Pi | AWS |
+| --- | --- | --- |
+| Queue | ElasticMQ | SQS |
+| Zeitpläne | Cron in einem Container | EventBridge Scheduler |
+| Token-Verschlüsselung | lokale AES-GCM-Schlüsseldatei | KMS |
+| Ausgehende E-Mail | keine | SES |
+
+Die Queue-Handler sind einfache Funktionen, die einen Batch annehmen und die IDs fehlgeschlagener Nachrichten zurückgeben, also die Form der Lambda-Partial-Batch-Antwort. Auf dem Pi ruft ein Poller sie auf, auf AWS die Lambda-Laufzeit. Der Pi-Adapter ist das AWS SDK, das auf ElasticMQ zeigt; der Pi übt damit bereits den echten Client-Code.
+
+<TradeOff
+  gained="Ein Satz Handler, in beiden Umgebungen gleich getestet, und ein Umgebungswechsel, der nur vier Adapter berührt."
+  price="ElasticMQ ist nicht SQS und ein Pi ist nicht Lambda. Die echten Unterschiede zeigen sich erst bei der AWS-Migration; der Plan sieht Zeit vor, sie zu dokumentieren."
+/>
+
+## Isolation durch die Datenbank
+
+In diesem System liegen Namen von Recruitern und E-Mail-Metadaten anderer Menschen. Ein vergessener Filter im Anwendungscode darf daher keine Zeilen eines Mandanten preisgeben. Row-Level Security in Postgres erzwingt die Grenze: eine Policy pro Mandantentabelle, erzwungen und fail-closed, wenn kein Mandant gesetzt ist. Zwei Anwendungsrollen können sie nicht umgehen. Die Rollen entstehen in SQL-Migrationen, nie in einer Cloud-Konsole, weil eine dort angelegte Rolle unbemerkt eine Umgehung erbt und jede Policy wirkungslos wird. Jeder Serverprozess verweigert außerdem den Start, wenn seine Datenbankrolle Superuser ist, Row-Level Security umgeht oder Tabellen besitzt.
+
+<TradeOff
+  gained="Eine Isolation, die auch bei einem Fehler im Anwendungscode hält, mit Tests, die scheitern, wenn einer Mandantentabelle Policy oder Berechtigung fehlt."
+  price="Row-Level Security schützt nicht vor SQL-Injection, und das Migrationswerkzeug kann die erzwungenen Policies nicht ausdrücken, daher braucht jede Mandantentabelle eine handgeschriebene Folgemigration."
+/>
+
+## Eine Pipeline, die sich nicht durch Überspringen bestehen lässt
+
+Die CI läuft gegen echte Postgres- und ElasticMQ-Container, nicht gegen Mocks. Die Datenbank- und Queue-Tests werden still übersprungen, wenn diese Dienste fehlen, ein grüner Lauf hätte also nichts bedeuten können. Die Pipeline lässt den Build jetzt scheitern, sobald ein Test als übersprungen gemeldet wird. Die Pi-Laufzeit härtet jeden dauerhaft laufenden Container: schreibgeschütztes Root-Dateisystem, alle Capabilities entfernt, rotierte Logs. Nur ein einmaliger Migrations-Container sieht je die Zugangsdaten des Datenbank-Eigentümers.
+
+## Wo es steht
+
+<Limitations
+  label="Was bei WhoCalledBack gebaut, geprüft und noch offen ist"
+  items={[
+    {
+      gap: 'Gebaut und geprüft: die Anwendung gegen echte Dienste',
+      detail: 'Lint, Typen und die gesamte Testsuite laufen in der CI gegen Postgres und ElasticMQ durch. Rollen, Policies und die Prüfungen gegen Rollen-Umgehung liefen gegen eine echte Neon-Datenbank in Frankfurt.',
+      next: 'Die CI bleibt das Gate für jede Änderung.',
+    },
+    {
+      gap: 'Noch nicht gelaufen: der Auslieferungsweg',
+      detail: 'Der arm64-Image-Build lief noch nie, die Compose-Datei wurde nicht durchgängig gestartet. Auf dem Pi lief noch nichts, und Tailscale vor dem Web-Container ist ungetestet.',
+      next: 'Zuerst ein leeres Release auf den Pi ausliefern, um die Pipeline zu beweisen, bevor mehr Funktionen von ihr abhängen.',
+    },
+    {
+      gap: 'Geplant: AWS',
+      detail: 'Lambda, SQS mit Dead-Letter-Queues, EventBridge Scheduler, KMS, SES, Terraform mit Remote State und GitHub-OIDC-Rollen, Alarme auf jeder Dead-Letter-Queue, ein Runbook und ein Postmortem.',
+      next: 'Bauen, dann veröffentlichen, was sich gegenüber ElasticMQ und dem Pi anders verhielt, samt echten Kosten pro Dienst.',
+    },
+  ]}
+/>
+
+Diese Seite wird zur vollständigen Fallstudie, sobald die AWS-Phase live ist. Fragen oder Ideen dazu gerne über das Kontaktformular.

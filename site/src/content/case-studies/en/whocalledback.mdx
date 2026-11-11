@@ -1,0 +1,97 @@
+---
+title: 'WhoCalledBack: built for a Raspberry Pi first, AWS serverless second, without a rewrite'
+summary: 'A multi-tenant job-search tracker built to answer one question: how do you design for the cloud without paying for it while you build? It runs on a Raspberry Pi for €0 first, then moves to AWS. Phase 1 is built, not yet deployed.'
+problem: 'The product shows which companies a job seeker has contacted and who replied. The engineering problem is delivery: one codebase that runs on a Raspberry Pi at no cost now and moves to Lambda, SQS and EventBridge later, while holding other people’s personal data, so tenant isolation has to survive application bugs.'
+stack: ['Docker Compose', 'GitHub Actions', 'PostgreSQL row-level security', 'SQS and ElasticMQ', 'Terraform (planned)', 'TypeScript']
+status: 'In progress: Phase 1 built and tested, not yet deployed. Status as of November 11, 2026.'
+stage: 'in-progress'
+facts:
+  - label: 'Role'
+    value: 'Sole engineer'
+  - label: 'Started'
+    value: 'Nov 2026'
+  - label: 'Phase 1'
+    value: 'Raspberry Pi 5'
+  - label: 'Phase 2'
+    value: 'AWS eu-central-1'
+outcomes:
+  - label: 'Phase 1 running cost'
+    value: '€0'
+  - label: 'Phase 2 monthly cost ceiling (target)'
+    value: '€20'
+  - label: 'Environment-specific ports'
+    value: '4'
+  - label: 'Stored cloud keys planned'
+    value: '0'
+outcomesNote: 'Targets and design figures, not a bill: nothing is deployed to AWS yet, and the cost target is an estimate that the cost document will replace with the real bill. The source repository is private; the planned address is whocalledback.com.'
+repoPrivate: true
+order: 40
+draft: false
+---
+
+This page is a work in progress, written on purpose before the project is finished. It says what is designed, what is built, what has been checked and what has not. Each section is labelled the same way, so a plan is never mistaken for a result.
+
+## Two phases, one codebase
+
+The aim is to build for a cloud target without paying for the cloud during development. Phase 1 runs on a Raspberry Pi 5 with Docker Compose, a free Neon Postgres database in Frankfurt and private access over Tailscale. Phase 2 moves the same code to Lambda, SQS, EventBridge Scheduler, S3 and CloudFront, defined with Terraform and deployed through GitHub OIDC. The Pi and Lambda are both arm64, so one build target serves both.
+
+<TradeOff
+  gained="No AWS bill while the product takes shape, and no data migration at cut-over, because the database is the same in both phases."
+  price="The AWS work comes last. If the job search starts first, the repository shows the design and the adapters, but not a running AWS deployment. Keeping the decision records current is the mitigation."
+/>
+
+## Four ports, everything else shared
+
+Only four things genuinely differ between the Pi and AWS. Each is a small interface with one implementation per environment. Business logic depends on the interfaces only, so environment-specific code lives in entrypoints and adapters and nowhere else.
+
+| Concern | Raspberry Pi | AWS |
+| --- | --- | --- |
+| Queue | ElasticMQ | SQS |
+| Schedules | cron in a container | EventBridge Scheduler |
+| Token encryption | local AES-GCM key file | KMS |
+| Outgoing email | none | SES |
+
+The queue handlers are plain functions that take a batch and return the failed message IDs, which is the Lambda partial-batch-response shape. On the Pi a poller calls them; on AWS the Lambda runtime does. The Pi adapter is the AWS SDK pointed at ElasticMQ, so the Pi already exercises the real client code.
+
+<TradeOff
+  gained="One set of handlers, tested the same way in both environments, and an environment switch that touches four adapters."
+  price="ElasticMQ is not SQS and a Pi is not Lambda. The real differences will only show during the AWS migration, and the plan budgets time to write them down."
+/>
+
+## Isolation enforced by the database
+
+Other people’s recruiter names and email metadata will live in this system, so a missing filter in application code must not leak a tenant’s rows. Row-level security in Postgres enforces the boundary: one policy per tenant table, forced on, failing closed when no tenant is set. Two application roles cannot bypass it. The roles are created in SQL migrations, never in a cloud console, because a role created there silently inherits a bypass and every policy stops applying. Every server process also refuses to start if its database role is a superuser, bypasses row-level security or owns tables.
+
+<TradeOff
+  gained="Isolation that holds when application code has a bug, with tests that fail if a tenant table lacks a policy or a grant."
+  price="Row-level security does not contain SQL injection, and the migration tooling cannot express the forced policies, so each tenant table needs a hand-written follow-up migration."
+/>
+
+## A pipeline that cannot pass by skipping
+
+CI runs against real Postgres and ElasticMQ containers, not mocks. The database and queue tests skip silently when those services are missing, so a green run could have meant nothing. The pipeline now fails the build if any test reports skipped. The Pi runtime hardens every long-running container: read-only root filesystem, all capabilities dropped, rotated logs. A one-shot migration container is the only part that ever sees the owner database credential.
+
+## Where it stands
+
+<Limitations
+  label="What is built, checked and still open for WhoCalledBack"
+  items={[
+    {
+      gap: 'Built and checked: the application against real services',
+      detail: 'Lint, types and the full test suite pass in CI against Postgres and ElasticMQ. The roles, policies and role-bypass checks were run against a real Neon database in Frankfurt.',
+      next: 'Keep CI as the gate for every change.',
+    },
+    {
+      gap: 'Not yet run: the delivery path',
+      detail: 'The arm64 image build has never run, and the Compose file has not been started end to end. Nothing has run on the Pi, and Tailscale in front of the web container is untested.',
+      next: 'Deploy an empty release to the Pi first, to prove the pipeline before more features depend on it.',
+    },
+    {
+      gap: 'Planned: AWS',
+      detail: 'Lambda, SQS with dead-letter queues, EventBridge Scheduler, KMS, SES, Terraform with remote state and GitHub OIDC roles, alarms on every dead-letter queue, a runbook and a postmortem.',
+      next: 'Build it, then publish what behaved differently from ElasticMQ and the Pi, with the real cost per service.',
+    },
+  ]}
+/>
+
+This page grows into a full case study when the AWS phase is live. Questions or ideas about it are welcome through the contact form.

@@ -190,6 +190,7 @@ export const de: Messages = {
   casePrivateRepo: 'Privates Repository',
   caseStatus: 'Status',
   caseLive: 'Live',
+  caseInProgress: 'In Arbeit',
   caseRepo: 'Quellcode',
   opensNewTab: '(öffnet in einem neuen Tab)',
   costTotal: 'Summe',
