@@ -175,3 +175,69 @@ for (const [home, path, chip, status] of [
     await expect(page.locator('.status-link')).toHaveCount(0);
   });
 }
+
+// The header illustration reaches past the article's column into the right margin on purpose. A
+// clip on the article once cut its last 100px off, so no ancestor (the illustration's own frame
+// aside) may clip it short of its right edge. The illustration shows from 64rem up.
+for (const lang of ['', 'de/']) {
+  for (const slug of ['sorted', 'rainalert', 'this-site']) {
+    for (const width of [1100, 1440, 1920]) {
+      test(`/${lang}projects/${slug}/ at ${width}px: the header illustration is not clipped`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/${lang}projects/${slug}/`);
+        const { artRight, clipRights } = await page.evaluate(() => {
+          const illo = document.querySelector('.case-head .illo') as HTMLElement;
+          let artRight = 0;
+          for (const el of illo.querySelectorAll('svg *')) {
+            const r = el.getBoundingClientRect();
+            if (r.width || r.height) artRight = Math.max(artRight, r.right);
+          }
+          const clipRights: number[] = [];
+          for (let el = illo.parentElement; el; el = el.parentElement) {
+            if (getComputedStyle(el).overflowX !== 'visible') {
+              clipRights.push(el.getBoundingClientRect().right);
+            }
+          }
+          return { artRight, clipRights };
+        });
+        for (const right of clipRights) expect(right).toBeGreaterThanOrEqual(artRight);
+        // And nothing makes the page scroll sideways because of it.
+        const scrolls = await page.evaluate(
+          () => document.documentElement.scrollWidth > document.documentElement.clientWidth,
+        );
+        expect(scrolls).toBe(false);
+      });
+    }
+  }
+}
+
+// A stat value such as the German "−64 %" must stay on one line, on a phone (two columns) and on
+// a desktop (four), for every case study in both languages.
+for (const lang of ['', 'de/']) {
+  for (const slug of ['sorted', 'rainalert', 'this-site', 'whocalledback']) {
+    for (const width of [360, 1440]) {
+      test(`/${lang}projects/${slug}/ at ${width}px: stat values stay on one line`, async ({
+        page,
+      }) => {
+        await page.setViewportSize({ width, height: 900 });
+        await page.goto(`/${lang}projects/${slug}/`);
+        const lines = await page
+          .locator('.stat dd')
+          .evaluateAll((els) =>
+            els.map(
+              (el) => el.getBoundingClientRect().height / parseFloat(getComputedStyle(el).fontSize),
+            ),
+          );
+        expect(lines.length).toBeGreaterThan(0);
+        for (const l of lines) expect(l).toBeLessThanOrEqual(1.2);
+      });
+    }
+  }
+}
+
+test('the German Sorted stat shows "−64 %" whole', async ({ page }) => {
+  await page.goto('/de/projects/sorted/');
+  await expect(page.locator('.stat dd')).toHaveText(['0', '22', '−64 %', '6']);
+});

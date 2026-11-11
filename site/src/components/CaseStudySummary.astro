@@ -237,6 +237,8 @@ const cells: { label: string; value: string; url?: string }[] = [
   }
 
   .stat dd {
+    /* "−64 %" must stay on one line: German puts a space before the percent sign. */
+    white-space: nowrap;
     font-size: clamp(2rem, 1.4rem + 2.2vw, 3rem);
     font-weight: 500;
     line-height: 1;

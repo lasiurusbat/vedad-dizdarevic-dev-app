@@ -43,24 +43,31 @@ const Illustration = illustration && illustrations[illustration];
   caseStudy={slug}
   jsonLd={articleLd(locale, title, summary, Astro.url.pathname, slug)}
 >
-  <article class="max-w-page px-gutter py-section mx-auto overflow-x-clip">
-    <a
-      href={`${localeUrl(locale)}#work`}
-      class="inline-flex min-h-11 items-center text-sm underline"
-    >
-      ← {t.backToWork}
-    </a>
-    <header class:list={['mt-4', illustration ? 'case-head' : 'max-w-measure']}>
-      <div class="max-w-measure">
-        <h1 class="text-4xl">{title}</h1>
-        <p class="text-muted mt-4 text-xl">{summary}</p>
+  {/*
+    The one sideways clip of the page sits here, at the viewport edges, not on the article: the
+    header illustration reaches past the article's column into the right margin on purpose (its width
+    is capped to the room left), and a clip on the article cut its last 100px off.
+  */}
+  <div class="overflow-x-clip">
+    <article class="max-w-page px-gutter py-section mx-auto">
+      <a
+        href={`${localeUrl(locale)}#work`}
+        class="inline-flex min-h-11 items-center text-sm underline"
+      >
+        ← {t.backToWork}
+      </a>
+      <header class:list={['mt-4', illustration ? 'case-head' : 'max-w-measure']}>
+        <div class="max-w-measure">
+          <h1 class="text-4xl">{title}</h1>
+          <p class="text-muted mt-4 text-xl">{summary}</p>
+        </div>
+        {Illustration && <Illustration />}
+      </header>
+      <div class="prose mt-10">
+        <slot />
       </div>
-      {Illustration && <Illustration />}
-    </header>
-    <div class="prose mt-10">
-      <slot />
-    </div>
-  </article>
+    </article>
+  </div>
   {/*
     Every case study ends with a way to act on it: a band across the page, outside the article's
     column, opened by the same faded hairline as the home sections and a soft bloom below it.
