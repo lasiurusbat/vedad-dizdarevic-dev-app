@@ -1,9 +1,9 @@
 ---
 title: 'WhoCalledBack: built for a Raspberry Pi first, AWS serverless second, without a rewrite'
-summary: 'A multi-tenant job-search tracker built to answer one question: how do you design for the cloud without paying for it while you build? It runs on a Raspberry Pi for €0 first, then moves to AWS. Phase 1 is built, not yet deployed.'
+summary: 'A multi-tenant job-search tracker built to answer one question: how do you design for the cloud without paying for it while you build? Phase 1 runs on a Raspberry Pi for €0; the move to AWS comes next.'
 problem: 'The product shows which companies a job seeker has contacted and who replied. The engineering problem is delivery: one codebase that runs on a Raspberry Pi at no cost now and moves to Lambda, SQS and EventBridge later, while holding other people’s personal data, so tenant isolation has to survive application bugs.'
-stack: ['Docker Compose', 'GitHub Actions', 'PostgreSQL row-level security', 'SQS and ElasticMQ', 'Terraform (planned)', 'TypeScript']
-status: 'In progress: Phase 1 built and tested, not yet deployed. Status as of November 11, 2026.'
+stack: ['Docker Compose', 'GitHub Actions', 'PostgreSQL row-level security', 'SQS and ElasticMQ', 'Cloudflare Workers', 'Terraform (planned)']
+status: 'In progress: Phase 1 runs on a Raspberry Pi as staging; not yet deployed to AWS. Status as of November 13, 2026.'
 stage: 'in-progress'
 facts:
   - label: 'Role'
@@ -11,9 +11,9 @@ facts:
   - label: 'Started'
     value: 'Nov 2026'
   - label: 'Phase 1'
-    value: 'Raspberry Pi 5'
+    value: 'Raspberry Pi 5, running'
   - label: 'Phase 2'
-    value: 'AWS eu-central-1'
+    value: 'AWS eu-central-1, planned'
 outcomes:
   - label: 'Phase 1 running cost'
     value: '€0'
@@ -21,16 +21,16 @@ outcomes:
     value: '€20'
   - label: 'Environment-specific ports'
     value: '4'
-  - label: 'Stored cloud keys planned'
+  - label: 'Stored registry or cloud keys'
     value: '0'
-outcomesNote: 'Targets and design figures, not a bill: nothing is deployed to AWS yet, and the cost target is an estimate that the cost document will replace with the real bill. The source repository is private; the planned address is whocalledback.com.'
+outcomesNote: 'Phase 1 runs on free tiers and owned hardware. The Phase 2 ceiling is a target, not a bill: nothing is deployed to AWS yet, and the cost document will replace it with the real bill per service. The source repository and the app are private; whocalledback.com shows a coming-soon page.'
 repoPrivate: true
 illustration: 'ports'
 order: 40
 draft: false
 ---
 
-This page is a work in progress, written on purpose before the project is finished. It says what is designed, what is built, what has been checked and what has not. Each section is labelled the same way, so a plan is never mistaken for a result.
+This page is a work in progress, written on purpose before the project is finished. It says what is designed, what is built, what has been checked and what has not, so a plan is never mistaken for a result. Phase 1 runs on a Raspberry Pi as the `staging` environment since November 11, 2026, and syncs the owner’s own mailbox every 30 minutes. Since November 13, <a href="https://whocalledback.com" target="_blank" rel="noopener noreferrer">whocalledback.com<span class="sr-only"> (opens in a new tab)</span></a> shows a public coming-soon page; the app itself stays private.
 
 ## Two phases, one codebase
 
@@ -43,7 +43,7 @@ The aim is to build for a cloud target without paying for the cloud during devel
 
 ## Four ports, everything else shared
 
-Only four things genuinely differ between the Pi and AWS. Each is a small interface with one implementation per environment. Business logic depends on the interfaces only, so environment-specific code lives in entrypoints and adapters and nowhere else.
+Only four things genuinely differ between the Pi and AWS. Each is a small interface with one implementation per environment. Business logic depends on the interfaces only, so environment-specific code lives in entrypoints and adapters and nowhere else. Postgres is the same in both phases, so it gets no port.
 
 | Concern | Raspberry Pi | AWS |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ Only four things genuinely differ between the Pi and AWS. Each is a small interf
 | Token encryption | local AES-GCM key file | KMS |
 | Outgoing email | none | SES |
 
-The queue handlers are plain functions that take a batch and return the failed message IDs, which is the Lambda partial-batch-response shape. On the Pi a poller calls them; on AWS the Lambda runtime does. The Pi adapter is the AWS SDK pointed at ElasticMQ, so the Pi already exercises the real client code.
+The queue handlers are plain functions that take a batch and return the failed message IDs, which is the Lambda partial-batch-response shape. On the Pi a poller calls them; on AWS the Lambda runtime does. The Pi adapter is the AWS SDK pointed at ElasticMQ, so the Pi already exercises the real client code. Security rules belong to the port, not the adapter: the token cipher must bind every encryption to the tenant and the connection, as associated data on the Pi and as KMS encryption context on AWS.
 
 <TradeOff
   gained="One set of handlers, tested the same way in both environments, and an environment switch that touches four adapters."
@@ -61,16 +61,79 @@ The queue handlers are plain functions that take a batch and return the failed m
 
 ## Isolation enforced by the database
 
-Other people’s recruiter names and email metadata will live in this system, so a missing filter in application code must not leak a tenant’s rows. Row-level security in Postgres enforces the boundary: one policy per tenant table, forced on, failing closed when no tenant is set. Two application roles cannot bypass it. The roles are created in SQL migrations, never in a cloud console, because a role created there silently inherits a bypass and every policy stops applying. Every server process also refuses to start if its database role is a superuser, bypasses row-level security or owns tables.
+Other people’s recruiter names and email metadata live in this system, so a missing filter in application code must not leak a tenant’s rows. Row-level security in Postgres enforces the boundary: one policy per tenant table, forced on, failing closed when no tenant is set. The tenant is set only inside a transaction, so the setting cannot leak through a pooled connection. Foreign keys include the tenant ID, because Postgres does not apply row-level security to foreign-key checks.
+
+Two application roles cannot bypass the policies. They are created in SQL migrations, never in the Neon console, because a role created there joins a group that bypasses row-level security, and every policy would silently stop applying. Every server process also refuses to start if its database role is a superuser, bypasses row-level security, belongs to another role or owns tables. Only the one-shot migration job ever sees the owner credential.
 
 <TradeOff
   gained="Isolation that holds when application code has a bug, with tests that fail if a tenant table lacks a policy or a grant."
-  price="Row-level security does not contain SQL injection, and the migration tooling cannot express the forced policies, so each tenant table needs a hand-written follow-up migration."
+  price="Row-level security does not contain SQL injection, so queries stay parameterized. The migration tooling cannot express the forced policies, so each tenant table needs a hand-written follow-up migration."
 />
+
+## Scheduled work fans out through the queue
+
+Background jobs must act on every tenant, but the tenant role cannot see any rows without a tenant set, so it cannot even list the tenants. Running the jobs as the owner would remove row-level security from exactly the code that will later handle mailbox tokens. Instead, one locked-down database function returns tenant IDs and nothing else, and the scheduled job turns them into one queue message per tenant.
+
+The queue then does the hard parts. Retries and the dead-letter queue work per tenant, so one failing tenant does not block the rest. A message that does not parse is neither processed nor deleted, and ends up in the dead-letter queue. Handlers compute the desired state and apply the difference, so a duplicate delivery changes nothing. The first job on this pipeline, follow-up reminders, was chosen to prove schedule, fan-out, queue and dead-letter queue before any mailbox or model code depended on them. The 30-minute mailbox sync now runs on the same path.
 
 ## A pipeline that cannot pass by skipping
 
-CI runs against real Postgres and ElasticMQ containers, not mocks. The database and queue tests skip silently when those services are missing, so a green run could have meant nothing. The pipeline now fails the build if any test reports skipped. The Pi runtime hardens every long-running container: read-only root filesystem, all capabilities dropped, rotated logs. A one-shot migration container is the only part that ever sees the owner database credential.
+CI runs against real Postgres 17, ElasticMQ and IMAP containers, not mocks, with read-only permissions and every GitHub Action pinned to a commit SHA. The database and queue tests skip silently when those services are missing, so a green run could have meant nothing. The pipeline fails the build if any test reports skipped. A dependency audit at high severity closes the job.
+
+## From a branch push to the Pi
+
+A deploy is a push to the `staging` branch, never a click and never a force push. CI builds the three images (API, web, workers) for arm64, caches the layers and pushes them to the GitHub container registry, tagged `staging` and with the commit SHA. The job’s own short-lived token signs in to the registry, so no registry credential is stored anywhere. On the Pi, one script pulls the images and starts them with Docker Compose; the API’s health check reports the deployed commit.
+
+Every long-running container runs with a read-only root filesystem, all Linux capabilities dropped, no privilege escalation and rotated logs, so logs cannot fill the disk. The API starts only after the migration job exits cleanly, and the web container only after the API is healthy. Only the web container publishes a port, bound to localhost. Tailscale Serve puts private HTTPS in front of it, so nothing is open to the local network or the internet.
+
+The first deploys found real problems, each fixed in the pipeline rather than by hand:
+
+<ProblemLog
+  items={[
+    {
+      area: 'Build',
+      problem: 'The first arm64 image build hung for 11 minutes: `pnpm install` crashed under QEMU emulation',
+      fix: 'Install and bundle natively on the runner (`FROM --platform=$BUILDPLATFORM`); only the last stage, which copies files, is assembled for arm64',
+    },
+    {
+      area: 'Runtime',
+      problem: 'The first `./deploy.sh` failed with “address already in use”: another service on the Pi held port 8080',
+      fix: 'The published port is a setting (`WEB_PORT`) instead of a value in the Compose file',
+    },
+    {
+      area: 'Queue',
+      problem: 'A new queue did not appear after a deploy: ElasticMQ reads its queue list only at start, and Compose does not recreate a container whose mounted file changed',
+      fix: 'The deploy script restarts ElasticMQ whenever that file’s hash changes',
+    },
+    {
+      area: 'Config',
+      problem: 'Compose passes a missing variable as an empty string, which the worker’s config rejected; a Pi without the model settings would have crashed the worker',
+      fix: 'The config parser treats empty as unset; caught before it reached the Pi',
+    },
+    {
+      area: 'DNS',
+      problem: 'The docs said the nameservers pointed at Cloudflare; `dig` showed the registrar’s',
+      fix: 'Moved them, then deleted the parking records Cloudflare had imported, which blocked the Worker’s custom domains. `dig` before acting is now the habit',
+    },
+  ]}
+/>
+
+## A public front door that exposes nothing
+
+<a href="https://whocalledback.com" target="_blank" rel="noopener noreferrer">whocalledback.com<span class="sr-only"> (opens in a new tab)</span></a> is a coming-soon page served by a Cloudflare Worker on the free plan, with no server behind it. The HTTPS and `www` redirects live in the Worker’s code, not in a dashboard setting. The page sends HSTS and a strict content security policy, sets no cookies and makes no third-party requests. It picks German for the DACH time zones and English elsewhere, with no IP lookup, so the same rule works on the Pi, which is not behind Cloudflare. It was checked live with curl and a headless browser: `http://` and `www` answer 301 to the HTTPS apex with the path kept, and the page answers 200 with both headers.
+
+<TradeOff
+  gained="A public address at no cost, with the private app untouched behind Tailscale."
+  price="It is a stopgap: the Worker is deleted before Terraform takes over the domain’s records in Phase 2."
+/>
+
+## Personal data stays out of logs and the model
+
+Logs are JSON, and their fields are IDs, counts and codes: no email bodies, database error messages or query strings. The language model gets only what a task needs. Classification sees the sender, the subject and the first 2,000 characters, and nothing is stored. Follow-up drafts see the company, position, dates and contact names, never notes, links, addresses or the user’s own name; the closing is added in the browser. Both features are limited to an allowlist until the provider’s data processing agreement is verified, capped by a monthly budget per tenant, and log only error types. The privacy policy was updated in the same pull request.
+
+## Cost shapes the design
+
+Phase 1 costs nothing: the Neon free tier, GitHub Actions and its container registry, a Cloudflare Worker on the free plan, Tailscale and owned hardware. No paid AWS resource comes before the AWS milestone. The Phase 2 ceiling of about €20 a month drove the design: no VPC or NAT gateway (the Lambdas stay outside a VPC and reach Neon over its public endpoint), compute that scales to zero, and schedules sized to the free database. Every scheduled run wakes Neon’s free compute, so the mailbox sync runs every 30 minutes and the reminder job once a day. Model cost is tracked per user.
 
 ## Where it stands
 
@@ -78,18 +141,18 @@ CI runs against real Postgres and ElasticMQ containers, not mocks. The database 
   label="What is built, checked and still open for WhoCalledBack"
   items={[
     {
-      gap: 'Built and checked: the application against real services',
-      detail: 'Lint, types and the full test suite pass in CI against Postgres and ElasticMQ. The roles, policies and role-bypass checks were run against a real Neon database in Frankfurt.',
-      next: 'Keep CI as the gate for every change.',
+      gap: 'Running: Phase 1 on the Pi',
+      detail: 'The arm64 images run on the Pi as staging. The migration job exited cleanly, the role checks passed against the real Neon database, sign-up works through the private Tailscale address, and the owner’s mailbox syncs through the queue every 30 minutes. The follow-up drafts and the new landing page are deployed too. CI runs the full suite against real services and fails on any skipped test.',
+      next: 'Keep CI as the gate for every change and every deploy.',
     },
     {
-      gap: 'Not yet run: the delivery path',
-      detail: 'The arm64 image build has never run, and the Compose file has not been started end to end. Nothing has run on the Pi, and Tailscale in front of the web container is untested.',
-      next: 'Deploy an empty release to the Pi first, to prove the pipeline before more features depend on it.',
+      gap: 'Not yet checked: the app in daily use',
+      detail: 'The daily reminder job, account deletion and classification of real mail have not run on the Pi, and the follow-up drafts have not been judged on real cases with the real model. The rate limiter may see one client IP for everyone behind Caddy and Tailscale Serve. No real-device or non-Chromium testing yet.',
+      next: 'Use it daily on the Pi, and write down what fails before the move to AWS.',
     },
     {
       gap: 'Planned: AWS',
-      detail: 'Lambda, SQS with dead-letter queues, EventBridge Scheduler, KMS, SES, Terraform with remote state and GitHub OIDC roles, alarms on every dead-letter queue, a runbook and a postmortem.',
+      detail: 'Lambda, SQS with dead-letter queues, EventBridge Scheduler, KMS, SES, S3 and CloudFront, Terraform with remote state, GitHub OIDC roles instead of keys, plan on pull request and apply behind approval. Before it opens to others: a rate limiter that works across Lambda instances and an API reachable only through CloudFront. Then alarms on every dead-letter queue, a runbook and a postmortem.',
       next: 'Build it, then publish what behaved differently from ElasticMQ and the Pi, with the real cost per service.',
     },
   ]}

@@ -172,11 +172,11 @@ test('WhoCalledBack header illustration: decorative, four ports, beside the titl
   await expect(illo).toBeHidden();
 });
 
-// WhoCalledBack is a teaser: designed and partly built, not deployed. Nothing on its card or page
-// may look live, and the status must say so in words, in both languages.
+// WhoCalledBack is a teaser: Phase 1 runs on a Raspberry Pi, nothing is deployed to AWS. Nothing on
+// its card or page may look live, and the status must say so in words, in both languages.
 for (const [home, path, chip, status] of [
-  ['/', '/projects/whocalledback/', 'In progress', /not yet deployed/],
-  ['/de/', '/de/projects/whocalledback/', 'In Arbeit', /noch nicht deployt/],
+  ['/', '/projects/whocalledback/', 'In progress', /not yet deployed to AWS/],
+  ['/de/', '/de/projects/whocalledback/', 'In Arbeit', /noch nicht auf AWS deployt/],
 ] as const) {
   test(`WhoCalledBack is marked in progress, never live (${home})`, async ({ page }) => {
     await page.goto(home);

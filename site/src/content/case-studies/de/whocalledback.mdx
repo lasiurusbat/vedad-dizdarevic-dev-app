@@ -1,9 +1,9 @@
 ---
 title: 'WhoCalledBack: zuerst für einen Raspberry Pi gebaut, danach AWS Serverless, ohne Neuschreiben'
-summary: 'Ein mandantenfähiger Bewerbungs-Tracker, gebaut für eine Frage: Wie entwirft man für die Cloud, ohne beim Bauen dafür zu zahlen? Erst läuft er für 0 € auf einem Raspberry Pi, dann auf AWS. Phase 1 ist gebaut, noch nicht deployt.'
+summary: 'Ein mandantenfähiger Bewerbungs-Tracker, gebaut für eine Frage: Wie entwirft man für die Cloud, ohne beim Bauen dafür zu zahlen? Phase 1 läuft für 0 € auf einem Raspberry Pi, als Nächstes folgt AWS.'
 problem: 'Das Produkt zeigt, bei welchen Unternehmen sich eine Person beworben hat und wer geantwortet hat. Die technische Aufgabe ist die Auslieferung: eine Codebasis, die jetzt kostenlos auf einem Raspberry Pi läuft und später auf Lambda, SQS und EventBridge umzieht, und dabei personenbezogene Daten anderer verarbeitet, sodass die Mandantentrennung auch Fehler im Anwendungscode überstehen muss.'
-stack: ['Docker Compose', 'GitHub Actions', 'PostgreSQL Row-Level Security', 'SQS und ElasticMQ', 'Terraform (geplant)', 'TypeScript']
-status: 'In Arbeit: Phase 1 gebaut und getestet, noch nicht deployt. Stand: 11. November 2026.'
+stack: ['Docker Compose', 'GitHub Actions', 'PostgreSQL Row-Level Security', 'SQS und ElasticMQ', 'Cloudflare Workers', 'Terraform (geplant)']
+status: 'In Arbeit: Phase 1 läuft als Staging auf einem Raspberry Pi; noch nicht auf AWS deployt. Stand: 13. November 2026.'
 stage: 'in-progress'
 facts:
   - label: 'Rolle'
@@ -11,9 +11,9 @@ facts:
   - label: 'Start'
     value: 'Nov. 2026'
   - label: 'Phase 1'
-    value: 'Raspberry Pi 5'
+    value: 'Raspberry Pi 5, läuft'
   - label: 'Phase 2'
-    value: 'AWS eu-central-1'
+    value: 'AWS eu-central-1, geplant'
 outcomes:
   - label: 'Laufende Kosten in Phase 1'
     value: '0 €'
@@ -21,16 +21,16 @@ outcomes:
     value: '20 €'
   - label: 'Umgebungsspezifische Ports'
     value: '4'
-  - label: 'Geplante gespeicherte Cloud-Schlüssel'
+  - label: 'Gespeicherte Registry- oder Cloud-Schlüssel'
     value: '0'
-outcomesNote: 'Ziele und Entwurfswerte, keine Rechnung: Auf AWS ist noch nichts deployt, und das Kostenziel ist eine Schätzung, die das Kostendokument später durch die echte Rechnung ersetzt. Das Repository ist privat; die geplante Adresse ist whocalledback.com.'
+outcomesNote: 'Phase 1 läuft auf kostenlosen Kontingenten und eigener Hardware. Die Obergrenze für Phase 2 ist ein Ziel, keine Rechnung: Auf AWS ist noch nichts deployt, und das Kostendokument ersetzt sie später durch die echte Rechnung pro Dienst. Repository und App sind privat; whocalledback.com zeigt eine Coming-soon-Seite.'
 repoPrivate: true
 illustration: 'ports'
 order: 40
 draft: false
 ---
 
-Diese Seite ist bewusst vor dem Abschluss des Projekts geschrieben. Sie sagt, was entworfen, was gebaut, was geprüft und was noch nicht geprüft ist. Jeder Abschnitt ist gleich gekennzeichnet, damit ein Plan nie mit einem Ergebnis verwechselt wird.
+Diese Seite ist bewusst vor dem Abschluss des Projekts geschrieben. Sie sagt, was entworfen, was gebaut, was geprüft und was noch nicht geprüft ist, damit ein Plan nie mit einem Ergebnis verwechselt wird. Phase 1 läuft seit dem 11. November 2026 als Umgebung `staging` auf einem Raspberry Pi und gleicht alle 30 Minuten das eigene Postfach des Eigentümers ab. Seit dem 13. November zeigt <a href="https://whocalledback.com" target="_blank" rel="noopener noreferrer">whocalledback.com<span class="sr-only"> (öffnet in einem neuen Tab)</span></a> eine öffentliche Coming-soon-Seite; die App selbst bleibt privat.
 
 ## Zwei Phasen, eine Codebasis
 
@@ -43,7 +43,7 @@ Das Ziel: für eine Cloud-Zielumgebung bauen, ohne während der Entwicklung für
 
 ## Vier Ports, alles andere gemeinsam
 
-Nur vier Dinge unterscheiden sich wirklich zwischen Pi und AWS. Jedes ist eine kleine Schnittstelle mit einer Implementierung pro Umgebung. Die Geschäftslogik hängt nur von den Schnittstellen ab, umgebungsspezifischer Code steckt daher ausschließlich in Einstiegspunkten und Adaptern.
+Nur vier Dinge unterscheiden sich wirklich zwischen Pi und AWS. Jedes ist eine kleine Schnittstelle mit einer Implementierung pro Umgebung. Die Geschäftslogik hängt nur von den Schnittstellen ab, umgebungsspezifischer Code steckt daher ausschließlich in Einstiegspunkten und Adaptern. Postgres ist in beiden Phasen gleich und bekommt deshalb keinen Port.
 
 | Aufgabe | Raspberry Pi | AWS |
 | --- | --- | --- |
@@ -52,7 +52,7 @@ Nur vier Dinge unterscheiden sich wirklich zwischen Pi und AWS. Jedes ist eine k
 | Token-Verschlüsselung | lokale AES-GCM-Schlüsseldatei | KMS |
 | Ausgehende E-Mail | keine | SES |
 
-Die Queue-Handler sind einfache Funktionen, die einen Batch annehmen und die IDs fehlgeschlagener Nachrichten zurückgeben, also die Form der Lambda-Partial-Batch-Antwort. Auf dem Pi ruft ein Poller sie auf, auf AWS die Lambda-Laufzeit. Der Pi-Adapter ist das AWS SDK, das auf ElasticMQ zeigt; der Pi übt damit bereits den echten Client-Code.
+Die Queue-Handler sind einfache Funktionen, die einen Batch annehmen und die IDs fehlgeschlagener Nachrichten zurückgeben, also die Form der Lambda-Partial-Batch-Antwort. Auf dem Pi ruft ein Poller sie auf, auf AWS die Lambda-Laufzeit. Der Pi-Adapter ist das AWS SDK, das auf ElasticMQ zeigt; der Pi übt damit bereits den echten Client-Code. Sicherheitsregeln gehören zum Port, nicht zum Adapter: Die Token-Verschlüsselung muss jede Verschlüsselung an Mandant und Verbindung binden, auf dem Pi als Associated Data, auf AWS als KMS-Encryption-Context.
 
 <TradeOff
   gained="Ein Satz Handler, in beiden Umgebungen gleich getestet, und ein Umgebungswechsel, der nur vier Adapter berührt."
@@ -61,16 +61,79 @@ Die Queue-Handler sind einfache Funktionen, die einen Batch annehmen und die IDs
 
 ## Isolation durch die Datenbank
 
-In diesem System liegen Namen von Recruitern und E-Mail-Metadaten anderer Menschen. Ein vergessener Filter im Anwendungscode darf daher keine Zeilen eines Mandanten preisgeben. Row-Level Security in Postgres erzwingt die Grenze: eine Policy pro Mandantentabelle, erzwungen und fail-closed, wenn kein Mandant gesetzt ist. Zwei Anwendungsrollen können sie nicht umgehen. Die Rollen entstehen in SQL-Migrationen, nie in einer Cloud-Konsole, weil eine dort angelegte Rolle unbemerkt eine Umgehung erbt und jede Policy wirkungslos wird. Jeder Serverprozess verweigert außerdem den Start, wenn seine Datenbankrolle Superuser ist, Row-Level Security umgeht oder Tabellen besitzt.
+In diesem System liegen Namen von Recruitern und E-Mail-Metadaten anderer Menschen. Ein vergessener Filter im Anwendungscode darf daher keine Zeilen eines Mandanten preisgeben. Row-Level Security in Postgres erzwingt die Grenze: eine Policy pro Mandantentabelle, erzwungen und fail-closed, wenn kein Mandant gesetzt ist. Der Mandant wird nur innerhalb einer Transaktion gesetzt und kann so nicht über eine gepoolte Verbindung durchsickern. Fremdschlüssel enthalten die Mandanten-ID, weil Postgres Row-Level Security bei Fremdschlüsselprüfungen nicht anwendet.
+
+Zwei Anwendungsrollen können die Policies nicht umgehen. Sie entstehen in SQL-Migrationen, nie in der Neon-Konsole, weil eine dort angelegte Rolle einer Gruppe beitritt, die Row-Level Security umgeht, und jede Policy unbemerkt wirkungslos würde. Jeder Serverprozess verweigert außerdem den Start, wenn seine Datenbankrolle Superuser ist, Row-Level Security umgeht, Mitglied einer anderen Rolle ist oder Tabellen besitzt. Nur der einmalige Migrations-Job sieht je die Zugangsdaten des Eigentümers.
 
 <TradeOff
   gained="Eine Isolation, die auch bei einem Fehler im Anwendungscode hält, mit Tests, die scheitern, wenn einer Mandantentabelle Policy oder Berechtigung fehlt."
-  price="Row-Level Security schützt nicht vor SQL-Injection, und das Migrationswerkzeug kann die erzwungenen Policies nicht ausdrücken, daher braucht jede Mandantentabelle eine handgeschriebene Folgemigration."
+  price="Row-Level Security schützt nicht vor SQL-Injection, daher bleiben Abfragen parametrisiert. Das Migrationswerkzeug kann die erzwungenen Policies nicht ausdrücken, daher braucht jede Mandantentabelle eine handgeschriebene Folgemigration."
 />
+
+## Geplante Jobs verteilen sich über die Queue
+
+Hintergrund-Jobs müssen für jeden Mandanten laufen, doch die Mandantenrolle sieht ohne gesetzten Mandanten keine Zeilen und kann die Mandanten nicht einmal auflisten. Die Jobs als Eigentümer laufen zu lassen, würde Row-Level Security genau aus dem Code entfernen, der später Postfach-Tokens verarbeitet. Stattdessen liefert eine abgeschottete Datenbankfunktion nur Mandanten-IDs, und der geplante Job macht daraus eine Queue-Nachricht pro Mandant.
+
+Den schwierigen Teil übernimmt dann die Queue. Wiederholungen und die Dead-Letter-Queue wirken pro Mandant, ein fehlschlagender Mandant hält die anderen also nicht auf. Eine Nachricht, die sich nicht parsen lässt, wird weder verarbeitet noch gelöscht und landet in der Dead-Letter-Queue. Handler berechnen den Sollzustand und wenden nur die Differenz an, eine doppelte Zustellung ändert also nichts. Der erste Job auf dieser Strecke, die Erinnerungen zum Nachfassen, wurde gewählt, um Zeitplan, Verteilung, Queue und Dead-Letter-Queue zu beweisen, bevor Postfach- oder Modell-Code davon abhing. Der Postfach-Abgleich alle 30 Minuten läuft inzwischen denselben Weg.
 
 ## Eine Pipeline, die sich nicht durch Überspringen bestehen lässt
 
-Die CI läuft gegen echte Postgres- und ElasticMQ-Container, nicht gegen Mocks. Die Datenbank- und Queue-Tests werden still übersprungen, wenn diese Dienste fehlen, ein grüner Lauf hätte also nichts bedeuten können. Die Pipeline lässt den Build jetzt scheitern, sobald ein Test als übersprungen gemeldet wird. Die Pi-Laufzeit härtet jeden dauerhaft laufenden Container: schreibgeschütztes Root-Dateisystem, alle Capabilities entfernt, rotierte Logs. Nur ein einmaliger Migrations-Container sieht je die Zugangsdaten des Datenbank-Eigentümers.
+Die CI läuft gegen echte Container mit Postgres 17, ElasticMQ und einem IMAP-Server, nicht gegen Mocks, mit reinen Leserechten und jeder GitHub Action auf einen Commit-SHA gepinnt. Die Datenbank- und Queue-Tests werden still übersprungen, wenn diese Dienste fehlen, ein grüner Lauf hätte also nichts bedeuten können. Die Pipeline lässt den Build scheitern, sobald ein Test als übersprungen gemeldet wird. Ein Abhängigkeits-Audit auf Stufe „high“ schließt den Job ab.
+
+## Vom Branch-Push auf den Pi
+
+Ein Deploy ist ein Push auf den Branch `staging`, nie ein Klick und nie ein Force-Push. Die CI baut die drei Images (API, Web, Worker) für arm64, cacht die Layer und legt sie in der GitHub Container Registry ab, getaggt mit `staging` und dem Commit-SHA. Für die Registry meldet sich der Job mit seinem eigenen kurzlebigen Token an, gespeicherte Registry-Zugangsdaten gibt es nirgends. Auf dem Pi holt ein Skript die Images und startet sie mit Docker Compose; der Health-Check der API meldet den ausgelieferten Commit.
+
+Jeder dauerhaft laufende Container läuft mit schreibgeschütztem Root-Dateisystem, ohne Linux-Capabilities, ohne Rechteausweitung und mit rotierten Logs, damit Logs die Platte nicht füllen. Die API startet erst, wenn der Migrations-Job sauber beendet ist, der Web-Container erst, wenn die API gesund ist. Nur der Web-Container veröffentlicht einen Port, gebunden an localhost. Tailscale Serve stellt privates HTTPS davor, nichts ist im lokalen Netz oder im Internet erreichbar.
+
+Die ersten Deploys fanden echte Probleme, jedes in der Pipeline behoben statt von Hand:
+
+<ProblemLog
+  items={[
+    {
+      area: 'Build',
+      problem: 'Der erste arm64-Image-Build hing 11 Minuten: `pnpm install` stürzte unter QEMU-Emulation ab',
+      fix: 'Installieren und Bündeln laufen nativ auf dem Runner (`FROM --platform=$BUILDPLATFORM`); nur die letzte Stufe, die Dateien kopiert, wird für arm64 zusammengesetzt',
+    },
+    {
+      area: 'Laufzeit',
+      problem: 'Das erste `./deploy.sh` scheiterte mit „address already in use“: Ein anderer Dienst auf dem Pi belegte Port 8080',
+      fix: 'Der veröffentlichte Port ist eine Einstellung (`WEB_PORT`) statt eines Werts in der Compose-Datei',
+    },
+    {
+      area: 'Queue',
+      problem: 'Eine neue Queue fehlte nach einem Deploy: ElasticMQ liest seine Queue-Liste nur beim Start, und Compose erstellt einen Container nicht neu, wenn sich eine eingebundene Datei ändert',
+      fix: 'Das Deploy-Skript startet ElasticMQ neu, sobald sich der Hash dieser Datei ändert',
+    },
+    {
+      area: 'Konfiguration',
+      problem: 'Compose übergibt eine fehlende Variable als leeren String, den die Worker-Konfiguration ablehnte; ein Pi ohne Modell-Einstellungen hätte den Worker abstürzen lassen',
+      fix: 'Der Konfigurations-Parser behandelt leer wie nicht gesetzt; gefunden, bevor es den Pi erreichte',
+    },
+    {
+      area: 'DNS',
+      problem: 'Die Doku sagte, die Nameserver zeigten auf Cloudflare; `dig` zeigte die des Registrars',
+      fix: 'Umgestellt, dann die von Cloudflare importierten Parking-Einträge gelöscht, die die Custom Domains des Workers blockierten. `dig` vor dem Handeln ist jetzt Gewohnheit',
+    },
+  ]}
+/>
+
+## Eine öffentliche Adresse, die nichts preisgibt
+
+<a href="https://whocalledback.com" target="_blank" rel="noopener noreferrer">whocalledback.com<span class="sr-only"> (öffnet in einem neuen Tab)</span></a> ist eine Coming-soon-Seite, ausgeliefert von einem Cloudflare Worker im kostenlosen Tarif, ohne Server dahinter. Die Weiterleitungen auf HTTPS und von `www` stehen im Code des Workers, nicht in einer Dashboard-Einstellung. Die Seite sendet HSTS und eine strenge Content Security Policy, setzt keine Cookies und stellt keine Anfragen an Dritte. Sie wählt Deutsch für die Zeitzonen der DACH-Region und sonst Englisch, ohne IP-Abfrage; dieselbe Regel funktioniert so auch auf dem Pi, der nicht hinter Cloudflare steht. Live geprüft mit curl und einem Headless-Browser: `http://` und `www` antworten mit 301 auf die HTTPS-Domain, der Pfad bleibt erhalten, und die Seite antwortet mit 200 und beiden Headern.
+
+<TradeOff
+  gained="Eine öffentliche Adresse ohne Kosten, während die private App unberührt hinter Tailscale bleibt."
+  price="Eine Übergangslösung: Der Worker wird gelöscht, bevor Terraform in Phase 2 die DNS-Einträge der Domain übernimmt."
+/>
+
+## Personenbezogene Daten bleiben aus Logs und Modell heraus
+
+Logs sind JSON, ihre Felder sind IDs, Zählerstände und Codes: keine E-Mail-Inhalte, Datenbank-Fehlermeldungen oder Abfragetexte. Das Sprachmodell bekommt nur, was eine Aufgabe braucht. Die Klassifizierung sieht Absender, Betreff und die ersten 2.000 Zeichen, gespeichert wird nichts. Entwürfe zum Nachfassen sehen Unternehmen, Position, Daten und Namen der Kontakte, nie Notizen, Links, Adressen oder den eigenen Namen der Person; die Grußformel ergänzt der Browser. Beide Funktionen sind auf eine Allowlist beschränkt, bis der Auftragsverarbeitungsvertrag des Anbieters geprüft ist, durch ein Monatsbudget pro Mandant gedeckelt und loggen nur Fehlerarten. Die Datenschutzerklärung wurde im selben Pull Request angepasst.
+
+## Kosten formen den Entwurf
+
+Phase 1 kostet nichts: das kostenlose Kontingent von Neon, GitHub Actions und seine Container Registry, ein Cloudflare Worker im kostenlosen Tarif, Tailscale und eigene Hardware. Vor dem AWS-Meilenstein entsteht keine kostenpflichtige AWS-Ressource. Die Obergrenze von etwa 20 € im Monat für Phase 2 hat den Entwurf bestimmt: kein VPC und kein NAT-Gateway (die Lambdas bleiben außerhalb eines VPC und erreichen Neon über den öffentlichen Endpunkt), Rechenleistung, die auf null skaliert, und Zeitpläne passend zur kostenlosen Datenbank. Jeder geplante Lauf weckt die kostenlose Rechenleistung von Neon, daher läuft der Postfach-Abgleich alle 30 Minuten und der Erinnerungs-Job einmal am Tag. Die Modellkosten werden pro Person erfasst.
 
 ## Wo es steht
 
@@ -78,18 +141,18 @@ Die CI läuft gegen echte Postgres- und ElasticMQ-Container, nicht gegen Mocks. 
   label="Was bei WhoCalledBack gebaut, geprüft und noch offen ist"
   items={[
     {
-      gap: 'Gebaut und geprüft: die Anwendung gegen echte Dienste',
-      detail: 'Lint, Typen und die gesamte Testsuite laufen in der CI gegen Postgres und ElasticMQ durch. Rollen, Policies und die Prüfungen gegen Rollen-Umgehung liefen gegen eine echte Neon-Datenbank in Frankfurt.',
-      next: 'Die CI bleibt das Gate für jede Änderung.',
+      gap: 'Läuft: Phase 1 auf dem Pi',
+      detail: 'Die arm64-Images laufen als Staging auf dem Pi. Der Migrations-Job endete sauber, die Rollenprüfungen bestanden gegen die echte Neon-Datenbank, die Registrierung funktioniert über die private Tailscale-Adresse, und das Postfach des Eigentümers wird alle 30 Minuten über die Queue abgeglichen. Die Entwürfe zum Nachfassen und die neue Landingpage sind ebenfalls ausgeliefert. Die CI führt alle Tests gegen echte Dienste aus und scheitert bei jedem übersprungenen Test.',
+      next: 'Die CI bleibt das Gate für jede Änderung und jeden Deploy.',
     },
     {
-      gap: 'Noch nicht gelaufen: der Auslieferungsweg',
-      detail: 'Der arm64-Image-Build lief noch nie, die Compose-Datei wurde nicht durchgängig gestartet. Auf dem Pi lief noch nichts, und Tailscale vor dem Web-Container ist ungetestet.',
-      next: 'Zuerst ein leeres Release auf den Pi ausliefern, um die Pipeline zu beweisen, bevor mehr Funktionen von ihr abhängen.',
+      gap: 'Noch nicht geprüft: die App im täglichen Einsatz',
+      detail: 'Der tägliche Erinnerungs-Job, das Löschen eines Kontos und die Klassifizierung echter Mails liefen noch nicht auf dem Pi, und die Entwürfe zum Nachfassen wurden noch nicht an echten Fällen mit dem echten Modell beurteilt. Der Rate Limiter sieht hinter Caddy und Tailscale Serve womöglich für alle dieselbe Client-IP. Tests auf echten Geräten und außerhalb von Chromium fehlen noch.',
+      next: 'Täglich auf dem Pi nutzen und festhalten, was vor dem Umzug auf AWS scheitert.',
     },
     {
       gap: 'Geplant: AWS',
-      detail: 'Lambda, SQS mit Dead-Letter-Queues, EventBridge Scheduler, KMS, SES, Terraform mit Remote State und GitHub-OIDC-Rollen, Alarme auf jeder Dead-Letter-Queue, ein Runbook und ein Postmortem.',
+      detail: 'Lambda, SQS mit Dead-Letter-Queues, EventBridge Scheduler, KMS, SES, S3 und CloudFront, Terraform mit Remote State, GitHub-OIDC-Rollen statt Schlüsseln, Plan im Pull Request und Apply nach Freigabe. Bevor andere es nutzen: ein Rate Limiter, der über Lambda-Instanzen hinweg wirkt, und eine API, die nur über CloudFront erreichbar ist. Danach Alarme auf jeder Dead-Letter-Queue, ein Runbook und ein Postmortem.',
       next: 'Bauen, dann veröffentlichen, was sich gegenüber ElasticMQ und dem Pi anders verhielt, samt echten Kosten pro Dienst.',
     },
   ]}
