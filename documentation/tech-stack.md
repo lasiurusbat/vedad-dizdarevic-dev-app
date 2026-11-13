@@ -73,7 +73,8 @@ Recruiters often open the link on a phone, so the layout is designed for small s
 - Source in `cv/`: one Typst template plus a structured data file (YAML/TOML) holding the content, with EN and DE text side by side
 - Compiled in CI with the Typst CLI (`typst compile`, fonts pinned via `--font-path` in the repo) into `Vedad_Dizdarevic_CV_EN.pdf` and `Vedad_Dizdarevic_CV_DE.pdf`, copied into the site build
 - The existing PDFs (`*_1026.pdf`) are the reference for the initial port and are removed once the Typst output matches
-- Optional: the site's skills and experience sections read the same data file, so the site and CV can't drift apart
+- Optional: the site's skills and experience sections read the same data file, so the site and CV can't drift apart (not done: the CV's project list is written by hand, so a new case study needs its own CV entry)
+- `cv/check.sh` fails the build unless each PDF is exactly two pages
 - LinkedIn is still updated by hand
 
 ## Hosting and edge

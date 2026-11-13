@@ -108,7 +108,7 @@ At full-time pace, waiting time matters more than effort. Start these early or t
 | **Week 6** | Review analytics and Search Console; DMARC to `p=reject` if not yet there; first key rotation run tested end to end; fix anything from launch feedback |
 | **Next (Weeks 7–10)** | Site skills sourced from `cv/data.yaml`; PR preview deployments. The third case study (this site) and the German case studies are already done |
 | **Later** | Write-ups for new projects as they're built; blog or notes section if there's a steady supply of topics |
-| **In flight: WhoCalledBack** | Teaser page in EN and DE with an `in-progress` stage (PR #140, 2026-11-11). Update its status line and ledger when the Pi deploy and the AWS phase land; turn it into a full DevOps-first case study, add Work with me dots and drop `stage` once it is deployed. Not part of the launch scope |
+| **In flight: WhoCalledBack** | Teaser page in EN and DE with an `in-progress` stage (#140, 2026-11-11). Updated 2026-11-13 (#146): Phase 1 runs on the Pi as staging, whocalledback.com shows a coming-soon page; "Where it stands" is a status track (#148); CV entry added (#147). Next: update the status, the track and the CV when the AWS phase lands; then turn it into a full DevOps-first case study, add Work with me dots and drop `stage`. Not part of the launch scope |
 
 ## Keeping this roadmap current
 
