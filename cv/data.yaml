@@ -120,6 +120,19 @@ projects:
         - 'Absicherung der Auslieferung: Pull Requests, auch von Forks und Dependabot, können nie ein Image pushen oder deployen; ein serverseitiger Cache und eine Fallback-API mit Budget fangen die Rate-Limits der kostenlosen Wetter-APIs ab.'
   - title:
       {
+        en: WhoCalledBack — Raspberry Pi First, AWS Serverless Next (in progress),
+        de: WhoCalledBack — Erst Raspberry Pi, dann AWS Serverless (in Arbeit),
+      }
+    link: { text: whocalledback.com, url: 'https://whocalledback.com' }
+    bullets:
+      en:
+        - 'Designed one codebase for a Raspberry Pi 5 and AWS Lambda (both arm64), with four ports swapped per environment (ElasticMQ/SQS, cron/EventBridge Scheduler, AES-GCM/KMS, none/SES). Phase 1 runs on the Pi for €0; the AWS phase is designed, not built.'
+        - 'A push to the staging branch builds arm64 images into GHCR with no stored credentials and runs them in hardened Docker Compose behind Tailscale; tenant isolation is enforced by Postgres row-level security, with roles created only in migrations.'
+      de:
+        - 'Eine Codebasis für einen Raspberry Pi 5 und AWS Lambda (beide arm64), mit vier pro Umgebung getauschten Ports (ElasticMQ/SQS, Cron/EventBridge Scheduler, AES-GCM/KMS, keine/SES). Phase 1 läuft für 0 € auf dem Pi; die AWS-Phase ist entworfen, nicht gebaut.'
+        - 'Ein Push auf den Staging-Branch baut arm64-Images in die GHCR, ohne gespeicherte Zugangsdaten, und startet sie in gehärtetem Docker Compose hinter Tailscale; Postgres Row-Level Security erzwingt die Mandantentrennung, Rollen entstehen nur in Migrationen.'
+  - title:
+      {
         en: This Portfolio — Static Site as a Small Production Platform,
         de: Dieses Portfolio — Statische Website als kleine Produktionsplattform,
       }
