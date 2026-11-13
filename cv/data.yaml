@@ -120,8 +120,10 @@ projects:
         - 'Absicherung der Auslieferung: Pull Requests, auch von Forks und Dependabot, können nie ein Image pushen oder deployen; ein serverseitiger Cache und eine Fallback-API mit Budget fangen die Rate-Limits der kostenlosen Wetter-APIs ab.'
   - title:
       {
-        en: WhoCalledBack — Raspberry Pi First, AWS Serverless Next (in progress),
-        de: WhoCalledBack — Erst Raspberry Pi, dann AWS Serverless (in Arbeit),
+        en: WhoCalledBack — Raspberry Pi First,
+        AWS Serverless Next (in progress),
+        de: WhoCalledBack — Erst Raspberry Pi,
+        dann AWS Serverless (in Arbeit),
       }
     link: { text: whocalledback.com, url: 'https://whocalledback.com' }
     bullets:
