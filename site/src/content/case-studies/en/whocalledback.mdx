@@ -142,12 +142,12 @@ Phase 1 costs nothing: the Neon free tier, GitHub Actions and its container regi
   items={[
     {
       gap: 'Running: Phase 1 on the Pi',
-      detail: 'The arm64 images run on the Pi as staging. The migration job exited cleanly, the role checks passed against the real Neon database, sign-up works through the private Tailscale address, and the owner’s mailbox syncs through the queue every 30 minutes. CI runs the full suite against real services and fails on any skipped test.',
-      next: 'Keep CI as the gate, and deploy the features merged since (follow-up drafts, the new landing page) with the next push.',
+      detail: 'The arm64 images run on the Pi as staging. The migration job exited cleanly, the role checks passed against the real Neon database, sign-up works through the private Tailscale address, and the owner’s mailbox syncs through the queue every 30 minutes. The follow-up drafts and the new landing page are deployed too. CI runs the full suite against real services and fails on any skipped test.',
+      next: 'Keep CI as the gate for every change and every deploy.',
     },
     {
       gap: 'Not yet checked: the app in daily use',
-      detail: 'The daily reminder job, account deletion and classification of real mail have not run on the Pi. The rate limiter may see one client IP for everyone behind Caddy and Tailscale Serve. No real-device or non-Chromium testing yet.',
+      detail: 'The daily reminder job, account deletion and classification of real mail have not run on the Pi, and the follow-up drafts have not been judged on real cases with the real model. The rate limiter may see one client IP for everyone behind Caddy and Tailscale Serve. No real-device or non-Chromium testing yet.',
       next: 'Use it daily on the Pi, and write down what fails before the move to AWS.',
     },
     {

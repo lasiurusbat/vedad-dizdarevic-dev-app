@@ -142,12 +142,12 @@ Phase 1 kostet nichts: das kostenlose Kontingent von Neon, GitHub Actions und se
   items={[
     {
       gap: 'Läuft: Phase 1 auf dem Pi',
-      detail: 'Die arm64-Images laufen als Staging auf dem Pi. Der Migrations-Job endete sauber, die Rollenprüfungen bestanden gegen die echte Neon-Datenbank, die Registrierung funktioniert über die private Tailscale-Adresse, und das Postfach des Eigentümers wird alle 30 Minuten über die Queue abgeglichen. Die CI führt alle Tests gegen echte Dienste aus und scheitert bei jedem übersprungenen Test.',
-      next: 'Die CI bleibt das Gate; die seither gemergten Funktionen (Entwürfe zum Nachfassen, die neue Landingpage) gehen mit dem nächsten Push auf den Pi.',
+      detail: 'Die arm64-Images laufen als Staging auf dem Pi. Der Migrations-Job endete sauber, die Rollenprüfungen bestanden gegen die echte Neon-Datenbank, die Registrierung funktioniert über die private Tailscale-Adresse, und das Postfach des Eigentümers wird alle 30 Minuten über die Queue abgeglichen. Die Entwürfe zum Nachfassen und die neue Landingpage sind ebenfalls ausgeliefert. Die CI führt alle Tests gegen echte Dienste aus und scheitert bei jedem übersprungenen Test.',
+      next: 'Die CI bleibt das Gate für jede Änderung und jeden Deploy.',
     },
     {
       gap: 'Noch nicht geprüft: die App im täglichen Einsatz',
-      detail: 'Der tägliche Erinnerungs-Job, das Löschen eines Kontos und die Klassifizierung echter Mails liefen noch nicht auf dem Pi. Der Rate Limiter sieht hinter Caddy und Tailscale Serve womöglich für alle dieselbe Client-IP. Tests auf echten Geräten und außerhalb von Chromium fehlen noch.',
+      detail: 'Der tägliche Erinnerungs-Job, das Löschen eines Kontos und die Klassifizierung echter Mails liefen noch nicht auf dem Pi, und die Entwürfe zum Nachfassen wurden noch nicht an echten Fällen mit dem echten Modell beurteilt. Der Rate Limiter sieht hinter Caddy und Tailscale Serve womöglich für alle dieselbe Client-IP. Tests auf echten Geräten und außerhalb von Chromium fehlen noch.',
       next: 'Täglich auf dem Pi nutzen und festhalten, was vor dem Umzug auf AWS scheitert.',
     },
     {
