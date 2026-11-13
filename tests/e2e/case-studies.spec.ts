@@ -254,3 +254,19 @@ test('the German Sorted stat shows "−64 %" whole', async ({ page }) => {
   await page.goto('/de/projects/sorted/');
   await expect(page.locator('.stat dd')).toHaveText(['0', '22', '−64 %', '6']);
 });
+
+// "Where it stands" on WhoCalledBack is a status track: three stages in order, each named by its
+// state in words (the markers are decoration), with a next step under every stage.
+for (const [path, states] of [
+  ['/projects/whocalledback/', ['Running', 'Not yet checked', 'Planned']],
+  ['/de/projects/whocalledback/', ['Läuft', 'Noch nicht geprüft', 'Geplant']],
+] as const) {
+  test(`WhoCalledBack status track: stages by state (${path})`, async ({ page }) => {
+    await page.goto(path);
+    const track = page.locator('ol.track');
+    await expect(track.locator(':scope > li')).toHaveCount(3);
+    await expect(track.locator('.state')).toHaveText([...states]);
+    await expect(track.locator('.next')).toHaveCount(3);
+    await expect(track.locator('.marker[aria-hidden="true"]')).toHaveCount(3);
+  });
+}

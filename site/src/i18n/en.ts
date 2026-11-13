@@ -197,6 +197,10 @@ export const en = {
   tradePrice: 'Price',
   limitGap: 'Gap',
   limitNext: 'Next step',
+  // StatusTrack: the state word above each stage's title.
+  trackDone: 'Running',
+  trackOpen: 'Not yet checked',
+  trackPlanned: 'Planned',
   caseOutcome: 'Outcome',
   caseCtaText: 'Need a platform like this for your product?',
   caseCtaButton: 'Get in touch',
