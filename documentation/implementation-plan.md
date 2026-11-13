@@ -233,6 +233,7 @@ Single page with anchored sections, plus a detail page per case study.
 - [x] Case study 1: **sorted.onl** _(English merged in #19 and rewritten DevOps-first as a live, commercially available product with the sorted.onl link; German and the diagram pending. Demo-data screenshots as light/dark pairs in "The workload"; repo is private, so the page says so. Needs an infrastructure screenshot (pipeline run, plan summary or Grafana); the Grafana prod screenshot is a placeholder to be retaken, with the Uptime panel fixed.)_
 - [x] Case study 2: **rainalert.live** _(Audited 2026-11-09: RainAlert, EN and DE (#54, #55))_
 - [x] Case study 3 (optional): **this site** _(Audited 2026-11-09: `this-site`, EN and DE (#60))_
+- [ ] Case study 4 (post-launch, in progress): **WhoCalledBack** _(Teaser with `stage: 'in-progress'`, EN and DE (#140); updated 2026-11-13 from the owner's notes (#146): Phase 1 on the Pi, the whocalledback.com coming-soon page, a problem log; "Where it stands" as a `StatusTrack` (#148). Open until the AWS phase is live and the page becomes a full case study.)_
 - [x] Each has: problem in 1–2 sentences, architecture diagram, stack, 2–3 decisions with trade-offs (cost, security, reliability), outcome, links to repo and something live (pipeline run, Grafana screenshot) _(Audited 2026-11-09: private repositories say so instead of linking; the live evidence is pipeline and dashboard screenshots)_
 - [x] Cards on the main page, full write-up on `/projects/<slug>/`  _(Done: cards in the work section, pages at `/projects/<slug>/` and `/de/projects/<slug>/`, language switch and hreflang only for translations that exist.)_
 - [x] German versions: at least summaries on the cards; full translations optional at launch _(Audited 2026-11-09: all three case studies are fully translated)_
@@ -288,6 +289,7 @@ Can run alongside Phases 3–4.
 - [x] PDF metadata: title, author, language
 - [x] CI: compile both languages, fail the build on errors, copy outputs to `site/public/cv/` as `Vedad_Dizdarevic_CV_EN.pdf` and `Vedad_Dizdarevic_CV_DE.pdf`
 - [x] Site links the CV in the current page language
+- [x] Projects match the case studies _(The `projects:` list is hand-written; WhoCalledBack added on 2026-11-13 (#147), marked in progress. Both PDFs still 2 pages; the German page 2 is full, so the next entry needs a cut.)_
 - [ ] Optional: site's skills/experience read `cv/data.yaml` (Astro can import YAML via a loader) _(Audited 2026-11-09, still open: optional, not planned)_
 - [x] `cv/reference/` is local only (git-ignored since 2026-11-08); delete the local copies once both PDFs are approved
 
