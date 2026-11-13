@@ -182,6 +182,10 @@ export const de: Messages = {
   tradePrice: 'Preis',
   limitGap: 'Lücke',
   limitNext: 'Nächster Schritt',
+  // StatusTrack: the state word above each stage's title.
+  trackDone: 'Läuft',
+  trackOpen: 'Noch nicht geprüft',
+  trackPlanned: 'Geplant',
   caseOutcome: 'Ergebnis',
   caseCtaText: 'Sie brauchen eine Plattform wie diese für Ihr Produkt?',
   caseCtaButton: 'Kontakt aufnehmen',

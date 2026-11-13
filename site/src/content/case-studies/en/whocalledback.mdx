@@ -137,22 +137,70 @@ Phase 1 costs nothing: the Neon free tier, GitHub Actions and its container regi
 
 ## Where it stands
 
-<Limitations
-  label="What is built, checked and still open for WhoCalledBack"
-  items={[
+<StatusTrack
+  label="Where WhoCalledBack stands, stage by stage"
+  stages={[
     {
-      gap: 'Running: Phase 1 on the Pi',
-      detail: 'The arm64 images run on the Pi as staging. The migration job exited cleanly, the role checks passed against the real Neon database, sign-up works through the private Tailscale address, and the owner’s mailbox syncs through the queue every 30 minutes. The follow-up drafts and the new landing page are deployed too. CI runs the full suite against real services and fails on any skipped test.',
+      state: 'done',
+      title: 'Phase 1 on the Raspberry Pi',
+      items: [
+        'The arm64 images run on the Pi as staging',
+        'The migration job exits cleanly before the API starts',
+        'Role checks pass against the real Neon database',
+        'Sign-up works through the private Tailscale address',
+        'The owner’s mailbox syncs through the queue every 30 minutes',
+        'Follow-up drafts and the new landing page are deployed',
+        'CI runs every test against real services and fails on any skip',
+      ],
       next: 'Keep CI as the gate for every change and every deploy.',
     },
     {
-      gap: 'Not yet checked: the app in daily use',
-      detail: 'The daily reminder job, account deletion and classification of real mail have not run on the Pi, and the follow-up drafts have not been judged on real cases with the real model. The rate limiter may see one client IP for everyone behind Caddy and Tailscale Serve. No real-device or non-Chromium testing yet.',
+      state: 'open',
+      title: 'The app in daily use',
+      lead: 'Built and deployed, but not yet run or judged on the Pi:',
+      items: [
+        'The daily reminder job',
+        'Deleting an account',
+        'Classifying real mail',
+        'Follow-up drafts on real cases, with the real model',
+        'The rate limiter behind Caddy and Tailscale Serve, which may see one client IP for everyone',
+        'Real devices, and browsers other than Chromium',
+      ],
       next: 'Use it daily on the Pi, and write down what fails before the move to AWS.',
     },
     {
-      gap: 'Planned: AWS',
-      detail: 'Lambda, SQS with dead-letter queues, EventBridge Scheduler, KMS, SES, S3 and CloudFront, Terraform with remote state, GitHub OIDC roles instead of keys, plan on pull request and apply behind approval. Before it opens to others: a rate limiter that works across Lambda instances and an API reachable only through CloudFront. Then alarms on every dead-letter queue, a runbook and a postmortem.',
+      state: 'planned',
+      title: 'Phase 2 on AWS',
+      services: [
+        'Lambda',
+        'SQS with dead-letter queues',
+        'EventBridge Scheduler',
+        'KMS',
+        'SES',
+        'S3 and CloudFront',
+        'Terraform',
+        'GitHub OIDC',
+      ],
+      groups: [
+        {
+          label: 'Pipeline',
+          items: [
+            'Remote state, and OIDC roles instead of stored keys',
+            'Plan on every pull request, apply after approval',
+          ],
+        },
+        {
+          label: 'Before anyone else signs up',
+          items: [
+            'A rate limiter that works across Lambda instances',
+            'An API reachable only through CloudFront',
+          ],
+        },
+        {
+          label: 'Then',
+          items: ['Alarms on every dead-letter queue', 'A runbook', 'A postmortem'],
+        },
+      ],
       next: 'Build it, then publish what behaved differently from ElasticMQ and the Pi, with the real cost per service.',
     },
   ]}

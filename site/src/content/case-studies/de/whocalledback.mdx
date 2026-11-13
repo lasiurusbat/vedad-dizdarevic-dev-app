@@ -137,22 +137,70 @@ Phase 1 kostet nichts: das kostenlose Kontingent von Neon, GitHub Actions und se
 
 ## Wo es steht
 
-<Limitations
-  label="Was bei WhoCalledBack gebaut, geprüft und noch offen ist"
-  items={[
+<StatusTrack
+  label="Wo WhoCalledBack steht, Schritt für Schritt"
+  stages={[
     {
-      gap: 'Läuft: Phase 1 auf dem Pi',
-      detail: 'Die arm64-Images laufen als Staging auf dem Pi. Der Migrations-Job endete sauber, die Rollenprüfungen bestanden gegen die echte Neon-Datenbank, die Registrierung funktioniert über die private Tailscale-Adresse, und das Postfach des Eigentümers wird alle 30 Minuten über die Queue abgeglichen. Die Entwürfe zum Nachfassen und die neue Landingpage sind ebenfalls ausgeliefert. Die CI führt alle Tests gegen echte Dienste aus und scheitert bei jedem übersprungenen Test.',
+      state: 'done',
+      title: 'Phase 1 auf dem Raspberry Pi',
+      items: [
+        'Die arm64-Images laufen als Staging auf dem Pi',
+        'Der Migrations-Job endet sauber, bevor die API startet',
+        'Die Rollenprüfungen bestehen gegen die echte Neon-Datenbank',
+        'Die Registrierung funktioniert über die private Tailscale-Adresse',
+        'Das Postfach des Eigentümers wird alle 30 Minuten über die Queue abgeglichen',
+        'Entwürfe zum Nachfassen und die neue Landingpage sind ausgeliefert',
+        'Die CI führt alle Tests gegen echte Dienste aus und scheitert bei jedem übersprungenen',
+      ],
       next: 'Die CI bleibt das Gate für jede Änderung und jeden Deploy.',
     },
     {
-      gap: 'Noch nicht geprüft: die App im täglichen Einsatz',
-      detail: 'Der tägliche Erinnerungs-Job, das Löschen eines Kontos und die Klassifizierung echter Mails liefen noch nicht auf dem Pi, und die Entwürfe zum Nachfassen wurden noch nicht an echten Fällen mit dem echten Modell beurteilt. Der Rate Limiter sieht hinter Caddy und Tailscale Serve womöglich für alle dieselbe Client-IP. Tests auf echten Geräten und außerhalb von Chromium fehlen noch.',
+      state: 'open',
+      title: 'Die App im täglichen Einsatz',
+      lead: 'Gebaut und ausgeliefert, aber auf dem Pi noch nicht gelaufen oder beurteilt:',
+      items: [
+        'Der tägliche Erinnerungs-Job',
+        'Das Löschen eines Kontos',
+        'Die Klassifizierung echter Mails',
+        'Entwürfe zum Nachfassen an echten Fällen, mit dem echten Modell',
+        'Der Rate Limiter hinter Caddy und Tailscale Serve, der womöglich für alle dieselbe Client-IP sieht',
+        'Echte Geräte und Browser außer Chromium',
+      ],
       next: 'Täglich auf dem Pi nutzen und festhalten, was vor dem Umzug auf AWS scheitert.',
     },
     {
-      gap: 'Geplant: AWS',
-      detail: 'Lambda, SQS mit Dead-Letter-Queues, EventBridge Scheduler, KMS, SES, S3 und CloudFront, Terraform mit Remote State, GitHub-OIDC-Rollen statt Schlüsseln, Plan im Pull Request und Apply nach Freigabe. Bevor andere es nutzen: ein Rate Limiter, der über Lambda-Instanzen hinweg wirkt, und eine API, die nur über CloudFront erreichbar ist. Danach Alarme auf jeder Dead-Letter-Queue, ein Runbook und ein Postmortem.',
+      state: 'planned',
+      title: 'Phase 2 auf AWS',
+      services: [
+        'Lambda',
+        'SQS mit Dead-Letter-Queues',
+        'EventBridge Scheduler',
+        'KMS',
+        'SES',
+        'S3 und CloudFront',
+        'Terraform',
+        'GitHub OIDC',
+      ],
+      groups: [
+        {
+          label: 'Pipeline',
+          items: [
+            'Remote State und OIDC-Rollen statt gespeicherter Schlüssel',
+            'Plan bei jedem Pull Request, Apply nach Freigabe',
+          ],
+        },
+        {
+          label: 'Bevor sich andere registrieren',
+          items: [
+            'Ein Rate Limiter, der über Lambda-Instanzen hinweg wirkt',
+            'Eine API, die nur über CloudFront erreichbar ist',
+          ],
+        },
+        {
+          label: 'Danach',
+          items: ['Alarme auf jeder Dead-Letter-Queue', 'Ein Runbook', 'Ein Postmortem'],
+        },
+      ],
       next: 'Bauen, dann veröffentlichen, was sich gegenüber ElasticMQ und dem Pi anders verhielt, samt echten Kosten pro Dienst.',
     },
   ]}

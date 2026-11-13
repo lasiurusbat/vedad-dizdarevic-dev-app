@@ -10,6 +10,7 @@ import Limitations from './Limitations.astro';
 import ProblemLog from './ProblemLog.astro';
 import ScalingPath from './ScalingPath.astro';
 import ScreenshotGallery from './ScreenshotGallery.astro';
+import StatusTrack from './StatusTrack.astro';
 import TechStack from './TechStack.astro';
 import ThemedScreenshot from './ThemedScreenshot.astro';
 import TradeOff from './TradeOff.astro';
@@ -22,6 +23,7 @@ export const mdxComponents = {
   ProblemLog,
   ScalingPath,
   ScreenshotGallery,
+  StatusTrack,
   TechStack,
   ThemedScreenshot,
   TradeOff,
