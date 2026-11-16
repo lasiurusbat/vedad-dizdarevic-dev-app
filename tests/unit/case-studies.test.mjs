@@ -116,6 +116,14 @@ describe('Work with me grid points at real case studies', () => {
           assert.ok(slugs.has(slug), `${s.title}: ${slug}`);
       }
     });
+
+    // A row describes the kind of work in general; the dots point at the projects that show it.
+    test(`${name}: no service description names a project`, () => {
+      const names = t.hireProjects.map((p) => p.name);
+      for (const s of t.hireServices) {
+        for (const n of names) assert.ok(!s.text.includes(n), `${s.title} names ${n}`);
+      }
+    });
   }
 });
 
