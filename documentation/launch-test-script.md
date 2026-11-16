@@ -31,7 +31,7 @@ For each page, both themes (header switch):
 - [ ] **Header and navigation:** every section link scrolls to its section; Contact, CV, GitHub and LinkedIn are reachable.
 - [ ] **Diagrams** (Sorted, Rain Alert, this site): the diagram scrolls sideways inside its box, a swipe on it still scrolls the page, the path buttons (Requests, Mail, Releases, …) highlight one path, the text description opens under it.
 - [ ] **Screenshot gallery** (Sorted, Rain Alert): swipe sideways; tapping a screenshot opens it full size; it closes again; "Actual size" works on large images.
-- [ ] **Work with me:** the services grid is readable; tapping a dot jumps to the section that shows the service.
+- [ ] **Work with me:** the services grid is readable with its four project columns (Sorted, Rain Alert, This site, WhoCalledBack), on a phone and a tablet; tapping a dot jumps to the section that shows the service.
 - [ ] **Contact form:** see section 4.
 - [ ] **CV download** (header and hero button): the PDF opens or downloads in the page's language.
 - [ ] **Rotate the phone** to landscape and back: nothing breaks.

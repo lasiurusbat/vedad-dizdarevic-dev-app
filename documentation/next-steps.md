@@ -2,9 +2,18 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-13 (WhoCalledBack brought up to date; launch tasks unchanged)
+## Stopped at: 2026-11-16 (WhoCalledBack in the Work with me grid; launch tasks unchanged)
 
-**State:** everything up to #148 is merged; the only open PR is the one that wrote this section. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (see 2026-11-10 below).
+**State:** everything up to #152 is merged; the only open PR is the one that wrote this section. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (about 2026-11-26, see 2026-11-10 below).
+
+- **#151 (2026-11-13):** the "Where it stands" open stage says the app is in daily use on the Pi, in the owner's words.
+- **#152 (2026-11-16):** WhoCalledBack is the fourth column of "What I can do for your team" (EN, DE). Dots only where its page shows the work: CI/CD (`from-a-branch-push-to-the-pi`, DE `vom-branch-push-auf-den-pi`) and security hardening (`isolation-enforced-by-the-database`, DE `isolation-durch-die-datenbank`). No dot for AWS architecture, IaC, ECS/Fargate (nothing on AWS yet), monitoring (only a health check) or cost reduction (the row's text is Sorted's 64%). The unit test that kept in-progress projects out of the grid now fails if one gets a dot in an AWS, ECS or Terraform row. Four columns crushed the description at 768px, so the grid keeps the phone layout up to 64rem; the column heading breaks "WhoCalledBack" between its words with `<wbr>`.
+- **Open question for the owner:** count WhoCalledBack's €0 Phase 1 under "AWS cost reduction"? The row's text would need new wording, since it names Sorted only.
+- **Next for WhoCalledBack:** when the AWS phase lands, update the status line and date, the track's stages, the CV entry and the e2e status regex together, and revisit the AWS rows of the grid (architecture, IaC, cost) with the sections that then show them; once live, drop `stage` and write the full case study.
+
+## 2026-11-13: WhoCalledBack brought up to date
+
+**State:** everything up to #148 was merged.
 
 **2026-11-11:** WhoCalledBack teaser (#140, `stage: 'in-progress'`), its header illustration `Ports.astro` (#144), the header-illustration clip fix and stat values on one line (#143), CI without the Ubuntu mirrors (`apt-install`, `setup-playwright`, #142), and the Gained | Price ledger drawn as a diff (#145).
 
@@ -13,7 +22,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 - **Page (#146):** rewritten from `case-studies/WhoCalledBack-Case-Study.md` (status as of 2026-11-13). Phase 1 runs on the Pi as `staging`, the follow-up drafts and the new landing page included (the owner confirmed both are deployed). New sections: queue fan-out, the deploy path to the Pi with a problem log, the whocalledback.com coming-soon Worker (linked in the body, not `liveLinks`), data kept out of logs and the model, cost. Status reads "not yet deployed to AWS"; the e2e regex follows it.
 - **CV (#147):** WhoCalledBack added after Rain Alert, marked in progress, linking whocalledback.com. The CV's project list is hand-written, which is why it was missing. Both PDFs stay at 2 pages; the German page 2 is now full.
 - **"Where it stands" (#148):** a new `StatusTrack` component (three stages on a rail: Running, Not yet checked, Planned) replaces the `Limitations` table on this page only.
-- **Next for WhoCalledBack:** when the AWS phase lands, update the status line and date, the track's stages, the CV entry and the e2e status regex together; once live, drop `stage`, add Work with me dots and write the full case study.
+- **Next for WhoCalledBack (as of 2026-11-13):** superseded by the 2026-11-16 entry above.
 
 ## 2026-11-10: Phase 10 done except one manual fallback; Phase 11 started
 
