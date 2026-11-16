@@ -1,7 +1,7 @@
 import type { ContactType } from '@vdd/contact-schema';
 
 /** A case study that the Work with me grid has a column for. */
-type HireSlug = 'sorted' | 'rainalert' | 'this-site';
+type HireSlug = 'sorted' | 'rainalert' | 'this-site' | 'whocalledback';
 interface HireProject {
   slug: HireSlug;
   name: string;
@@ -88,6 +88,7 @@ export const en = {
     { slug: 'sorted', name: 'Sorted' },
     { slug: 'rainalert', name: 'Rain Alert' },
     { slug: 'this-site', name: 'This site' },
+    { slug: 'whocalledback', name: 'WhoCalledBack' },
   ] as HireProject[],
   hireServices: [
     {
@@ -110,6 +111,7 @@ export const en = {
         sorted: 'keyless-delivery',
         rainalert: 'a-release-is-a-git-tag',
         'this-site': 'no-stored-keys-in-ci',
+        whocalledback: 'from-a-branch-push-to-the-pi',
       },
     },
     {
@@ -133,6 +135,7 @@ export const en = {
         sorted: 'a-perimeter-by-construction',
         rainalert: 'fail-closed',
         'this-site': 'security-headers-in-one-place',
+        whocalledback: 'isolation-enforced-by-the-database',
       },
     },
     {

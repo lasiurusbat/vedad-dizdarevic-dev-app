@@ -73,6 +73,7 @@ export const de: Messages = {
     { slug: 'sorted', name: 'Sorted' },
     { slug: 'rainalert', name: 'Rain Alert' },
     { slug: 'this-site', name: 'Diese Website' },
+    { slug: 'whocalledback', name: 'WhoCalledBack' },
   ],
   hireServices: [
     {
@@ -95,6 +96,7 @@ export const de: Messages = {
         sorted: 'deployment-ohne-schlüssel',
         rainalert: 'ein-release-ist-ein-git-tag',
         'this-site': 'keine-gespeicherten-schlüssel-in-der-ci',
+        whocalledback: 'vom-branch-push-auf-den-pi',
       },
     },
     {
@@ -118,6 +120,7 @@ export const de: Messages = {
         sorted: 'perimeter-durch-konstruktion',
         rainalert: 'im-zweifel-geschlossen',
         'this-site': 'security-header-an-einer-stelle',
+        whocalledback: 'isolation-durch-die-datenbank',
       },
     },
     {
