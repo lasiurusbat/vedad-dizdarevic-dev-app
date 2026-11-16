@@ -70,7 +70,7 @@ Chromium is covered by Playwright, so Firefox and Safari matter most.
 ## 6. Reading the text
 
 - [ ] Read every page in English once, start to finish: wrong claims, typos, anything you would not say to a client.
-- [ ] Read every page in German once, ideally with a native speaker: tone (formal "Sie"), wording, anything that sounds translated.
+- [ ] Read every page in German once, ideally with a native speaker: tone (formal "Sie"), wording, anything that sounds translated. In Work with me, check the new "AWS-Kostenoptimierung" row: its text runs to four lines on desktop and may want shortening.
 - [ ] Every number is one you can defend: cost figures are labelled estimates, Sorted's Multi-AZ is described as designed and not running, no customer, revenue or traffic claims.
 - [ ] Names, dates, job titles and the AWS certification status ("In progress") match the CV and LinkedIn.
 - [ ] Nothing mentions a placeholder, a demo you did not mean to ship or an old product name.

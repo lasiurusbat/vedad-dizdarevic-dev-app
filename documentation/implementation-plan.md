@@ -264,6 +264,7 @@ Single page with anchored sections, plus a detail page per case study.
 - [x] CTA to the contact form (Phase 6) or a booking link _(Audited 2026-11-09: the email button and the contact form below it; no booking tool)_
 - [x] EN + DE _(Audited 2026-11-09: both languages)_
 - [x] Services grid covers every project that runs somewhere _(2026-11-16, #152: WhoCalledBack added as a fourth column, with CI/CD and security dots only; the grid keeps the phone layout up to 64rem)_
+- [x] Service rows describe the work in general, never one project _(2026-11-16, #154, the owner's rule: "AWS cost reduction" with Sorted's 64% became "AWS cost optimization", with dots for Sorted and this site; a unit test checks it)_
 
 ### How this site is built
 

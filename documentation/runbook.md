@@ -110,7 +110,7 @@ The Typst version is pinned in `.github/actions/setup-typst`. `cv/reference/` ho
 2. Images go through the Astro image pipeline (`ThemedScreenshot`, `ScreenshotGallery`), never into `public/`. Every image needs real alt text; every diagram needs a text alternative in both languages.
 3. `draft: true` keeps it out of production builds; `SHOW_DRAFTS=1` (and `dev`) shows it.
 4. Run `pnpm --filter @vdd/site dev` to look at it; `pnpm --filter @vdd/e2e test` runs the checks. The sweep test finds the new page by itself and checks overflow, images, console errors and axe.
-5. The case study order and the "Next case study" loop follow `order` in the frontmatter. Add an entry to the Work with me grid only where the page really shows that service (`hireServices` in the i18n files).
+5. The case study order and the "Next case study" loop follow `order` in the frontmatter. Add the project as a column of the Work with me grid (`hireProjects`) and give it a dot (`proof` in `hireServices`, both i18n files) only where the page really shows that service. Row descriptions stay general and never name a project; the unit tests check both.
 
 **Tried:** done three times (Sorted, Rain Alert, this site).
 
