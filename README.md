@@ -4,7 +4,7 @@ Source for the personal portfolio site of Vedad Dizdarevic, Cloud & DevOps Engin
 
 The site is itself a portfolio project: a static, bilingual (EN/DE) site with infrastructure as code, CI/CD and monitoring. This repo holds the application. Terraform lives in the sibling **infra** repo.
 
-> **Status:** the site is live. Phases 1–3 are done (tooling, infrastructure, design system and layout) and Phase 4 (content) is in progress: hero, case study pages (Sorted in English), certifications. Remaining work is in the [implementation plan](documentation/implementation-plan.md) and [next steps](documentation/next-steps.md).
+> **Status:** the site is live in English and German, with four case studies (Sorted, Rain Alert, this site, and WhoCalledBack, in progress), a Typst CV, the contact form and a Work with me grid that links each service to the case study section that shows it. Hardening, monitoring and operations are done; the launch phase waits on a device and proofreading pass. Remaining work is in the [implementation plan](documentation/implementation-plan.md) and [next steps](documentation/next-steps.md).
 
 ## Architecture
 
@@ -27,7 +27,7 @@ Browser → Cloudflare (DNS, CDN, TLS, Worker) → private S3 bucket (eu-central
 | `lambda/contact/`    | Contact form handler                                                           |
 | `case-studies/`      | Source notes and raw screenshots, one `cs_<project>/` folder per case study    |
 | `cv/`                | Typst template and data for the EN and DE CV PDFs                              |
-| `tests/`             | `e2e/` Playwright checks, `smoke/` post-deploy checks                          |
+| `tests/`             | `e2e/` Playwright checks, `unit/` content rules, `smoke/` post-deploy checks   |
 | `documentation/`     | Scope, tech stack, implementation plan, roadmap                                |
 | `.github/workflows/` | CI/CD for the site and Worker                                                  |
 
@@ -49,7 +49,8 @@ pnpm --filter @vdd/site dev        # http://localhost:4321/ (draft case studies 
 pnpm --filter @vdd/site check      # astro check (types)
 pnpm --filter @vdd/site build
 pnpm --filter @vdd/worker test     # Worker tests (Vitest in the Workers runtime)
-pnpm --filter @vdd/e2e test        # Playwright + axe against a fresh build
+node --test "tests/unit/*.test.mjs" # content rules (copy, case studies, Work with me grid)
+pnpm --filter @vdd/e2e test        # Playwright + axe against site/dist (build first)
                                    # first run: pnpm --filter @vdd/e2e exec playwright install chromium
 ```
 
@@ -67,7 +68,7 @@ CI authenticates to AWS through OIDC, with no long-lived AWS keys. The bucket, d
 
 ## Quality gates
 
-ESLint, Prettier, gitleaks, the Worker tests, the site build and the Playwright + axe sweep (`e2e`) run in CI and fail the build when they regress. Lighthouse budgets and html-validate arrive in Phase 9.
+ESLint, Prettier, gitleaks, the Worker tests, the unit tests, the site build with html-validate and the internal link check, the Playwright + axe sweep (`e2e`) with page-weight budgets, and Lighthouse CI run in CI and fail the build when they regress. External links are checked weekly.
 
 ## Documentation
 
@@ -76,3 +77,5 @@ ESLint, Prettier, gitleaks, the Worker tests, the site build and the Playwright 
 - [Implementation plan](documentation/implementation-plan.md): phases and tasks
 - [Roadmap](documentation/roadmap.md): milestones and schedule
 - [Next steps](documentation/next-steps.md): where the last session stopped
+- [Runbook](documentation/runbook.md): alarms, rollbacks and key rotation
+- [Launch test script](documentation/launch-test-script.md): the owner's device and proofreading pass
