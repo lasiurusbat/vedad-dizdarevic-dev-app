@@ -5,8 +5,9 @@
  * service and links to the section that does. Green is for the status only; dots use the accent.
  *
  * A dot is a claim: add one only when that section really shows the service (the e2e test checks
- * that every target exists, not that it is true). A service shown only outside the three case
- * studies (Kubernetes) has no dots and links its repository in the text instead; it comes last.
+ * that every target exists, not that it is true). A service shown only outside the case studies
+ * (Kubernetes) has no dots and links its repository in the text instead; it comes last.
+ * WhoCalledBack runs on a Raspberry Pi, not yet on AWS, so it has no dots in the AWS rows.
  * The email button stays until the contact form exists (Phase 6).
  *
  * The grid is a table to screen readers. It is laid out with CSS grid so that on phones the
@@ -69,7 +70,15 @@ const t = useTranslations(locale);
         </span>
         {t.hireProjects.map((p) => (
           <span class="col" role="columnheader">
-            <a href={caseStudyPath(locale, p.slug)}>{p.name}</a>
+            <a href={caseStudyPath(locale, p.slug)}>
+              {/* A one-word name like WhoCalledBack may break between its words, or it overflows. */}
+              {p.name.split(/(?<=[a-z])(?=[A-Z])/).map((part, i) => (
+                <>
+                  {i > 0 && <wbr />}
+                  {part}
+                </>
+              ))}
+            </a>
           </span>
         ))}
       </div>
@@ -222,8 +231,8 @@ const t = useTranslations(locale);
 
   .row {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) repeat(3, 3.25rem);
-    column-gap: 0.25rem;
+    grid-template-columns: minmax(0, 1fr) repeat(4, 3rem);
+    column-gap: 0.125rem;
     align-items: center;
     padding-block: 0.625rem;
     border-bottom: 1px solid var(--border);
@@ -260,9 +269,11 @@ const t = useTranslations(locale);
     text-decoration-color: currentColor;
   }
 
-  @media (min-width: 48rem) {
+  /* Four project columns leave too little room for the description on tablets, so it keeps its
+     own line until 64rem. */
+  @media (min-width: 64rem) {
     .row {
-      grid-template-columns: 15rem minmax(0, 1fr) repeat(3, 5.5rem);
+      grid-template-columns: 14rem minmax(0, 1fr) repeat(4, 5.5rem);
       column-gap: 1rem;
       padding-block: 0.25rem;
     }

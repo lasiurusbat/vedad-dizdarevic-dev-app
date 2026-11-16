@@ -83,12 +83,13 @@ describe('case studies: an in-progress teaser never looks live', () => {
       });
     }
 
-    test(`${slug}: not in the Work with me grid until something is deployed`, () => {
+    // It runs on a Raspberry Pi, not on AWS: no dot may claim AWS, ECS or Terraform work from it.
+    test(`${slug}: no Work with me dots in the AWS rows while it is in progress`, () => {
       for (const t of [en, de]) {
-        assert.ok(
-          !t.hireProjects.some((p) => p.slug === slug),
-          `${slug} is listed in hireProjects`,
-        );
+        for (const s of t.hireServices) {
+          if (/AWS|ECS|Fargate|Terraform/.test(`${s.title} ${s.text}`))
+            assert.ok(!s.proof?.[slug], `${s.title} has a dot for ${slug}`);
+        }
       }
     });
   }
