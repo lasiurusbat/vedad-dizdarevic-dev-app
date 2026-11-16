@@ -139,9 +139,12 @@ export const en = {
       },
     },
     {
-      title: 'AWS cost reduction',
-      text: "Sorted's dev costs an estimated 64% less, from the AWS bill.",
-      proof: { sorted: 'cost-per-environment' },
+      title: 'AWS cost optimization',
+      text: 'Budgets and tags that show where the money goes, then cheaper compute and networking per environment.',
+      proof: {
+        sorted: 'cost-per-environment',
+        'this-site': 'costs-and-alarms-on-a-shared-account',
+      },
     },
     {
       title: 'Kubernetes on AWS EKS',

@@ -124,9 +124,12 @@ export const de: Messages = {
       },
     },
     {
-      title: 'AWS-Kosten senken',
-      text: 'Dev von Sorted: schätzungsweise 64 % weniger, aus der AWS-Rechnung.',
-      proof: { sorted: 'kosten-pro-umgebung' },
+      title: 'AWS-Kostenoptimierung',
+      text: 'Budgets und Tags, die zeigen, wohin das Geld fließt, dann günstigere Rechenleistung und Netzwerke pro Umgebung.',
+      proof: {
+        sorted: 'kosten-pro-umgebung',
+        'this-site': 'kosten-und-alarme-auf-einem-geteilten-konto',
+      },
     },
     {
       title: 'Kubernetes auf AWS EKS',
