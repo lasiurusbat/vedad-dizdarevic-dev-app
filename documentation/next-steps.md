@@ -4,7 +4,7 @@ Working log for picking up where the last session stopped. Task-level detail sta
 
 ## Stopped at: 2026-11-16 (WhoCalledBack in the Work with me grid; launch tasks unchanged)
 
-**State:** everything up to #153 is merged; the only open PR is #154, which also wrote this section. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (about 2026-11-26, see 2026-11-10 below).
+**State:** everything up to #154 is merged; the only open PR is the one that wrote this line. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (about 2026-11-26, see 2026-11-10 below).
 
 - **#151 (2026-11-13):** the "Where it stands" open stage says the app is in daily use on the Pi, in the owner's words.
 - **#152 (2026-11-16):** WhoCalledBack is the fourth column of "What I can do for your team" (EN, DE). Dots only where its page shows the work: CI/CD (`from-a-branch-push-to-the-pi`, DE `vom-branch-push-auf-den-pi`) and security hardening (`isolation-enforced-by-the-database`, DE `isolation-durch-die-datenbank`). No dot for AWS architecture, IaC, ECS/Fargate (nothing on AWS yet), monitoring (only a health check) or cost (Phase 1 is not on AWS). The unit test that kept in-progress projects out of the grid now fails if one gets a dot in an AWS, ECS or Terraform row. Four columns crushed the description at 768px, so the grid keeps the phone layout up to 64rem; the column heading breaks "WhoCalledBack" between its words with `<wbr>`.
