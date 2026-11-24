@@ -21,6 +21,7 @@ export const skillGroups: SkillGroup[] = [
     id: 'cloud',
     title: { en: 'Cloud (AWS)', de: 'Cloud (AWS)' },
     items: [
+      'EKS',
       'ECS/Fargate',
       'ECR',
       'RDS',
@@ -35,7 +36,6 @@ export const skillGroups: SkillGroup[] = [
       'EventBridge',
       'CloudWatch',
       'Elastic Beanstalk',
-      'EKS',
     ],
   },
   {
