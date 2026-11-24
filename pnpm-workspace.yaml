@@ -4,3 +4,10 @@ packages:
   - lambda/contact
   - tests/e2e
   - packages/*
+
+# @emnapi 2.0.0-beta.x satisfies an optional peer range, but @napi-rs/wasm-runtime still loads
+# @emnapi/core 1.x, and the mixed pair crashes `astro check` ("this.bridge.setLastError is not a
+# function", Dependabot #159). Keep both on 1.x until the tools move to 2.x together.
+overrides:
+  '@emnapi/core': ^1.11.3
+  '@emnapi/runtime': ^1.11.3
