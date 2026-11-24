@@ -44,8 +44,8 @@ profile:
 skills:
   - label: { en: Cloud (AWS), de: Cloud (AWS) }
     items:
-      en: 'ECS/Fargate, ECR, RDS, ALB, VPC, IAM (OIDC, least privilege), SES, SNS, S3, KMS, Secrets Manager, CloudWatch, Elastic Beanstalk, EventBridge, EKS'
-      de: 'ECS/Fargate, ECR, RDS, ALB, VPC, IAM (OIDC, Least Privilege), SES, SNS, S3, KMS, Secrets Manager, CloudWatch, Elastic Beanstalk, EventBridge, EKS'
+      en: 'EKS, ECS/Fargate, ECR, RDS, ALB, VPC, IAM (OIDC, least privilege), SES, SNS, S3, KMS, Secrets Manager, CloudWatch, Elastic Beanstalk, EventBridge'
+      de: 'EKS, ECS/Fargate, ECR, RDS, ALB, VPC, IAM (OIDC, Least Privilege), SES, SNS, S3, KMS, Secrets Manager, CloudWatch, Elastic Beanstalk, EventBridge'
   - label: { en: Infrastructure as Code, de: Infrastructure as Code }
     items:
       en: 'Terraform (modules, multi-environment, multi-region, S3 remote state, Terraform tests)'
