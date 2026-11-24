@@ -2,9 +2,17 @@
 
 Working log for picking up where the last session stopped. Task-level detail stays in [implementation-plan.md](implementation-plan.md), the schedule in [roadmap.md](roadmap.md). Overwrite this file at the end of each session.
 
-## Stopped at: 2026-11-16 (WhoCalledBack in the Work with me grid; launch tasks unchanged)
+## Stopped at: 2026-11-24 (EKS first in Skills and the CV; a Dependabot fix)
 
-**State:** everything up to #154 is merged; the only open PR is the one that wrote this line. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (about 2026-11-26, see 2026-11-10 below).
+**State:** everything up to #159 is merged; #161, #162 and the PR that wrote this section are open. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (about 2026-11-26, see 2026-11-10 below).
+
+- **#161:** EKS moves from the end of the Cloud (AWS) skills group to the front, before ECS/Fargate (owner's request).
+- **#162:** the same order in the CV's AWS skills line (EN, DE); both PDFs stay at 2 pages.
+- **#159 (Dependabot, 16 minor and patch updates):** `site` failed in `astro check` because `@emnapi/runtime` resolved to `2.0.0-beta.2` next to `@emnapi/core` 1.11.3. Fixed on the PR branch with a `pnpm-workspace.yaml` override keeping both on `^1.11.3` and a targeted `pnpm update` to clear the stale lockfile entries; all six checks passed and it is merged. Drop the override when both packages move to 2.x together.
+
+## 2026-11-16: WhoCalledBack in the Work with me grid
+
+**State:** everything up to #154 was merged. Phase 11 still waits on the owner's device and proofreading pass and on DMARC `p=reject` (about 2026-11-26, see 2026-11-10 below).
 
 - **#151 (2026-11-13):** the "Where it stands" open stage says the app is in daily use on the Pi, in the owner's words.
 - **#152 (2026-11-16):** WhoCalledBack is the fourth column of "What I can do for your team" (EN, DE). Dots only where its page shows the work: CI/CD (`from-a-branch-push-to-the-pi`, DE `vom-branch-push-auf-den-pi`) and security hardening (`isolation-enforced-by-the-database`, DE `isolation-durch-die-datenbank`). No dot for AWS architecture, IaC, ECS/Fargate (nothing on AWS yet), monitoring (only a health check) or cost (Phase 1 is not on AWS). The unit test that kept in-progress projects out of the grid now fails if one gets a dot in an AWS, ECS or Terraform row. Four columns crushed the description at 768px, so the grid keeps the phone layout up to 64rem; the column heading breaks "WhoCalledBack" between its words with `<wbr>`.
